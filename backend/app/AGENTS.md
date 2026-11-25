@@ -21,3 +21,10 @@ with a separate repository-structure-v1 contract. Never execute/import target co
 or emit literal values. Preserve unresolved/ambiguous evidence and classify
 heuristics as inferred. See STRUCTURE_INTEGRATION.md. Stop before Phase 5; no
 full graph, impact mapping, architecture adapter, API/frontend or Gemini work.
+
+The user subsequently authorized Phase 5 architecture dependency graphs using
+existing NetworkX and RepositoryStructure. Graph edges must be importer -> imported
+with all supporting evidence; no fabricated unresolved edges or runtime-call claims.
+Preserve confidence/coverage and bound traversal. See ARCHITECTURE_INTEGRATION.md.
+Commit/push only security-analysis. Stop before the complete Phase 6 impact mapper;
+no API/frontend/Gemini work or metric-only architecture quality verdicts.

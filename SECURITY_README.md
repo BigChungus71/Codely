@@ -140,3 +140,24 @@ Phase 4 verification: 61 new AST tests and 210 total passing tests, including
 19 native scanner/checklist tests. No dependencies or prior finding/checklist
 contracts changed. Import evidence is not a complete runtime call graph.
 No Phase 5 graph or impact mapping is implemented.
+
+## Phase 5 architecture dependencies
+
+Build an observed import graph from existing structure without parsing again:
+
+```python
+from backend.app.analyzers.architecture_graph import build_architecture_graph
+architecture = build_architecture_graph(structure)
+payload = architecture.to_dict()
+```
+
+The NetworkX DiGraph preserves importer -> imported direction, merged import
+evidence, confidence-labeled roles, graph metrics, SCC/cycle witnesses and bounded
+forward/reverse traversal helpers. See [ARCHITECTURE_INTEGRATION.md](ARCHITECTURE_INTEGRATION.md),
+[the schema](contracts/architecture-graph-v1.schema.json) and
+[the representative JSON](contracts/examples/architecture-graph-v1.json).
+
+Phase 5: 281 total passing tests, including 71 new graph tests and all 19 native
+scanner/checklist tests. No extra dependency is installed. This is static import
+evidence, not a complete runtime call graph or quality/security verdict. No full
+Phase 6 vulnerability impact mapper or frontend/API implementation is included.

@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely architecture graph v1 (compatible minimum)",
+  "type": "object",
+  "required": [
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "error"
+      ]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "type",
+          "file"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fan_in": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fan_out": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "classification_confidence": {
+            "enum": [
+              "confirmed",
+              "inferred",
+              "unclassified"
+            ]
+          },
+          "classifications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "confidence",
+                "reason",
+                "evidence"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "confirmed",
+                    "inferred"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "object",
+                  "required": [
+                    "file"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source",
+          "target",
+          "relationship"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "import_id",
+                "file",
+                "start_line",
+                "end_line",
+                "resolution",
+                "conditional",
+                "target_parsed"
+              ],
+              "properties": {
+                "import_id": {
+                  "type": "string"
+                },
+                "file": {
+                  "type": "string"
+                },
+                "start_line": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end_line": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "resolution": {
+                  "const": "internal"
+                },
+                "conditional": {
+                  "type": "boolean"
+                },
+                "target_parsed": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "statistics": {
+      "type": "object"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code"
+        ]
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "structure_status": {
+          "type": "string"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

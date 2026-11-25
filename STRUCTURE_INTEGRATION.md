@@ -183,3 +183,7 @@ Phase 5 can later aggregate these import records into React Flow/NetworkX nodes
 and edges, preserve all source evidence and traverse incoming dependencies. This
 release adds neither that graph nor impact/cycle/rule analysis. The existing
 architecture hook is deliberately not pointed at this richer structure contract.
+
+Phase 5 now consumes this unchanged structure interface through
+`architecture_graph.build_architecture_graph(structure)`. See
+ARCHITECTURE_INTEGRATION.md for graph/traversal contracts and limits.

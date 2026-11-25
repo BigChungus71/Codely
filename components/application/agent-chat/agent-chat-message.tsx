@@ -3,9 +3,17 @@
 import { useTemplateCopy } from "@/components/foundations/template-copy/template-copy";
 
 import { RiCheckLine, RiFileCopyLine, RiVolumeMuteLine, RiVolumeUpLine } from "@remixicon/react";
+import type { UIMessage } from "ai";
 import { motion, useReducedMotion } from "motion/react";
-import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import {
+  CodelyResearchLog,
+  matchResearchPlan,
+  type ResearchLogPartData,
+  type ResearchStep,
+} from "@/components/application/agent-chat/codely-research-log";
+import type { ChatMessageMetadata } from "@/components/application/agent-chat/codely-research-plan";
 import { Logo } from "@/components/foundations/brand/logo";
 import { cx } from "@/utils/cx";
 
@@ -24,17 +32,122 @@ import { cx } from "@/utils/cx";
 export interface AgentMessageProps {
   role: string;
   text: string;
+  /** Full AI SDK parts array, carrying live/persisted `data-research` and `reasoning` parts. */
+  parts?: UIMessage["parts"];
+  /** Optional message metadata emitted by `/api/chat` or `DemoTransport`. */
+  metadata?: unknown;
+  /** The user prompt this assistant message answers, used as fallback for legacy threads. */
+  userPrompt?: string;
   /** True while this message is still being streamed. */
   streaming?: boolean;
+  /** True if the request terminated with an error. */
+  hasError?: boolean;
   /** When the message first appeared, for the hover timestamp. */
   at?: number;
 }
 
-export function AgentMessage({ role, text, streaming = false, at }: AgentMessageProps) {
+function isResearchData(value: unknown): value is ResearchLogPartData {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Partial<ResearchLogPartData>;
+  return (
+    typeof candidate.mode === "string" &&
+    typeof candidate.headline === "string" &&
+    typeof candidate.status === "string" &&
+    Array.isArray(candidate.steps)
+  );
+}
+
+function findResearchPartData(parts: UIMessage["parts"] | undefined): ResearchLogPartData | undefined {
+  if (!parts) return undefined;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const part = parts[i];
+    if (part.type === "data-research" && "data" in part && isResearchData(part.data)) {
+      return part.data;
+    }
+  }
+  return undefined;
+}
+
+function parseMetadata(metadata: unknown): ChatMessageMetadata | undefined {
+  if (typeof metadata !== "object" || metadata === null) return undefined;
+  return metadata as ChatMessageMetadata;
+}
+
+function reasoningStepsFromText(reasoning: string): ResearchStep[] {
+  const chunks = reasoning
+    .split(/\n{2,}/)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+    .slice(-4);
+  if (chunks.length === 0) return [];
+  return chunks.map((chunk, index) => {
+    const firstBreak = chunk.indexOf("\n");
+    const firstLine = (firstBreak === -1 ? chunk : chunk.slice(0, firstBreak)).trim();
+    const rest = firstBreak === -1 ? "" : chunk.slice(firstBreak + 1).trim();
+    const title =
+      firstLine.length > 72 ? `Thinking step ${index + 1}` : firstLine || `Thinking step ${index + 1}`;
+    const detailSource = rest || (firstLine.length > 72 ? firstLine : "");
+    const detail = detailSource.length > 180 ? `${detailSource.slice(0, 177)}…` : detailSource;
+    return { title, detail };
+  });
+}
+
+export function AgentMessage({
+  role,
+  text,
+  parts,
+  metadata: rawMetadata,
+  userPrompt,
+  streaming = false,
+  hasError = false,
+  at,
+}: AgentMessageProps) {
   const localize = useTemplateCopy();
-  if (!text) return null;
+  const metadata = useMemo(() => parseMetadata(rawMetadata), [rawMetadata]);
+  const streamedResearch = useMemo(() => findResearchPartData(parts), [parts]);
+
+  const reasoningInfo = useMemo(() => {
+    if (!parts) return { text: "", active: false };
+    const reasoningParts = parts.filter(
+      (part): part is Extract<UIMessage["parts"][number], { type: "reasoning" }> =>
+        part.type === "reasoning",
+    );
+    return {
+      text: reasoningParts.map((part) => part.text).join("\n\n").trim(),
+      active: reasoningParts.some((part) => part.state === "streaming"),
+    };
+  }, [parts]);
+
+  const legacyPlan = useMemo(
+    () => (role === "assistant" && !streamedResearch && !reasoningInfo.text ? matchResearchPlan(userPrompt) : null),
+    [role, streamedResearch, reasoningInfo.text, userPrompt],
+  );
+
+  const reasoningData: ResearchLogPartData | undefined = useMemo(() => {
+    if (streamedResearch || !reasoningInfo.text) return undefined;
+    const status = hasError
+      ? "error"
+      : streaming || reasoningInfo.active
+        ? "running"
+        : metadata?.status === "aborted"
+          ? "aborted"
+          : "complete";
+    return {
+      mode: "thinking",
+      headline: "Model thinking",
+      workingLabel: "Thinking…",
+      status,
+      steps: reasoningStepsFromText(reasoningInfo.text),
+      startedAt: metadata?.startedAt ?? at ?? 0,
+      completedAt: metadata?.completedAt,
+      durationMs: metadata?.durationMs,
+    };
+  }, [streamedResearch, reasoningInfo.text, reasoningInfo.active, hasError, streaming, metadata, at]);
+
+  const researchData = streamedResearch ?? reasoningData;
 
   if (role === "user") {
+    if (!text) return null;
     return localize((
       <div className="ms-auto flex max-w-[78%] flex-col items-end gap-1">
         <span className="px-1 text-caption-1-medium text-text-tertiary">You</span>
@@ -45,20 +158,31 @@ export function AgentMessage({ role, text, streaming = false, at }: AgentMessage
     ));
   }
 
+  if (!text && !researchData && !legacyPlan) return null;
+
   return localize((
     <div className="group/message flex items-start gap-2.5 px-1">
-      <Logo size={28} className="mt-0.5 rounded-lg" />
+      <Logo size={24} className="mt-1" />
       <div className="flex min-w-0 max-w-[85%] flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <span className="text-caption-1-semibold text-text-primary">Codely</span>
-          <span className="rounded-full bg-background-tertiary-default px-1.5 py-0.5 text-[10px] font-medium leading-none text-text-secondary">
-            AI Bot
-          </span>
         </div>
-        <div className="rounded-2xl rounded-ss-sm border border-border-button-default bg-background-primary-default px-4 py-3 shadow-xs">
-          <StreamedText text={text} />
-        </div>
-        <MessageActions text={text} at={at} hidden={streaming} />
+        {(researchData || legacyPlan) && (
+          <CodelyResearchLog
+            data={researchData}
+            plan={legacyPlan ?? undefined}
+            streaming={streaming}
+            hasError={hasError}
+            startedAt={metadata?.startedAt ?? at}
+            durationMs={metadata?.durationMs}
+          />
+        )}
+        {text && (
+          <div className="rounded-2xl rounded-ss-sm border border-border-button-default bg-background-primary-default px-4 py-3 shadow-xs">
+            <StreamedText text={text} />
+          </div>
+        )}
+        {text && <MessageActions text={text} at={at} hidden={streaming} />}
       </div>
     </div>
   ));
@@ -66,22 +190,14 @@ export function AgentMessage({ role, text, streaming = false, at }: AgentMessage
 
 /**
  * Paragraphs, each softening in once as it first appears.
- *
- * The animation deliberately lives at the line level rather than the word
- * level. Animating words looks worse in practice: a token arrives as a
- * fragment, the blur-in plays on that fragment, and then the fragment mutates
- * to the finished word with no transition — which reads as a stutter. It also
- * forces a swap from animated spans back to plain text when the stream ends,
- * and everything mid-flight snaps at once.
- *
- * A line mounts exactly once and then only grows, so nothing ever restarts or
- * snaps. Evenness of the text itself comes from the server, which releases
- * whole words on a steady tick (see `smoothStream` in the route).
  */
 export function StreamedText({ text, paragraphs = false }: { text: string; paragraphs?: boolean }) {
   const localize = useTemplateCopy();
   const reduceMotion = useReducedMotion();
-  const lines = useMemo(() => text.split(paragraphs ? /\n\s*\n/ : "\n").filter((line) => line.trim() !== ""), [text, paragraphs]);
+  const lines = useMemo(
+    () => text.split(paragraphs ? /\n\s*\n/ : "\n").filter((line) => line.trim() !== ""),
+    [text, paragraphs],
+  );
 
   return localize((
     <div className="flex flex-col gap-3">
@@ -92,25 +208,10 @@ export function StreamedText({ text, paragraphs = false }: { text: string; parag
   ));
 }
 
-/**
- * At module scope so their identity is stable. A line re-renders on every
- * token of the reply — dozens of times a second — and handing Motion a fresh
- * object literal each time invites it to re-evaluate a target that has not
- * actually changed.
- */
 const LINE_HIDDEN = { opacity: 0, filter: "blur(5px)", y: 4 };
 const LINE_SHOWN = { opacity: 1, filter: "blur(0px)", y: 0 };
 const LINE_TRANSITION = { duration: 0.42, ease: [0.22, 0.61, 0.36, 1] } as const;
 
-/**
- * A settled line keeps `filter: blur(0px)` rather than losing the filter
- * altogether — Motion owns that property once it animates it, and a `style`
- * override does not win it back. At one filtered element per paragraph the
- * cost is invisible; it was only a problem when every word carried its own.
- *
- * memo matters here: without it every paragraph re-renders on each token of
- * the reply, which is wasted work for the lines that are already finished.
- */
 const Line = memo(function Line({ text, animate }: { text: string; animate: boolean }) {
   return (
     <motion.p
@@ -128,6 +229,7 @@ function MessageActions({ text, at, hidden }: { text: string; at?: number; hidde
   const localize = useTemplateCopy();
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const speakingRef = useRef(false);
 
   useEffect(() => {
     if (!copied) return;
@@ -135,11 +237,13 @@ function MessageActions({ text, at, hidden }: { text: string; at?: number; hidde
     return () => clearTimeout(timer);
   }, [copied]);
 
-  // Speech keeps running if the component goes away mid-sentence, so it is
-  // cancelled on unmount rather than left talking over the next screen.
+  // Only cancel speech on unmount if this message instance started speaking.
   useEffect(() => {
     return () => {
-      if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+      if (speakingRef.current && typeof window !== "undefined") {
+        window.speechSynthesis?.cancel();
+        speakingRef.current = false;
+      }
     };
   }, []);
 
@@ -149,7 +253,6 @@ function MessageActions({ text, at, hidden }: { text: string; at?: number; hidde
       setCopied(true);
     } catch {
       // Clipboard access can be refused (insecure origin, denied permission).
-      // Silently leaving the icon unchanged is better than a thrown error.
     }
   };
 
@@ -158,14 +261,22 @@ function MessageActions({ text, at, hidden }: { text: string; at?: number; hidde
     if (!synth) return;
     if (speaking) {
       synth.cancel();
+      speakingRef.current = false;
       setSpeaking(false);
       return;
     }
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
+    utterance.onend = () => {
+      speakingRef.current = false;
+      setSpeaking(false);
+    };
+    utterance.onerror = () => {
+      speakingRef.current = false;
+      setSpeaking(false);
+    };
     synth.cancel();
     synth.speak(utterance);
+    speakingRef.current = true;
     setSpeaking(true);
   };
 
@@ -173,7 +284,6 @@ function MessageActions({ text, at, hidden }: { text: string; at?: number; hidde
     <div
       className={cx(
         "flex items-center gap-1 transition-opacity duration-150",
-        // Revealed on hover, and whenever a control inside has keyboard focus.
         hidden
           ? "pointer-events-none opacity-0"
           : "opacity-0 group-hover/message:opacity-100 focus-within:opacity-100",

@@ -24,10 +24,10 @@ export const metadata: Metadata = {
   description: "Codely — AI-powered code security scanner and architecture reviewer. Crush every bug like a pro.",
   icons: {
     icon: [
-      { url: "/logo/2.png", media: "(prefers-color-scheme: light)", type: "image/png" },
-      { url: "/logo/1.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+      { url: "/logo/codely-icon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
+      { url: "/logo/codely-icon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
     ],
-    shortcut: "/logo/2.png",
+    shortcut: "/logo/codely-icon-light.png",
     apple: "/apple-icon.png",
   },
   openGraph: {

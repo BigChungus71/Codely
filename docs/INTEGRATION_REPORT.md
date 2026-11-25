@@ -35,3 +35,24 @@ Remaining scope: M3's integrated scan and graph are Python-only. VoiceAIAgentPro
 | `npm run typecheck` | Passed. |
 | `node --experimental-strip-types --test integrations/frontend/codely-client.test.mjs` | 4 passed. |
 | Local Next/Uvicorn and Playwright Chrome smoke | Passed. Both servers stopped after the check. |
+
+## Incremental checkpoint · 25 November 2026
+
+All eight remote refs were inspected. Tip times in IST were 13:24:52 for `main`, 13:54:38 for `feature/backend-core`, 14:03:40 for `feature/security-analysis`, 15:07:56 for `feature/ai-intelligence`, 15:53:14 for `security-analysis` (graph milestone at 15:17:23), 15:22:09 for the preceding `integration/codely-demo`, 15:41:36 for `feature/architecture-graph`, and 15:45:58 for `feat/frontend-workspace`. Exact SHAs and imported ranges are in the [ledger](INTEGRATION_LEDGER.md). No new package dependency was introduced. NetworkX and the pinned native Semgrep package were already included.
+
+- Imported the new frontend navigation, brand assets, chat progress and streaming updates, dashboard presentation, and scanner timing and severity styles. Retained the FastAPI repository scanner and source links. The alternate Next scan route sends upload content to an LLM for speculative scanning and includes a simulated result path. That route and its arbitrary upload/GitHub workflow were excluded from this integration. Dashboard metrics are labeled illustrative.
+- The existing architecture route now uses M3's NetworkX engine over its AST report. It returns stable module and edge IDs, source locations, classification, coverage, diagnostics, and directed internal Python imports. Its viewer supports module focus, paging, zoom, horizontal scrolling, and opening an import or module in the source view. The analyzer marks partial coverage and does not infer runtime calls. The labeled architecture fixture deliberately includes a file the parser cannot handle.
+- The existing design-question API accepts either text constraints or a bounded flat object, such as concurrency, budget, and latency targets. Next.js preserves the AI SDK protocol and sends constraints from the repository composer. Standard RAG reuses the M4 index to retrieve code and Markdown/text snippets, includes static import relationships anchored in retrieved Python chunks, and validates cited evidence IDs. Optional Architecture guidelines uses M4's revision-bound graph projection and engineering guideline registry instead, reporting source anchors, trade-offs, and missing evidence. It is bounded to the supported Python graph subset. Neither route claims a suggested change has been applied.
+- Existing provider selection and the Gemini adapter are retained. Groq's Python SDK requires the host root as its base URL, appends the API path itself, and requires a closed structured response schema. The integration also tells the provider which evidence ranges permit suggested edits while retaining the existing validation.
+- No Gemini key was configured for this run. Gemini is covered by provider contracts, with live verification using Groq. Lexical RAG is active. Optional semantic embeddings are not enabled in the API. Python is the supported language for the bundled analyzer and scan rules. Java and TypeScript in VoiceAIAgentPro are browsable.
+
+- The pre-push fetch advanced `security-analysis` to `3a87132`. The integration now exposes the new static impact mapper through `GET /api/projects/{project_id}/findings/{finding_id}/impact` and the finding detail. It reuses the current completed M3 scan and performs AST and graph analysis on the same repository revision. The UI distinguishes partial/unmapped status and shows direct and transitive dependent sources. Dependency reachability indicates potential relevance only.
+
+| Incremental verification | Outcome |
+| --- | --- |
+| `PYTHONPATH=.:backend:m4 CODELY_RUN_SEMGREP_INTEGRATION=1 python -m pytest backend/tests m4/tests -q` | 395 passed, one optional language parser test skipped, 21 subtests passed. |
+| `NEXT_TELEMETRY_DISABLED=1 npm run build` | Passed production compilation, TypeScript and static generation. |
+| `npm run typecheck` | Passed. |
+| `node --experimental-strip-types --test integrations/frontend/codely-client.test.mjs` | 4 passed. |
+| Playwright Chrome against Next.js and FastAPI | Real source browsing, two Semgrep findings with CWE and locations, source navigation, live Groq explanation, static impact including a source link, directed graph zoom and import navigation, and constraint text in a live repository chat response with citations. |
+| Live M4 guideline service | Returned a guideline-backed response with four validated source citations. Groq throttled the initial browser run and some follow-up requests. The API now preserves HTTP 429 instead of treating quota exhaustion as a generic 502. |

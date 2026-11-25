@@ -1,10 +1,13 @@
 import Image from "next/image";
 import { cx } from "@/utils/cx";
 
-/** Codely mark. Renders the theme-aware brand logo (`/logo/2.png` in light mode,
- *  `/logo/1.png` in dark mode) via `.theme-logo-light` / `.theme-logo-dark`. */
+/**
+ * Codely square icon mark (`<>`).
+ * Automatically swaps between `/logo/codely-icon-light.png` (light mode)
+ * and `/logo/codely-icon-dark.png` (dark mode) via `.theme-logo-light` / `.theme-logo-dark`.
+ */
 export function Logo({
-  size = 32,
+  size = 28,
   mono: _mono = false,
   className,
 }: {
@@ -15,19 +18,55 @@ export function Logo({
   return (
     <>
       <Image
-        src="/logo/2.png"
+        src="/logo/codely-icon-light.png"
         alt="Codely"
         width={size}
         height={size}
-        className={cx("theme-logo-light shrink-0 object-cover", className)}
+        className={cx("theme-logo-light shrink-0 object-contain", className)}
         priority
       />
       <Image
-        src="/logo/1.png"
+        src="/logo/codely-icon-dark.png"
         alt="Codely"
         width={size}
         height={size}
-        className={cx("theme-logo-dark shrink-0 object-cover", className)}
+        className={cx("theme-logo-dark shrink-0 object-contain", className)}
+        priority
+      />
+    </>
+  );
+}
+
+/**
+ * Full Codely horizontal wordmark (`<> codely.`).
+ * Automatically swaps between `/logo/codely-wordmark-light.png` and
+ * `/logo/codely-wordmark-dark.png` for crisp rendering in both themes.
+ */
+export function CodelyWordmark({
+  height = 22,
+  className,
+}: {
+  height?: number;
+  className?: string;
+}) {
+  return (
+    <>
+      <Image
+        src="/logo/codely-wordmark-light.png"
+        alt="Codely"
+        width={707}
+        height={143}
+        style={{ height, width: "auto" }}
+        className={cx("theme-logo-light shrink-0 object-contain", className)}
+        priority
+      />
+      <Image
+        src="/logo/codely-wordmark-dark.png"
+        alt="Codely"
+        width={685}
+        height={141}
+        style={{ height, width: "auto" }}
+        className={cx("theme-logo-dark shrink-0 object-contain", className)}
         priority
       />
     </>
@@ -51,19 +90,19 @@ export function ProLogo({
   return (
     <>
       <Image
-        src="/logo/2.png"
+        src="/logo/codely-icon-light.png"
         alt={alt}
         width={size}
         height={size}
-        className={cx("theme-logo-light shrink-0 object-cover", className)}
+        className={cx("theme-logo-light shrink-0 object-contain", className)}
         priority={priority}
       />
       <Image
-        src="/logo/1.png"
+        src="/logo/codely-icon-dark.png"
         alt={alt}
         width={size}
         height={size}
-        className={cx("theme-logo-dark shrink-0 object-cover", className)}
+        className={cx("theme-logo-dark shrink-0 object-contain", className)}
         priority={priority}
       />
     </>

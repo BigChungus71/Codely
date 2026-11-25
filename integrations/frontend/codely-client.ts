@@ -18,12 +18,18 @@ export interface Explanation {
   finding_id: string; status: "completed"; explanation: string; potential_impact: string;
   recommendation: string; suggested_code: string | null; requires_developer_review: true; assumptions_and_limitations?: string[];
 }
+export interface FindingImpact {
+  status: "complete" | "partial" | "error";
+  finding_impact: { mapping_status: string; direct_dependent_node_ids: string[]; transitive_dependent_node_ids: string[] };
+  node_contexts: { id: string; file: string; label: string }[];
+  interpretation: string;
+}
 export interface Graph {
   status: "complete" | "partial";
   diagnostics: { code?: string }[];
   project_id: string;
-  nodes: { id: string; label: string; type: string; file: string }[];
-  edges: { source: string; target: string; relationship: string; file?: string | null; start_line?: number | null }[];
+  nodes: { id: string; label: string; type: string; file: string; parsed: boolean; fan_in: number; fan_out: number }[];
+  edges: { id?: string | null; source: string; target: string; relationship: string; file?: string | null; start_line?: number | null; evidence?: { file: string; start_line: number; end_line: number }[] }[];
 }
 /** Structurally assignable to the frontend's existing ScanFinding. */
 export interface DisplayFinding {
@@ -72,6 +78,7 @@ export function createCodelyClient(baseUrl: string, fetcher: typeof fetch = fetc
     scan: (id: string) => request<FindingsResponse>(`${projectPath(id)}/scan`, "POST"),
     findings: (id: string) => request<FindingsResponse>(`${projectPath(id)}/findings`),
     explain: (id: string, findingId: string) => request<Explanation>(`${projectPath(id)}/findings/${encodeURIComponent(findingId)}/explain`, "POST"),
+    impact: (id: string, findingId: string) => request<FindingImpact>(`${projectPath(id)}/findings/${encodeURIComponent(findingId)}/impact`),
     architecture: (id: string) => request<Graph>(`${projectPath(id)}/architecture`),
   };
 }

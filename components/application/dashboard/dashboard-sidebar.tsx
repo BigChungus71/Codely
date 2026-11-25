@@ -10,12 +10,15 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   RiAsterisk,
   RiBankLine,
   RiCalendarLine,
   RiChatAiLine,
   RiCloseLine,
+  RiEditBoxLine,
   RiHomeLine,
   RiImageAiLine,
   RiKanbanView2,
@@ -28,7 +31,7 @@ import { SettingsModal } from "@/components/application/settings/settings-modal"
 import { ThemeToggle } from "@/components/application/theme/theme-toggle";
 import { Badge } from "@/components/base/badges/badge";
 import { CloseButton } from "@/components/base/buttons/close-button";
-import { Kbd } from "@/components/base/kbd/kbd";
+import { CodelyWordmark, Logo } from "@/components/foundations/brand/logo";
 import { cx } from "@/utils/cx";
 import { DashboardTeamMenu } from "./dashboard-team-menu";
 import { DashboardUserMenu } from "./dashboard-user-menu";
@@ -95,29 +98,17 @@ function NavItem({
   onClick?: () => void;
 }) {
   const localize = useTemplateCopy();
-  return localize((
-    <a
-      href={href}
-      onClick={
-        onClick
-          ? (event) => {
-              event.preventDefault();
-              onClick();
-            }
-          : undefined
-      }
-      aria-current={isSelected ? "page" : undefined}
-      aria-label={label}
-      title={collapsed ? label : undefined}
-      className={cx(
-        "flex items-center justify-between overflow-hidden rounded-2lg p-2",
-        "transition-[width,background-color] duration-300 ease-in-out",
-        collapsed ? "w-9" : "w-full",
-        isSelected
-          ? "bg-linear-to-b from-accent-500 to-accent-600 shadow-nav-selected"
-          : "hover:bg-background-secondary-hover",
-      )}
-    >
+  const isInternal = href.startsWith("/") && !onClick;
+  const classes = cx(
+    "flex items-center justify-between overflow-hidden rounded-2lg p-2",
+    "transition-[width,background-color] duration-300 ease-in-out",
+    collapsed ? "w-9" : "w-full",
+    isSelected
+      ? "bg-linear-to-b from-accent-500 to-accent-600 shadow-nav-selected"
+      : "hover:bg-background-secondary-hover",
+  );
+  const content = (
+    <>
       <span className="flex min-w-0 items-center gap-2">
         <Icon
           className={cx("size-5 shrink-0", isSelected ? "text-white" : "text-foreground-icon-secondary")}
@@ -135,6 +126,40 @@ function NavItem({
         </Collapsible>
       </span>
       {badge && <Collapsible collapsed={collapsed}>{badge}</Collapsible>}
+    </>
+  );
+
+  if (isInternal) {
+    return localize((
+      <Link
+        href={href}
+        aria-current={isSelected ? "page" : undefined}
+        aria-label={label}
+        title={collapsed ? label : undefined}
+        className={classes}
+      >
+        {content}
+      </Link>
+    ));
+  }
+
+  return localize((
+    <a
+      href={href}
+      onClick={
+        onClick
+          ? (event) => {
+              event.preventDefault();
+              onClick();
+            }
+          : undefined
+      }
+      aria-current={isSelected ? "page" : undefined}
+      aria-label={label}
+      title={collapsed ? label : undefined}
+      className={classes}
+    >
+      {content}
     </a>
   ));
 }
@@ -217,42 +242,62 @@ export function DashboardSidebar({
   selected = "home",
   items = DASHBOARD_NAV,
   flat = false,
+  onNewChat,
+  newChatBusy = false,
   sidebarSlot,
   className,
 }: {
   /** Rendered inside the mobile drawer: always expanded, close button instead of collapse. */
   mobile?: boolean;
   onClose?: () => void;
-  /** Expanded width fills its container below `lg` instead of the fixed
-   *  260px (e.g. the landing page, where the sidebar isn't in a drawer).
-   *  Collapsed width stays the fixed 60px rail at every breakpoint — the
-   *  whole point of collapsing is to shrink, so it must never get
-   *  overridden back to full width. */
   fluid?: boolean;
-  /** Hide the app-level theme control when the sidebar is used as marketing artwork. */
   showThemeToggle?: boolean;
-  /** Which nav item shows the selected (filled blue) state. */
   selected?: DashboardNavKey;
-  /** Primary navigation rows. The Pro dashboard's set unless a screen brings its own. */
   items?: DashboardNavItem[];
-  /** Removes the floating panel treatment for a sidebar revealed beneath mobile content. */
   flat?: boolean;
+  /** Called when the sidebar's "New chat" button is clicked; navigates to `/` if omitted. */
+  onNewChat?: () => void;
+  /** Disables New chat while streaming. */
+  newChatBusy?: boolean;
   /** Optional embedded section rendered below the primary nav when expanded (e.g. recent chats). */
   sidebarSlot?: ReactNode;
   className?: string;
 } = {}) {
   const localize = useTemplateCopy();
+  const router = useRouter();
   const [collapsedState, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [suppressUserHover, setSuppressUserHover] = useState(false);
+  const [newChatShimmer, setNewChatShimmer] = useState(false);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState("");
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const shimmerTimerRef = useRef<number | null>(null);
   const collapsed = mobile ? false : collapsedState;
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const secondaryMatch = false;
+
+  useEffect(() => {
+    return () => {
+      if (shimmerTimerRef.current !== null) window.clearTimeout(shimmerTimerRef.current);
+    };
+  }, []);
+
+  const handleNewChat = useCallback(() => {
+    if (newChatBusy) return;
+    setNewChatShimmer(true);
+    if (shimmerTimerRef.current !== null) window.clearTimeout(shimmerTimerRef.current);
+    shimmerTimerRef.current = window.setTimeout(() => {
+      shimmerTimerRef.current = null;
+      setNewChatShimmer(false);
+    }, 950);
+    if (onNewChat) {
+      onNewChat();
+    } else {
+      router.push("/");
+    }
+  }, [newChatBusy, onNewChat, router]);
 
   const activateSearch = useCallback(() => {
     if (!mobile) setCollapsed(false);
@@ -323,189 +368,135 @@ export function DashboardSidebar({
           margin borrows that space back from the rail's own padding, leaving
           every child exactly where it was. */}
       <div
-        className="-m-2 flex min-h-0 w-[calc(100%+16px)] flex-col gap-3 overflow-y-auto p-2 [scrollbar-width:none]"
+        className="-m-2 flex min-h-0 w-[calc(100%+16px)] flex-1 flex-col gap-3 overflow-y-auto p-2 [scrollbar-width:none]"
       >
-        {/* Workspace switcher / collapse control */}
+        {/* Top bar: Codely logo left, search + collapse right (ChatGPT-style in Codely design language) */}
         <div
           className={cx(
-            "flex w-full transition-[gap] duration-300 ease-in-out",
+            "flex w-full items-center transition-[gap] duration-300 ease-in-out",
             collapsed
-              ? "flex-col-reverse items-start justify-center gap-2.5"
-              : "flex-row items-center justify-between",
+              ? "flex-col items-center justify-center gap-2.5"
+              : "flex-row justify-between px-1 pt-0.5",
           )}
         >
-          {/* The clip is here to hide the label as `max-width` animates shut,
-              but it also cropped the trigger's hover pill down to four corner
-              arcs. Same trick as the scroller: pad the clip box out by the
-              pill's 8px reach and pull it back with a negative margin, so the
-              widths below are 16px larger than the footprint they produce. */}
-          <div
-            className={cx(
-              "-m-2 min-w-0 overflow-hidden p-2 transition-[max-width,opacity,transform] duration-300 ease-in-out",
-              mobile && flat && searchActive
-                ? "max-w-0 scale-95 opacity-0"
-                : "max-w-[206px] scale-100 opacity-100",
-            )}
+          <Link
+            href="/"
+            aria-label="Codely home"
+            className="flex items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring"
           >
-            <DashboardUserMenu
-              collapsed={collapsed}
-              suppressHover={suppressUserHover}
-              onHoverSuppressionEnd={() => setSuppressUserHover(false)}
-              onOpenSettings={() => setSettingsOpen(true)}
-              avatarClassName={
-                flat
-                  ? "bg-background-tertiary-default dark:bg-background-secondary-default"
-                  : undefined
-              }
-            />
-          </div>
-          {mobile && flat ? (
-            <div
-              ref={searchFieldRef}
-              className={cx(
-                "flex h-9 items-center overflow-hidden rounded-full bg-background-tertiary-default transition-[width,box-shadow] duration-300 ease-in-out",
-                searchActive
-                  ? "w-full gap-2 pe-2.5 ps-2 ring-2 ring-inset ring-border-button-active"
-                  : "w-9 gap-0 px-2",
-              )}
-            >
+            {collapsed ? <Logo size={24} /> : <CodelyWordmark height={20} />}
+          </Link>
+
+          <div className={cx("flex items-center gap-1", collapsed && "flex-col gap-2")}>
+            {!flat && (
               <button
                 ref={searchTriggerRef}
                 type="button"
-                aria-label="Search"
+                aria-label="Search chats and navigation"
+                title="Quick Search (⌘L)"
                 onClick={activateSearch}
-                className="flex size-5 shrink-0 cursor-pointer items-center justify-center text-foreground-icon-secondary"
+                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary"
               >
-                <RiSearchLine className="size-5" aria-hidden />
+                <RiSearchLine className="size-[18px]" aria-hidden />
               </button>
-              <input
-                ref={searchInputRef}
-                type="search"
-                aria-label="Filter template navigation"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    event.preventDefault();
-                    deactivateSearch(true);
-                  }
+            )}
+            {mobile ? (
+              <button
+                type="button"
+                aria-label="Close sidebar"
+                onClick={onClose}
+                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary"
+              >
+                <RiCloseLine className="size-5" aria-hidden />
+              </button>
+            ) : (
+              <button
+                type="button"
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-expanded={!collapsed}
+                onClick={() => {
+                  const isExpanding = collapsedState;
+                  if (!isExpanding) deactivateSearch(false);
+                  setCollapsed(!collapsedState);
                 }}
-                placeholder="Search..."
-                tabIndex={searchActive ? 0 : -1}
-                className={cx(
-                  "min-w-0 bg-transparent text-body-medium tracking-[-0.015em] text-text-primary outline-none placeholder:text-text-tertiary",
-                  "transition-[width,opacity] duration-200 ease-in-out",
-                  searchActive
-                    ? "w-full flex-1 opacity-100 delay-100"
-                    : "pointer-events-none w-0 flex-none opacity-0 delay-0",
-                )}
-              />
-              <CloseButton
-                size="2xs"
-                aria-label="Clear navigation search"
-                onClick={() => deactivateSearch(true)}
-                className={cx(
-                  "shrink-0 bg-background-tertiary-hover transition-opacity duration-150",
-                  searchActive ? "opacity-100 delay-150" : "pointer-events-none opacity-0 delay-0",
-                )}
-              />
-            </div>
-          ) : mobile ? (
-            <button
-              type="button"
-              aria-label="Close sidebar"
-              onClick={onClose}
-              className="cursor-pointer text-foreground-icon-secondary"
-            >
-              <RiCloseLine className="size-5" aria-hidden />
-            </button>
-          ) : (
-            <button
-              type="button"
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              aria-expanded={!collapsed}
-              onClick={() => {
-                const isExpanding = collapsedState;
-                if (!isExpanding) deactivateSearch(false);
-                setCollapsed(!collapsedState);
-                setSuppressUserHover(isExpanding);
-              }}
-              className={cx(
-                "cursor-pointer text-foreground-icon-secondary transition-transform duration-300 ease-in-out",
-                collapsed && "flex w-9 items-center justify-center",
-              )}
-            >
-              <RiSideBarFill
-                className={cx("size-5 transition-transform duration-300 ease-in-out", collapsed ? "rtl:-scale-x-100" : "-scale-x-100 rtl:scale-x-100")}
-                aria-hidden
-              />
-            </button>
-          )}
+                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary"
+              >
+                <RiSideBarFill
+                  className={cx("size-[18px] transition-transform duration-300 ease-in-out", collapsed ? "rtl:-scale-x-100" : "-scale-x-100 rtl:scale-x-100")}
+                  aria-hidden
+                />
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex w-full flex-col gap-3">
-          {/* Quick search */}
-          {!flat && (searchActive && !collapsed ? (
-            <div
-              ref={searchFieldRef}
-              className="flex w-full items-center gap-2 rounded-full bg-background-tertiary-default py-2 pe-2.5 ps-2 ring-2 ring-inset ring-border-button-active transition-[background-color,box-shadow] duration-[var(--input-transition-ms)] ease"
-            >
-              <RiSearchLine className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
-              <input
-                ref={searchInputRef}
-                type="search"
-                aria-label="Filter template navigation"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    event.preventDefault();
-                    deactivateSearch(true);
-                  }
-                }}
-                placeholder="Search navigation…"
-                className="min-w-0 flex-1 bg-transparent text-body-medium text-text-primary outline-none placeholder:text-text-tertiary"
-              />
-              <CloseButton
-                size="2xs"
-                aria-label="Clear navigation search"
-                onClick={() => deactivateSearch(true)}
-                className="bg-background-tertiary-hover"
-              />
-            </div>
-          ) : (
-            <button
-              ref={searchTriggerRef}
-              type="button"
-              aria-label="Quick Search"
-              title={collapsed ? "Quick Search" : undefined}
-              onClick={activateSearch}
+        {/* Inline search input when active */}
+        {!flat && searchActive && !collapsed && (
+          <div
+            ref={searchFieldRef}
+            className="flex w-full items-center gap-2 rounded-xl bg-background-tertiary-default px-2.5 py-1.5 ring-2 ring-inset ring-border-button-active"
+          >
+            <RiSearchLine className="size-4 shrink-0 text-foreground-icon-secondary" aria-hidden />
+            <input
+              ref={searchInputRef}
+              type="search"
+              aria-label="Filter navigation"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  deactivateSearch(true);
+                }
+              }}
+              placeholder="Search…"
+              className="min-w-0 flex-1 bg-transparent text-body-2-medium text-text-primary outline-none placeholder:text-text-tertiary"
+            />
+            <CloseButton
+              size="2xs"
+              aria-label="Clear search"
+              onClick={() => deactivateSearch(true)}
+              className="bg-background-tertiary-hover"
+            />
+          </div>
+        )}
+
+        {/* Prominent New chat button (ChatGPT-style in Codely's surface language, with shimmer on click) */}
+        <button
+          type="button"
+          onClick={handleNewChat}
+          disabled={newChatBusy}
+          aria-label="New chat"
+          title={collapsed ? "New chat" : undefined}
+          className={cx(
+            "relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-xl border p-2 text-start transition-all duration-200",
+            "border-border-button-default bg-background-primary-default/90 hover:bg-background-primary-hover shadow-2xs",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            newChatShimmer && "border-accent-500/60 ring-2 ring-accent-500/20",
+            collapsed ? "w-9 justify-center" : "w-full",
+          )}
+        >
+          <RiEditBoxLine
+            className={cx(
+              "size-[18px] shrink-0 transition-colors",
+              newChatShimmer ? "text-accent-500" : "text-foreground-icon-primary",
+            )}
+            aria-hidden
+          />
+          <Collapsible collapsed={collapsed}>
+            <span
               className={cx(
-                "flex cursor-pointer items-center gap-2 p-2 hover:bg-background-tertiary-hover/55",
-                "transition-[width,border-radius,background-color] duration-300 ease-in-out",
-                collapsed
-                  ? "w-9 rounded-full bg-background-tertiary-default"
-                  : "w-full rounded-full bg-background-tertiary-default",
+                "text-body-medium whitespace-nowrap",
+                newChatShimmer ? "agent-progress-loading-text" : "text-text-primary",
               )}
             >
-              <span className={cx("flex min-w-0 items-center gap-2", !collapsed && "flex-1")}>
-                <RiSearchLine className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
-                <Collapsible collapsed={collapsed}>
-                  <span className="text-body-medium whitespace-nowrap text-text-secondary">
-                    Quick Search
-                  </span>
-                </Collapsible>
-              </span>
-              <Collapsible collapsed={collapsed}>
-                <Kbd>⌘L</Kbd>
-              </Collapsible>
-            </button>
-          ))}
+              New chat
+            </span>
+          </Collapsible>
+        </button>
 
-          {/* Primary nav. The 2px inset is for the expanded rail only: the
-              collapsed column is exactly as wide as a 36px item, so padding
-              here pushes every item 2px right and the rail's own clip shaves
-              that much off its selected fill and hover state. */}
+        <div className="flex w-full min-h-0 flex-1 flex-col gap-3">
+          {/* Primary nav */}
           <nav className={cx("flex w-full flex-col gap-1", !collapsed && "px-0.5")}>
             <NavRows
               items={items}
@@ -524,7 +515,7 @@ export function DashboardSidebar({
         </div>
       </div>
 
-      <div className="flex w-full shrink-0 flex-col gap-3">
+      <div className="flex w-full shrink-0 flex-col gap-2.5 border-t border-separator-border pt-3">
         {showThemeToggle &&
           (collapsed ? (
             <ThemeToggle collapsed />
@@ -535,7 +526,20 @@ export function DashboardSidebar({
             />
           ))}
 
-        {/* Team card → opens the profile menu next to the sidebar */}
+        {/* User profile (opens Settings, Support, and team access) */}
+        <div className={cx("flex items-center px-1 py-0.5", collapsed && "justify-center px-0")}>
+          <DashboardUserMenu
+            collapsed={collapsed}
+            onOpenSettings={() => setSettingsOpen(true)}
+            avatarClassName={
+              flat
+                ? "bg-background-tertiary-default dark:bg-background-secondary-default"
+                : undefined
+            }
+          />
+        </div>
+
+        {/* Team card */}
         <DashboardTeamMenu
           collapsed={collapsed}
           className={flat ? "!bg-background-secondary-default" : undefined}

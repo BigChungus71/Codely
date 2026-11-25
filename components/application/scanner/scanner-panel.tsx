@@ -6,7 +6,7 @@ import { Button } from "@/components/base/buttons/button";
 import { Select, SelectItem } from "@/components/base/select/select";
 import { ScannerResults } from "./scanner-results";
 import {
-  completedFindings, createCodelyClient, type Explanation, type FindingsResponse,
+  completedFindings, createCodelyClient, type Explanation, type FindingImpact, type FindingsResponse,
   type Graph, type Project, type SourceFile, type TreeNode,
 } from "@/integrations/frontend/codely-client";
 import { cx } from "@/utils/cx";
@@ -69,11 +69,16 @@ function RepositoryWorkspace({ project }: { project: string }) {
   const markedLine = useRef<HTMLSpanElement>(null);
   const fileRequest = useRef(0);
   const [result, setResult] = useState<FindingsResponse>();
+  const [scanStarted, setScanStarted] = useState<number>();
+  const [scanDuration, setScanDuration] = useState<number>();
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState("");
   const [explanation, setExplanation] = useState<Explanation>();
   const [reviewStatus, setReviewStatus] = useState("");
   const reviewRequest = useRef(0);
+  const impactRequest = useRef(0);
+  const [impact, setImpact] = useState<FindingImpact>();
+  const [impactStatus, setImpactStatus] = useState("");
   const [graph, setGraph] = useState<Graph>();
   const [graphStatus, setGraphStatus] = useState("");
   const [loadingGraph, setLoadingGraph] = useState(false);
@@ -102,14 +107,21 @@ function RepositoryWorkspace({ project }: { project: string }) {
   }
 
   async function scan() {
+    const started = Date.now();
+    setScanStarted(started);
+    setScanDuration(undefined);
     setScanning(true);
     setResult(undefined);
     setScanError("");
     ++reviewRequest.current;
+    ++impactRequest.current;
+    setImpact(undefined);
+    setImpactStatus("");
     setExplanation(undefined);
     setReviewStatus("");
     try {
       setResult(await api.scan(project));
+      setScanDuration((Date.now() - started) / 1000);
     } catch (failure) {
       setScanError(message(failure));
     } finally {
@@ -131,6 +143,20 @@ function RepositoryWorkspace({ project }: { project: string }) {
     }
   }
 
+  async function reviewImpact(id: string) {
+    const request = ++impactRequest.current;
+    setImpact(undefined);
+    setImpactStatus("Mapping static dependents…");
+    try {
+      const payload = await api.impact(project, id);
+      if (request !== impactRequest.current) return;
+      setImpact(payload);
+      setImpactStatus("");
+    } catch (failure) {
+      if (request === impactRequest.current) setImpactStatus(message(failure));
+    }
+  }
+
   async function loadGraph() {
     setLoadingGraph(true);
     setGraph(undefined);
@@ -146,7 +172,6 @@ function RepositoryWorkspace({ project }: { project: string }) {
   }
 
   const coverage = result?.diagnostics?.find((entry) => entry.code === "coverage");
-  const nodes = new Map(graph?.nodes.map((node) => [node.id, node]));
   return (
     <>
       <section className="flex flex-col gap-4 rounded-3xl border border-border-button-default p-4">
@@ -175,7 +200,24 @@ function RepositoryWorkspace({ project }: { project: string }) {
         {result && <p role="status">{result.cached ? "Cached scan" : "Scan completed"}{coverage ? ` · ${coverage.snapshot_files} Python files analyzed` : ""}</p>}
         {(scanning || result?.status === "completed") && (
           <ScannerResults findings={result ? completedFindings(result) : []} loading={scanning}
-            onOpen={openFile} onExplain={explain} />
+            onOpen={openFile} onExplain={explain} onImpact={reviewImpact} startedAt={scanStarted} durationSeconds={scanDuration} />
+        )}
+        {impactStatus && <p role="status">{impactStatus}</p>}
+        {impact && (
+          <section className="flex flex-col gap-2 rounded-xl bg-background-secondary-default p-4">
+            <h3 className="text-headline-medium">Static finding impact</h3>
+            <p>{impact.interpretation}</p>
+            <p>Analysis {impact.status} · Finding {impact.finding_impact.mapping_status}</p>
+            {(["direct", "transitive"] as const).map((kind) => (
+              <div key={kind}>
+                <h4 className="text-body-medium">{kind === "direct" ? "Direct dependents" : "Transitive dependents"}</h4>
+                <ul className="flex flex-wrap gap-1">
+                  {impact.node_contexts.filter((node) => impact.finding_impact[`${kind}_dependent_node_ids`].includes(node.id))
+                    .map((node) => <li key={node.id}><Button variant="ghost" size="small" onClick={() => openFile(node.file)}>{node.file}</Button></li>)}
+                </ul>
+              </div>
+            ))}
+          </section>
         )}
         {reviewStatus && <p role="status">{reviewStatus}</p>}
         {explanation && (
@@ -191,29 +233,71 @@ function RepositoryWorkspace({ project }: { project: string }) {
       <section className="flex flex-col gap-4">
         <div><Button variant="secondary" disabled={loadingGraph} onClick={loadGraph}>Load Python architecture</Button></div>
         {graphStatus && <p role="status">{graphStatus}</p>}
-        {graph && (
-          <>
-            <h2 className="text-headline-medium">Observed modules and imports</h2>
-            {graph.status === "partial" && <p>Partial analysis. Some files could not be parsed.</p>}
-            <ul className="flex flex-wrap gap-2">
-              {graph.nodes.map((node) => <li key={node.id}><Button variant="secondary" size="small" onClick={() => openFile(node.file)}>{node.label}</Button></li>)}
-            </ul>
-            {graph.edges.length === 0 && <p>No internal imports were resolved.</p>}
-            <ul className="flex flex-col gap-2">
-              {graph.edges.map((edge, index) => (
-                <li key={index} className="flex flex-wrap items-center gap-2">
-                  <span>{nodes.get(edge.source)?.label}</span><span>→ {edge.relationship} →</span>
-                  <span>{nodes.get(edge.target)?.label}</span>
-                  {edge.file && <Button variant="ghost" size="small" onClick={() => openFile(edge.file!, edge.start_line ?? undefined)}>Open import</Button>}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+        {graph && <ArchitectureViewer graph={graph} onOpen={openFile} />}
       </section>
       <Link href={{ pathname: "/", query: { project } }} className="text-body-medium text-accent-700 underline">
         Ask a system-design question about this repository
       </Link>
     </>
+  );
+}
+
+function ArchitectureViewer({ graph, onOpen }: {
+  graph: Graph; onOpen: (path: string, line?: number) => void;
+}) {
+  const [focus, setFocus] = useState("all");
+  const [page, setPage] = useState(0);
+  const [zoom, setZoom] = useState(100);
+  const nodes = new Map(graph.nodes.map((node) => [node.id, node]));
+  const edges = focus === "all" ? graph.edges : graph.edges.filter((edge) => edge.source === focus || edge.target === focus);
+  const pageSize = 16;
+  const pages = Math.max(1, Math.ceil(edges.length / pageSize));
+  const focused = nodes.get(focus);
+
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      <h2 className="text-headline-medium">Observed modules and imports</h2>
+      <p className="text-body-2-regular text-text-secondary">
+        {graph.nodes.length} Python modules · {graph.edges.length} directed imports
+        {graph.status === "partial" && " · Partial coverage"}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select aria-label="Focus architecture module" selectedKey={focus} onSelectionChange={(key) => {
+          setFocus(String(key)); setPage(0);
+        }}>
+          <SelectItem id="all">All modules</SelectItem>
+          {graph.nodes.map((node) => <SelectItem key={node.id} id={node.id}>{node.label} · {node.file}</SelectItem>)}
+        </Select>
+        {focused && <Button variant="secondary" size="small" onClick={() => onOpen(focused.file)}>Open module source</Button>}
+        <Button variant="ghost" size="small" disabled={zoom <= 75} onClick={() => setZoom(zoom - 25)}>Zoom out</Button>
+        <Button variant="ghost" size="small" disabled={zoom >= 175} onClick={() => setZoom(zoom + 25)}>Zoom in</Button>
+        <span aria-live="polite">{zoom}%</span>
+      </div>
+      {edges.length === 0 && <p>No internal imports were resolved for this selection.</p>}
+      {edges.length > 0 && (
+        <div className="overflow-x-auto rounded-xl border border-border-button-default bg-background-secondary-default p-3 focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+          role="region" aria-label="Directed import graph, scroll horizontally to pan" tabIndex={0}>
+          <ul className="flex w-max min-w-full flex-col gap-2" style={{ zoom: zoom / 100 }}>
+            {edges.slice(page * pageSize, (page + 1) * pageSize).map((edge) => {
+              const from = nodes.get(edge.source);
+              const to = nodes.get(edge.target);
+              return (
+                <li key={edge.id ?? `${edge.source}:${edge.target}`} className="flex items-center gap-2">
+                  {from && <Button variant="secondary" size="small" onClick={() => onOpen(from.file)}>{from.label}</Button>}
+                  <span className="text-body-2-regular text-text-secondary">{edge.relationship} →</span>
+                  {to && <Button variant="secondary" size="small" onClick={() => onOpen(to.file)}>{to.label}</Button>}
+                  {edge.file && <Button variant="ghost" size="small" onClick={() => onOpen(edge.file!, edge.start_line ?? undefined)}>Open import</Button>}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      {pages > 1 && <div className="flex items-center gap-2">
+        <Button variant="ghost" size="small" disabled={page === 0} onClick={() => setPage(page - 1)}>Previous edges</Button>
+        <span>{page + 1} of {pages}</span>
+        <Button variant="ghost" size="small" disabled={page + 1 === pages} onClick={() => setPage(page + 1)}>Next edges</Button>
+      </div>}
+    </div>
   );
 }

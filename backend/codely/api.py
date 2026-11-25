@@ -1,3 +1,4 @@
+import json
 import logging
 from pathlib import Path
 from datetime import datetime, timezone
@@ -19,7 +20,9 @@ def invoke(service, *args):
         return service(*args)
     except HTTPException:
         raise
-    except Exception:
+    except Exception as error:
+        if getattr(error, "status_code", None) == 429:
+            raise HTTPException(429, "AI provider rate limit reached. Retry shortly.") from None
         # Do not expose provider payloads, source code or credentials in HTTP errors.
         logger.warning('Analysis service failed: %s', service.__name__)
         raise HTTPException(502, 'Analysis service failed or returned an invalid response')
@@ -126,6 +129,28 @@ def explanation(project_id: str, finding_id: str):
     return output
 
 
+@router.get('/projects/{project_id}/findings/{finding_id}/impact')
+def finding_impact(project_id: str, finding_id: str):
+    from .teammate_services import build_project_graph
+    from backend.app.analyzers.impact_analyzer import analyze_finding_impact
+
+    scan = findings(project_id)
+    if scan['status'] != 'completed':
+        raise HTTPException(409, 'Run a current successful scan before reviewing impact')
+    if not any(finding['id'] == finding_id for finding in scan['findings']):
+        raise HTTPException(404, 'Finding not found')
+    if not any(item.get('code') == 'coverage' and item.get('rule_set') == 'python-security-v2'
+               for item in scan['diagnostics']):
+        raise HTTPException(503, 'Impact mapping requires the bundled Python scanner')
+    root = root_for(project_id)
+    structure, graph = invoke(build_project_graph, str(root))
+    envelope = {**scan, 'status': 'complete'}
+    result = invoke(analyze_finding_impact, finding_id, envelope, structure, graph)
+    if version(root) != scan['repository_version']:
+        raise HTTPException(409, 'Repository changed during impact mapping; scan again')
+    return {'status': result.status, **result.evidence_for_finding(finding_id)}
+
+
 def validated_graph(project_id, root):
     raw = adapters.architecture(str(root))
     graph = Graph.model_validate({**raw, 'project_id': project_id})
@@ -148,16 +173,25 @@ def architecture(project_id: str):
 
 class DesignQuestion(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
-    constraints: str = Field(default='', max_length=4000)
+    constraints: str | dict[str, str | int | float] = ''
+    architecture_advice: bool = False
 
 
 @router.post('/projects/{project_id}/design-question')
 def design_question(project_id: str, request: DesignQuestion):
-    from .teammate_services import answer_design
+    from .teammate_services import answer_design, advise_design
 
     root = root_for(project_id)
     current = version(root)
-    answer = invoke(answer_design, project_id, root, request.question, request.constraints)
+    constraints = request.constraints
+    if isinstance(constraints, dict):
+        constraints = json.dumps(constraints, ensure_ascii=False, sort_keys=True)
+    if len(constraints) > 4000:
+        raise HTTPException(422, 'Constraints must fit within 4,000 characters')
+    if request.architecture_advice:
+        answer = invoke(advise_design, project_id, root, current, request.question, constraints)
+    else:
+        answer = invoke(answer_design, project_id, root, request.question, constraints)
     if current != version(root):
         raise HTTPException(409, 'Repository changed during retrieval; retry')
     return answer

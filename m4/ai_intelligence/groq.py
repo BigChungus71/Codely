@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
-from .gemini import ProviderError
+from .gemini import ProviderError, ProviderRateLimitError
 
 
 class GroqGenerator:
@@ -54,7 +54,7 @@ class GroqGenerator:
                 max_completion_tokens=4096,
             )
         except self._sdk.RateLimitError:
-            raise ProviderError("Groq rate limit reached (HTTP 429)") from None
+            raise ProviderRateLimitError("Groq rate limit reached (HTTP 429)") from None
         except self._sdk.APITimeoutError:
             raise ProviderError("Groq request timed out") from None
         except self._sdk.APIStatusError as error:

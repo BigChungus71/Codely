@@ -41,12 +41,17 @@ class Explanation(BaseModel):
     assumptions_and_limitations: list[str] = Field(default_factory=list)
 
 class Node(BaseModel):
+    parsed: bool = True
+    fan_in: int = 0
+    fan_out: int = 0
     id: str
     label: str
     type: str
     file: str
 
 class Edge(BaseModel):
+    id: str | None = None
+    evidence: list[dict] = Field(default_factory=list)
     source: str
     target: str
     relationship: str
@@ -55,6 +60,8 @@ class Edge(BaseModel):
     end_line: int | None = None
 
 class Graph(BaseModel):
+    statistics: dict = Field(default_factory=dict)
+    coverage: dict = Field(default_factory=dict)
     status: Literal['complete', 'partial'] = 'complete'
     diagnostics: list[dict] = Field(default_factory=list)
     project_id: str

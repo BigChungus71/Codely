@@ -98,3 +98,23 @@ the API owner must preserve/check those fields before exposing the full graph.
 No teammate-owned adapter/API/schema/frontend was changed in this phase. See
 ARCHITECTURE_INTEGRATION.md for integration and the React Flow presentation map.
 Full regression: 281 passing tests, including the original 19 native tests.
+
+## Phase 6 ASIM worker seam
+
+Pass the original full ScanResult, RepositoryStructure and ArchitectureGraph to
+`backend.app.analyzers.impact_analyzer.analyze_security_impact`. From backend/,
+use app.analyzers instead. No scan, parse or graph build occurs inside ASIM.
+Preserve the same immutable repository version across inputs. Cross-input
+references are checked, but complete snapshot identity is caller-owned.
+
+The separate security-impact-v1 schema exposes mapped/unmapped findings, shared
+module analyses, existing node/edge IDs, shortest-path evidence and explicit
+coverage/truncation. It does not change legacy finding/graph responses. Backend
+owners should preserve this metadata in a separate endpoint/envelope if exposing
+it; no API/frontend/Gemini module was changed. The evidence_for_finding helper
+prepares selected nontext metadata for the existing GenAI team. See
+IMPACT_INTEGRATION.md for frontend highlighting, privacy and interpretation.
+
+Actual full regression: 342 passing tests, including 22 native-backed integration
+tests. Actual native demo: one mapped finding, zero unmapped, one direct and
+three transitive dependents. Original CodeRAG provenance remains unchanged.

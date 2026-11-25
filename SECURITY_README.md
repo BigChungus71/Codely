@@ -161,3 +161,27 @@ Phase 5: 281 total passing tests, including 71 new graph tests and all 19 native
 scanner/checklist tests. No extra dependency is installed. This is static import
 evidence, not a complete runtime call graph or quality/security verdict. No full
 Phase 6 vulnerability impact mapper or frontend/API implementation is included.
+
+## Phase 6 architectural security impact
+
+Reuse existing scan/structure/graph objects without rerunning those stages:
+
+```python
+from backend.app.analyzers.impact_analyzer import analyze_security_impact
+impact = analyze_security_impact(scan, structure, architecture)
+payload = impact.to_dict()
+package = impact.evidence_for_finding(finding_id)
+```
+
+ASIM links original findings to parsed source symbols and graph nodes, then uses
+bounded reverse import traversal for potential dependent relevance. Severity stays
+with the original finding; dependents are not assigned vulnerabilities. See
+[IMPACT_INTEGRATION.md](IMPACT_INTEGRATION.md),
+[the schema](contracts/security-impact-v1.schema.json) and
+[actual demonstration JSON](contracts/examples/security-impact-v1.json).
+
+Native demo: one HIGH SQL-injection finding mapped to database.py:11 /
+Repository.lookup; one direct and three transitive dependent modules, with
+unrelated/auth modules excluded and circular imports handled safely.
+Final regression: 342 tests pass, including all 22 native-backed tests.
+No new dependency, prior contract change, Gemini call or Phase 7 implementation.

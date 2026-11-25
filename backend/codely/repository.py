@@ -11,6 +11,8 @@ MAX_BYTES = 512_000
 
 PROJECTS = {
     'voice-ai-agent': ('VoiceAIAgentPro', 'VOICE_AI_AGENT_PATH', '../../VoiceAIAgentPro'),
+    'python-impact': ('Python impact fixture', 'CODELY_IMPACT_DEMO_PATH', '../fixtures/impact_demo'),
+    'python-architecture': ('Python architecture fixture', 'CODELY_ARCHITECTURE_DEMO_PATH', '../fixtures/structure_demo'),
     'python-demo': ('Python analysis fixture', 'CODELY_PYTHON_DEMO_PATH', '../fixtures/checklist_demo'),
 }
 

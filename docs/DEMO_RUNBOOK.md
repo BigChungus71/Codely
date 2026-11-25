@@ -35,3 +35,11 @@ PYTHONPATH=.:backend:m4 CODELY_RUN_SEMGREP_INTEGRATION=1 python -m pytest backen
 npm run typecheck
 node --experimental-strip-types --test integrations/frontend/codely-client.test.mjs
 ```
+
+## Updated graph and constraint demo
+
+Select **Python analysis fixture** for the native Semgrep scan and explanations. Then select **Python architecture fixture**, click **Load Python architecture**, and use module focus or **Open import** to inspect a real directed edge. The fixture reports partial coverage because it intentionally includes an unparsable Python file. Override its location with `CODELY_ARCHITECTURE_DEMO_PATH` only if needed.
+
+Follow **Ask a system-design question about this repository**. Open **Design constraints** above the composer and enter, for example, “50,000 concurrent users, INR 15,000/month, p95 latency under 200 ms.” Standard questions retrieve matching repository code and documents. Enable **Architecture guidelines** to request M4's source-grounded review of the observed Python architecture. The API also accepts a flat constraints object and `architecture_advice: true` on `POST /api/projects/{project_id}/design-question`. Check the cited source ranges and treat proposed changes as recommendations.
+
+Select **Python impact fixture**, run the scan, expand its finding, and select **Review static impact**. The resulting direct and transitive lists link back to source. These are statically resolved imports and indicate potential relevance only. The impact lookup requires a current completed scan from the bundled Python scanner.

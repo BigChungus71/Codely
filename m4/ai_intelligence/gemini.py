@@ -15,6 +15,10 @@ class ProviderError(RuntimeError):
     pass
 
 
+class ProviderRateLimitError(ProviderError):
+    status_code = 429
+
+
 class Generator(Protocol):
     mode: Literal["gemini", "groq", "mock"]
 
@@ -64,6 +68,8 @@ class Gemini:
                 raise ProviderError("Gemini response exceeded the size limit")
             return json.loads(raw)
         except HTTPError as error:
+            if error.code == 429:
+                raise ProviderRateLimitError("Gemini rate limit reached (HTTP 429)") from None
             raise ProviderError(f"Gemini returned HTTP {error.code}") from None
         except (URLError, TimeoutError, OSError):
             raise ProviderError("Gemini connection failed or timed out") from None

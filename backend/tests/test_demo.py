@@ -17,6 +17,8 @@ def demo(tmp_path, monkeypatch):
     monkeypatch.setenv('VOICE_AI_AGENT_PATH', str(tmp_path))
     for key in ['CODELY_SCANNER_ADAPTER','CODELY_ARCHITECTURE_ADAPTER','CODELY_EXPLANATION_ADAPTER','GEMINI_API_KEY','SEMGREP_CONFIG']:
         monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv('CODELY_IMPACT_DEMO_PATH', str(tmp_path / 'missing'))
+    monkeypatch.setenv('CODELY_ARCHITECTURE_DEMO_PATH', str(tmp_path / 'missing'))
     monkeypatch.setenv('CODELY_PYTHON_DEMO_PATH', str(tmp_path / 'missing'))
     monkeypatch.delenv('CODELY_ALLOW_EXTERNAL_AI', raising=False)
     api.cache.clear()

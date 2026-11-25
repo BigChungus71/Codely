@@ -579,3 +579,20 @@ Added `contracts/architecture-policy-v1.schema.json`,
 `backend/tests/test_architecture_rules.py`, and `ARCHITECTURE_RULES_INTEGRATION.md`.
 Updated `.gitattributes` (LF endings for the new static demo fixture) and Phase 7 docs.
 Original CodeRAG provenance hashes remain preserved. Phase 8 has not begun.
+
+## Phase 8 & 9 — Multi-Language Expansion and Final Integration (2026-11-25)
+
+Verified Phase 7 completion (`39400fc`, 358 passing tests) and inspected teammate
+branches (`origin/feature/backend-core`, `origin/feat/frontend-workspace`) without
+modifying or merging them. Added `tree-sitter==0.27.0`, `tree-sitter-java==0.23.5`,
+`tree-sitter-javascript==0.25.0`, and `tree-sitter-typescript==0.23.2` to the isolated
+environment and updated `requirements-security.txt` and `requirements-security-windows.lock.txt`.
+
+Expanded offline-validated Semgrep security packs to 34 rules across Python (12),
+Java (10), and Web JS/TS/JSX/TSX (12). Implemented modular Tree-sitter structural
+adapters (`structure_languages.py`, `structure_ts_adapters.py`), static dependency
+resolution for Java packages and JS/TS relative/index/`tsconfig.json` path-alias
+imports, multi-language checklist applicability, typed semantic graph edges (`inherits`,
+`implements`, `references_component`, inferred `potential_api_call`), multi-language
+ASIM mapping, and unified orchestration (`pipeline.py`) with `frontend_payload()` and
+redacted `gemini_context()`. See MULTI_LANGUAGE_INTEGRATION.md and FINAL_INTEGRATION.md.

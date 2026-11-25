@@ -206,3 +206,25 @@ packages. See [ARCHITECTURE_RULES_INTEGRATION.md](ARCHITECTURE_RULES_INTEGRATION
 [the policy schema](contracts/architecture-policy-v1.schema.json),
 [the example policy](contracts/examples/architecture-policy-v1.json), and
 [the demonstration JSON](contracts/examples/architecture-evaluation-v1.json).
+
+## Phase 8 & 9 multi-language expansion and unified pipeline
+
+Codely's Security and Code Intelligence pipeline supports **Python, Java, JavaScript,
+TypeScript, JSX, and TSX**, with configuration profiling for JSON, YAML, HTML, CSS,
+SQL, and Dockerfiles. Install pinned dependencies with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-security.txt
+```
+
+Run the unified end-to-end pipeline:
+
+```powershell
+python -m backend.app.analyzers.pipeline fixtures/fullstack_demo --policy contracts/examples/architecture-policy-v1.json
+python tools/validate_security_rules.py
+python tools/benchmark_pipeline.py
+```
+
+See [MULTI_LANGUAGE_INTEGRATION.md](MULTI_LANGUAGE_INTEGRATION.md) and
+[FINAL_INTEGRATION.md](FINAL_INTEGRATION.md) for capability matrices, integration
+payloads, benchmark results, and limitations.

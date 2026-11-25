@@ -41,5 +41,12 @@ Reuse existing RepositoryStructure and ArchitectureGraph without re-parsing, sca
 execution, target execution, source rewriting, or LLM API calls. Distinguish confirmed
 structural observations from heuristic maintainability concerns, keep observations
 separate from security findings, and do not assume layered architecture when no policy
-is supplied. See ARCHITECTURE_RULES_INTEGRATION.md. Commit/push only security-analysis
-and stop after Phase 7; do not begin Phase 8.
+is supplied. See ARCHITECTURE_RULES_INTEGRATION.md.
+
+The user subsequently authorized Phase 8 (Multi-Language Expansion) and Phase 9 (Final
+Integration and Validation). Support Python AST plus Tree-sitter adapters for Java,
+JavaScript, JSX, TypeScript, and TSX; validate all 34 local Semgrep rules offline;
+preserve all existing Python contracts, CodeRAG provenance hashes, and teammate-owned
+modules; never execute target code or package builds; and push validated work
+exclusively to `security-analysis`. See MULTI_LANGUAGE_INTEGRATION.md and
+FINAL_INTEGRATION.md.

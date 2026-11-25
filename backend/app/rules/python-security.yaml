@@ -1,0 +1,408 @@
+rules:
+- id: codely.python.dynamic-eval
+  languages:
+  - python
+  severity: WARNING
+  message: Dynamic eval can execute input as Python code; review the input trust boundary.
+  metadata:
+    title: Potential unsafe dynamic evaluation
+    description: Dynamic eval can execute input as Python code; review the input trust boundary.
+    severity: MEDIUM
+    cwe:
+    - CWE-95
+    owasp:
+    - A03:2021 - Injection
+    remediation: Replace eval with a constrained parser such as ast.literal_eval for literal data, or explicit
+      operation dispatch.
+    references:
+    - https://docs.python.org/3/library/functions.html#eval
+    rule_pack: python-security-v2
+  pattern: eval($EXPRESSION)
+- id: codely.python.dynamic-exec
+  languages:
+  - python
+  severity: ERROR
+  message: Dynamic exec executes Python statements; review the input trust boundary.
+  metadata:
+    title: Potential unsafe dynamic execution
+    description: Dynamic exec executes Python statements; review the input trust boundary.
+    severity: HIGH
+    cwe:
+    - CWE-95
+    owasp:
+    - A03:2021 - Injection
+    remediation: Replace dynamic statements with explicit functions or constrained operation dispatch.
+    references:
+    - https://docs.python.org/3/library/functions.html#exec
+    rule_pack: python-security-v2
+  pattern: exec($CODE, ...)
+- id: codely.python.sql-injection
+  languages:
+  - python
+  severity: ERROR
+  message: Supported user input reaches a SQL query argument; use bound query parameters.
+  metadata:
+    title: Potential SQL injection
+    description: Supported user input reaches a SQL query argument; use bound query parameters.
+    severity: HIGH
+    cwe:
+    - CWE-89
+    owasp:
+    - A03:2021 - Injection
+    remediation: Use a constant SQL statement with driver-specific parameter placeholders and pass values
+      separately.
+    references:
+    - https://docs.python.org/3/library/sqlite3.html#sqlite3-placeholders
+    rule_pack: python-security-v2
+  mode: taint
+  pattern-sources:
+  - pattern: input(...)
+    exact: true
+  - pattern: flask.request.args.get(...)
+    exact: true
+  - pattern: flask.request.form.get(...)
+    exact: true
+  - pattern: flask.request.values.get(...)
+    exact: true
+  - pattern: flask.request.args[$KEY]
+    exact: true
+  - pattern: flask.request.form[$KEY]
+    exact: true
+  - pattern: flask.request.get_json(...)
+    exact: true
+  - pattern: flask.request.get_data(...)
+    exact: true
+  - pattern: flask.request.data
+    exact: true
+  pattern-sinks:
+  - patterns:
+    - pattern: $CURSOR.execute($QUERY, ...)
+    - focus-metavariable: $QUERY
+    exact: true
+  - patterns:
+    - pattern: $CURSOR.executemany($QUERY, ...)
+    - focus-metavariable: $QUERY
+    exact: true
+- id: codely.python.command-injection
+  languages:
+  - python
+  severity: ERROR
+  message: Supported user input reaches a shell command; avoid shell interpretation.
+  metadata:
+    title: Potential shell command injection
+    description: Supported user input reaches a shell command; avoid shell interpretation.
+    severity: HIGH
+    cwe:
+    - CWE-78
+    owasp:
+    - A03:2021 - Injection
+    remediation: Use a fixed executable and an argument list with shell=False; validate arguments and avoid
+      os.system/os.popen.
+    references:
+    - https://docs.python.org/3/library/subprocess.html#security-considerations
+    rule_pack: python-security-v2
+  mode: taint
+  pattern-sources:
+  - pattern: input(...)
+    exact: true
+  - pattern: flask.request.args.get(...)
+    exact: true
+  - pattern: flask.request.form.get(...)
+    exact: true
+  - pattern: flask.request.values.get(...)
+    exact: true
+  - pattern: flask.request.args[$KEY]
+    exact: true
+  - pattern: flask.request.form[$KEY]
+    exact: true
+  - pattern: flask.request.get_json(...)
+    exact: true
+  - pattern: flask.request.get_data(...)
+    exact: true
+  - pattern: flask.request.data
+    exact: true
+  pattern-sinks:
+  - patterns:
+    - pattern: os.system($COMMAND)
+    - focus-metavariable: $COMMAND
+    exact: true
+  - patterns:
+    - pattern: os.popen($COMMAND, ...)
+    - focus-metavariable: $COMMAND
+    exact: true
+  - patterns:
+    - pattern: subprocess.run($COMMAND, ..., shell=True, ...)
+    - focus-metavariable: $COMMAND
+    exact: true
+  - patterns:
+    - pattern: subprocess.call($COMMAND, ..., shell=True, ...)
+    - focus-metavariable: $COMMAND
+    exact: true
+  - patterns:
+    - pattern: subprocess.check_call($COMMAND, ..., shell=True, ...)
+    - focus-metavariable: $COMMAND
+    exact: true
+  - patterns:
+    - pattern: subprocess.check_output($COMMAND, ..., shell=True, ...)
+    - focus-metavariable: $COMMAND
+    exact: true
+  - patterns:
+    - pattern: subprocess.Popen($COMMAND, ..., shell=True, ...)
+    - focus-metavariable: $COMMAND
+    exact: true
+- id: codely.python.hardcoded-credential
+  languages:
+  - python
+  severity: ERROR
+  message: A credential-like name is assigned a nonempty literal; move credentials out of source control.
+  metadata:
+    title: Potential hardcoded credential
+    description: A credential-like name is assigned a nonempty literal; move credentials out of source
+      control.
+    severity: HIGH
+    cwe:
+    - CWE-798
+    owasp:
+    - A07:2021 - Identification and Authentication Failures
+    remediation: Load credentials from a managed secret store or environment and rotate exposed credentials.
+    references:
+    - https://cwe.mitre.org/data/definitions/798.html
+    rule_pack: python-security-v2
+  patterns:
+  - pattern-either:
+    - pattern: $NAME = "$SECRET"
+    - pattern: $OBJ.$NAME = "$SECRET"
+    - pattern: '{"$NAME": "$SECRET", ...}'
+  - metavariable-regex:
+      metavariable: $NAME
+      regex:
+        (?i)^(?:[a-z0-9]+_)*(?:password|passwd|pwd|secret|api_key|access_token|auth_token|client_secret|secret_key)$
+  - metavariable-regex:
+      metavariable: $SECRET
+      regex: ^(?!(?i:changeme|example|placeholder|your[_ -].*|<.*>|\$\{.*\})$).+$
+- id: codely.python.unsafe-pickle
+  languages:
+  - python
+  severity: ERROR
+  message: Supported user input reaches pickle deserialization, which can execute attacker-controlled code.
+  metadata:
+    title: Untrusted pickle deserialization
+    description: Supported user input reaches pickle deserialization, which can execute attacker-controlled
+      code.
+    severity: HIGH
+    cwe:
+    - CWE-502
+    owasp:
+    - A08:2021 - Software and Data Integrity Failures
+    remediation: Use JSON or another data-only format for untrusted data; never deserialize untrusted pickle.
+    references:
+    - https://docs.python.org/3/library/pickle.html
+    rule_pack: python-security-v2
+  mode: taint
+  pattern-sources:
+  - pattern: input(...)
+    exact: true
+  - pattern: flask.request.args.get(...)
+    exact: true
+  - pattern: flask.request.form.get(...)
+    exact: true
+  - pattern: flask.request.values.get(...)
+    exact: true
+  - pattern: flask.request.args[$KEY]
+    exact: true
+  - pattern: flask.request.form[$KEY]
+    exact: true
+  - pattern: flask.request.get_json(...)
+    exact: true
+  - pattern: flask.request.get_data(...)
+    exact: true
+  - pattern: flask.request.data
+    exact: true
+  pattern-sinks:
+  - patterns:
+    - pattern: pickle.loads($DATA, ...)
+    - focus-metavariable: $DATA
+    exact: true
+  - patterns:
+    - pattern: pickle.load($DATA, ...)
+    - focus-metavariable: $DATA
+    exact: true
+- id: codely.python.unsafe-yaml
+  languages:
+  - python
+  severity: ERROR
+  message: YAML is loaded with an unsafe or legacy default loader that can construct Python objects.
+  metadata:
+    title: Unsafe YAML object construction
+    description: YAML is loaded with an unsafe or legacy default loader that can construct Python objects.
+    severity: HIGH
+    cwe:
+    - CWE-502
+    owasp:
+    - A08:2021 - Software and Data Integrity Failures
+    remediation: Use yaml.safe_load or yaml.safe_load_all with untrusted input; use SafeLoader explicitly when
+      needed.
+    references:
+    - https://pyyaml.org/wiki/PyYAMLDocumentation
+    rule_pack: python-security-v2
+  pattern-either:
+  - pattern: yaml.load($DATA, ..., Loader=yaml.Loader, ...)
+  - pattern: yaml.load($DATA, ..., Loader=yaml.UnsafeLoader, ...)
+  - pattern: yaml.load($DATA, ..., Loader=yaml.CLoader, ...)
+  - pattern: yaml.load($DATA, ..., Loader=yaml.CUnsafeLoader, ...)
+  - pattern: yaml.load_all($DATA, ..., Loader=yaml.Loader, ...)
+  - pattern: yaml.load_all($DATA, ..., Loader=yaml.UnsafeLoader, ...)
+  - pattern: yaml.load_all($DATA, ..., Loader=yaml.CLoader, ...)
+  - pattern: yaml.load_all($DATA, ..., Loader=yaml.CUnsafeLoader, ...)
+  - pattern: yaml.unsafe_load(...)
+  - pattern: yaml.unsafe_load_all(...)
+  - pattern: yaml.load($DATA)
+  - pattern: yaml.load_all($DATA)
+- id: codely.python.weak-password-hash
+  languages:
+  - python
+  severity: ERROR
+  message: A password-named value is passed to a fast general-purpose hash rather than a password KDF.
+  metadata:
+    title: Fast hash used for a password
+    description: A password-named value is passed to a fast general-purpose hash rather than a password KDF.
+    severity: HIGH
+    cwe:
+    - CWE-916
+    owasp:
+    - A07:2021 - Identification and Authentication Failures
+    remediation: Use a salted password KDF such as Argon2id, scrypt or appropriately configured PBKDF2.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+    rule_pack: python-security-v2
+  patterns:
+  - pattern-either:
+    - pattern: hashlib.$HASH($PASSWORD, ...)
+    - pattern: hashlib.$HASH($PASSWORD.encode(...), ...)
+  - metavariable-regex:
+      metavariable: $HASH
+      regex: ^(md5|sha1|sha224|sha256|sha384|sha512)$
+  - metavariable-regex:
+      metavariable: $PASSWORD
+      regex: (?i)^[a-z0-9_]*(password|passwd|pwd)[a-z0-9_]*$
+- id: codely.python.tls-verification-disabled
+  languages:
+  - python
+  severity: ERROR
+  message: Certificate verification is explicitly disabled in a supported HTTP/TLS API.
+  metadata:
+    title: TLS certificate verification disabled
+    description: Certificate verification is explicitly disabled in a supported HTTP/TLS API.
+    severity: HIGH
+    cwe:
+    - CWE-295
+    owasp:
+    - A02:2021 - Cryptographic Failures
+    remediation: Enable certificate verification and configure a trusted CA bundle for private certificates.
+    references:
+    - https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification
+    rule_pack: python-security-v2
+  pattern-either:
+  - pattern: requests.get(..., verify=False, ...)
+  - pattern: requests.post(..., verify=False, ...)
+  - pattern: requests.put(..., verify=False, ...)
+  - pattern: requests.patch(..., verify=False, ...)
+  - pattern: requests.delete(..., verify=False, ...)
+  - pattern: requests.head(..., verify=False, ...)
+  - pattern: requests.options(..., verify=False, ...)
+  - pattern: requests.request(..., verify=False, ...)
+  - pattern: httpx.get(..., verify=False, ...)
+  - pattern: httpx.post(..., verify=False, ...)
+  - pattern: httpx.put(..., verify=False, ...)
+  - pattern: httpx.patch(..., verify=False, ...)
+  - pattern: httpx.delete(..., verify=False, ...)
+  - pattern: httpx.head(..., verify=False, ...)
+  - pattern: httpx.options(..., verify=False, ...)
+  - pattern: httpx.request(..., verify=False, ...)
+  - pattern: httpx.Client(..., verify=False, ...)
+  - pattern: httpx.AsyncClient(..., verify=False, ...)
+  - pattern: ssl._create_unverified_context(...)
+- id: codely.python.insecure-tempfile
+  languages:
+  - python
+  severity: WARNING
+  message: tempfile.mktemp returns a name without atomically creating the file.
+  metadata:
+    title: Race-prone temporary filename creation
+    description: tempfile.mktemp returns a name without atomically creating the file.
+    severity: MEDIUM
+    cwe:
+    - CWE-377
+    owasp: []
+    remediation: Use tempfile.NamedTemporaryFile, TemporaryFile or mkstemp and keep the returned handle.
+    references:
+    - https://docs.python.org/3/library/tempfile.html#tempfile.mktemp
+    rule_pack: python-security-v2
+  pattern: tempfile.mktemp(...)
+- id: codely.python.flask-debug
+  languages:
+  - python
+  severity: ERROR
+  message: A Flask application is explicitly configured with debug enabled.
+  metadata:
+    title: Flask debugger enabled
+    description: A Flask application is explicitly configured with debug enabled.
+    severity: HIGH
+    cwe:
+    - CWE-489
+    owasp:
+    - A05:2021 - Security Misconfiguration
+    remediation: Disable the development debugger outside isolated development environments and use a
+      production server.
+    references:
+    - https://flask.palletsprojects.com/en/stable/debugging/
+    rule_pack: python-security-v2
+  pattern-either:
+  - patterns:
+    - pattern-inside: "$APP = flask.Flask(...)\n...\n"
+    - pattern-either:
+      - pattern: $APP.run(..., debug=True, ...)
+      - pattern: $APP.config["DEBUG"] = True
+  - pattern: flask.Flask(...).run(..., debug=True, ...)
+- id: codely.python.insecure-security-random
+  languages:
+  - python
+  severity: WARNING
+  message: A random-module value flows into a token, secret, password, nonce or OTP-named assignment.
+  metadata:
+    title: Predictable randomness in a security value
+    description: A random-module value flows into a token, secret, password, nonce or OTP-named assignment.
+    severity: MEDIUM
+    cwe:
+    - CWE-338
+    owasp:
+    - A02:2021 - Cryptographic Failures
+    remediation: Generate security values with secrets.token_urlsafe, secrets.token_hex or secrets.choice.
+    references:
+    - https://docs.python.org/3/library/secrets.html
+    rule_pack: python-security-v2
+  mode: taint
+  pattern-sources:
+  - pattern: random.random(...)
+    exact: true
+  - pattern: random.randint(...)
+    exact: true
+  - pattern: random.randrange(...)
+    exact: true
+  - pattern: random.choice(...)
+    exact: true
+  - pattern: random.choices(...)
+    exact: true
+  - pattern: random.getrandbits(...)
+    exact: true
+  - pattern: random.randbytes(...)
+    exact: true
+  pattern-sinks:
+  - patterns:
+    - pattern: $NAME = $VALUE
+    - metavariable-regex:
+        metavariable: $NAME
+        regex:
+          (?i)^(?:[a-z0-9]+_)*(?:token|secret|otp|nonce|password|reset_code|session_id|api_key)(?:_[a-z0-9]+)*$
+    - focus-metavariable: $VALUE
+    exact: true

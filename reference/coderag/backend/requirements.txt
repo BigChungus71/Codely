@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+gunicorn
+faiss-cpu
+python-dotenv
+numpy
+pydantic
+pylint
+openai
+requests
+google-generativeai
+PyPDF2
+python-multipart

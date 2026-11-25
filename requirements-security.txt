@@ -1,0 +1,4 @@
+# Direct security/test dependencies; keep separate from backend/RAG requirements.
+semgrep==1.187.0
+networkx==3.6.1
+pytest==9.2.0

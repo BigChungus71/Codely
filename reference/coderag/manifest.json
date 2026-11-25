@@ -1,0 +1,86 @@
+[
+  {
+    "file": "reference/coderag/backend/README.md",
+    "sha256": "9657ad042962c43615aec7d55a65d6036f5bfe05092e8b6adbe449fc37ed090f"
+  },
+  {
+    "file": "reference/coderag/backend/architect_service.py",
+    "sha256": "60498fc4d8199af0fe864aebd96244c295103b4eb9c59f1a72a97df183c93790"
+  },
+  {
+    "file": "reference/coderag/backend/doc_processor.py",
+    "sha256": "7a443a2a0ceebc92d1bcd5e9f35b793a1637f9d0254d089dfe4e6f0a3970f3cd"
+  },
+  {
+    "file": "reference/coderag/backend/indexer.py",
+    "sha256": "8814a67f2f15951c65ecea87973d94a1e738d665f78177fd0796101383ecae95"
+  },
+  {
+    "file": "reference/coderag/backend/main.py",
+    "sha256": "7765e74778faae62407495780c5508de004dc7a6a382be00ca75cb0f6a0766ac"
+  },
+  {
+    "file": "reference/coderag/backend/memory_store.py",
+    "sha256": "e4e6187035a3ccb1116735d5588e6f62dc88cec5170c7d86794047722feb5225"
+  },
+  {
+    "file": "reference/coderag/backend/models/architect_schemas.py",
+    "sha256": "7dc1c7be804d97efe6d63195bb51c5f828215f09c15ecf24a44811ebfaa696f2"
+  },
+  {
+    "file": "reference/coderag/backend/models/embedding_service.py",
+    "sha256": "32ddbdd374980346f407a901474c0de987e387e12d44ca139574f21b8fe39cdb"
+  },
+  {
+    "file": "reference/coderag/backend/models/schemas.py",
+    "sha256": "c5d61abcdfd87cf37f68241b7f1cda281ab2805cbeb8bbfdbb320abe61a1ed23"
+  },
+  {
+    "file": "reference/coderag/backend/requirements.txt",
+    "sha256": "3d9c6b30da09d2a3fe34ee50d9853b950ce24e5bcc885cf8651c79b9c6def3c2"
+  },
+  {
+    "file": "reference/coderag/backend/retriever.py",
+    "sha256": "39042a5ee5e90e06764e2f902886ab8cbe0b7be6b5f97488249178a73a15ed56"
+  },
+  {
+    "file": "reference/coderag/backend/test_embed.py",
+    "sha256": "d8c8405da3459420067f45f40561c93a109890b87af626db377490ddb302deb6"
+  },
+  {
+    "file": "reference/coderag/backend/test_models.py",
+    "sha256": "ad9f937eadc3bd12a3684dc483f0dfa2f8a4065601210ad6052378b2dd054cf8"
+  },
+  {
+    "file": "reference/coderag/backend/validator.py",
+    "sha256": "9b2fced9de26d5090eaf9fcfad624a54801c421702fb1a07436a009b34d03150"
+  },
+  {
+    "file": "reference/coderag/extension/LICENSE",
+    "sha256": "f1129821ef0b2a28e2fdc72da6245d8c6eba7649ac4177a6d2b52f3a0ecca13a"
+  },
+  {
+    "file": "reference/coderag/extension/README.md",
+    "sha256": "2e85dc719e39de24e5dcc08a263f0a2bb9fd0ccbadd5ce76b17f1b00cdfd1346"
+  },
+  {
+    "file": "reference/coderag/extension/package.json",
+    "sha256": "0f85b1cc87916aa35fef2c440e3ef24cdc51be50f71f3a6442a8146d9e49e9e6"
+  },
+  {
+    "file": "reference/coderag/extension/src/extension.ts",
+    "sha256": "146ab43c54ae70059bc16eb64c1c8fcd405c71d628f8f83ed43f5cd12104da0d"
+  },
+  {
+    "file": "reference/coderag/extension/src/localIndex.ts",
+    "sha256": "ee4a9653e6c85b4a0a85b8ecb33ea0967f1eeb92c04b2171969278ff690d6af2"
+  },
+  {
+    "file": "reference/coderag/extension/src/webviewPanel.ts",
+    "sha256": "470b84b64248de51d912b7bcdff39af90a4f8171facdc9dd53bbe9ab1854e9e9"
+  },
+  {
+    "file": "reference/coderag/extension/tsconfig.json",
+    "sha256": "c5118e4b8d1347a34cdf3eeff98b0ea97b7240e00f5ec5c37c779793404aff26"
+  }
+]

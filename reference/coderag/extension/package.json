@@ -1,0 +1,118 @@
+{
+  "name": "coderag-extension",
+  "displayName": "CodeRAG",
+  "publisher": "ssundxr",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssundxr/coderag"
+  },
+  "description": "Code Retrieval-Augmented Generation — Copilot's Semantic Vector Brain with Context Visualizer, Confidence Checker & Doc RAG",
+  "version": "2.0.0",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguageModelTool:codeRagSearch",
+    "onChatParticipant:coderag"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "coderag.indexWorkspace",
+        "title": "CodeRAG: Index Workspace"
+      },
+      {
+        "command": "coderag.openDashboard",
+        "title": "CodeRAG: Open Intelligence Dashboard"
+      },
+      {
+        "command": "coderag.uploadDoc",
+        "title": "CodeRAG: Upload Document for RAG"
+      },
+      {
+        "command": "coderag.analyzeBlastRadius",
+        "title": "CodeRAG Architect: Predict Blast Radius"
+      },
+      {
+        "command": "coderag.debugError",
+        "title": "CodeRAG Architect: Debug Semantic Error"
+      },
+      {
+        "command": "coderag.reviewCode",
+        "title": "CodeRAG Architect: Code Review File against Repo"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "coderag.analyzeBlastRadius",
+          "group": "coderag@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "coderag.debugError",
+          "group": "coderag@2",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "coderag.reviewCode",
+          "group": "coderag@3"
+        }
+      ]
+    },
+    "chatParticipants": [
+      {
+        "id": "coderag",
+        "name": "coderag",
+        "fullName": "CodeRAG",
+        "description": "Retrieve relevant code context from the CodeRAG semantic vector database",
+        "isSticky": true
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "codeRagSearch",
+        "displayName": "CodeRAG Search",
+        "toolReferenceName": "coderag",
+        "canBeReferencedInPrompt": true,
+        "userDescription": "Search the CodeRAG semantic vector database for relevant code from the entire repository. Type #codeRagSearch in your prompt to include this context.",
+        "modelDescription": "Search the project's semantic vector database (powered by Azure OpenAI text-embedding-3-small) to retrieve real code snippets from the repository. Call this tool BEFORE generating any code, to ground your response in the actual codebase. Returns real source code chunks with file paths and confidence scores.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "The natural language search query describing what code to find, e.g. 'database connection logic' or 'authentication middleware'"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run package",
+    "watch": "npm run package -- --watch",
+    "package": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "build": "npm run package"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/vscode": "^1.95.0",
+    "esbuild": "^0.18.0",
+    "typescript": "^5.1.0"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "form-data": "^4.0.0"
+  }
+}

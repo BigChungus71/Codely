@@ -550,3 +550,32 @@ source-version responsibilities and uncertainty. API/Gemini/frontend code is not
 changed. Added LF normalization only for the new demo fixtures and updated scoped
 AGENTS/security docs/report. Original dependency declarations, contracts, fixtures
 and all CodeRAG provenance hashes are preserved. Phase 7 has not begun.
+
+## Phase 7 — Architecture Rules and Optimization Engine (2026-11-25)
+
+Verified Phase 6 completion at local/remote `3a87132`, clean working tree, and 342
+passing baseline tests. Phase 7 adds `architecture_policy.py`, `architecture_rules.py`,
+and `architecture_rules_cli.py` without changing existing scanner, checklist, AST,
+graph, ASIM implementations, schemas, dependencies, or teammate-owned modules.
+
+The pure evaluator reuses `RepositoryStructure` and `ArchitectureGraph` after verifying
+cross-input consistency (failing closed on mismatch or empty/error repositories). It
+implements 12 deterministic checks (`CODELY-ARCH-001` through `CODELY-ARCH-012`) covering
+circular dependencies, policy-aware layer boundaries, controller-to-data-access rules,
+total/fan-in/fan-out coupling, module/function size, parameter counts, cross-module
+inheritance depth, responsibility concentration, and unresolved internal imports.
+
+Confirmed structural observations are distinguished from heuristic maintainability
+concerns, and `policy=None` never assumes layered architecture. Advisory improvements,
+trade-offs, validation methods, and limitations are included without rewriting source or
+inventing quality scores, runtime speedups, or exploitability probabilities.
+`observations.gemini_evidence_package()` builds a nontext evidence package for the
+GenAI layer without calling Gemini.
+
+Added `contracts/architecture-policy-v1.schema.json`,
+`contracts/architecture-evaluation-v1.schema.json`,
+`contracts/examples/architecture-policy-v1.json`,
+`contracts/examples/architecture-evaluation-v1.json`, `fixtures/architecture_rules_demo/`,
+`backend/tests/test_architecture_rules.py`, and `ARCHITECTURE_RULES_INTEGRATION.md`.
+Updated `.gitattributes` (LF endings for the new static demo fixture) and Phase 7 docs.
+Original CodeRAG provenance hashes remain preserved. Phase 8 has not begun.

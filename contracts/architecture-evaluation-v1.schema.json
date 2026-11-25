@@ -1,0 +1,335 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely architecture evaluation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "policy",
+    "summary",
+    "observations",
+    "supporting_metrics",
+    "diagnostics",
+    "coverage"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "error"
+      ]
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "architecture_style",
+        "layers",
+        "thresholds",
+        "policy_configured",
+        "layer_rules_active"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_observations",
+        "by_priority",
+        "by_category",
+        "by_evidence_classification",
+        "evaluated_modules",
+        "evaluated_edges",
+        "evaluated_classes",
+        "evaluated_functions"
+      ],
+      "properties": {
+        "total_observations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "by_priority": {
+          "type": "object",
+          "required": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ],
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "by_category": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "by_evidence_classification": {
+          "type": "object",
+          "required": [
+            "confirmed_structural",
+            "heuristic_maintainability"
+          ],
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "evaluated_modules": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evaluated_edges": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evaluated_classes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evaluated_functions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/observation"
+      }
+    },
+    "supporting_metrics": {
+      "type": "object",
+      "required": [
+        "graph",
+        "structure"
+      ]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code"
+        ]
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "structure_status",
+        "graph_status",
+        "graph_structure_consistent",
+        "policy_configured",
+        "layer_rules_active",
+        "truncated",
+        "limits",
+        "limitations"
+      ]
+    }
+  },
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "rule_id",
+        "category",
+        "priority",
+        "title",
+        "explanation",
+        "affected_modules",
+        "affected_symbols",
+        "source_locations",
+        "supporting_graph_evidence",
+        "observed_metric",
+        "configured_threshold",
+        "suggested_improvement",
+        "trade_offs",
+        "validation_method",
+        "confidence",
+        "evidence_classification",
+        "known_limitations",
+        "advisory_only"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_id": {
+          "type": "string",
+          "pattern": "^CODELY-ARCH-0(0[1-9]|1[0-2])$"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priority": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affected_modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "module_id",
+              "file",
+              "label",
+              "role",
+              "classification_confidence"
+            ]
+          }
+        },
+        "affected_symbols": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "module_id",
+              "name",
+              "qualified_name",
+              "kind",
+              "file",
+              "start_line",
+              "end_line"
+            ]
+          }
+        },
+        "source_locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "file",
+              "start_line",
+              "end_line",
+              "kind"
+            ],
+            "properties": {
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "start_line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "supporting_graph_evidence": {
+          "type": "object",
+          "required": [
+            "node_ids",
+            "edge_ids",
+            "dependency_paths",
+            "component_ids",
+            "import_evidence"
+          ]
+        },
+        "observed_metric": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "name",
+                "value",
+                "unit"
+              ]
+            }
+          ]
+        },
+        "configured_threshold": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "name",
+                "value",
+                "unit",
+                "source"
+              ]
+            }
+          ]
+        },
+        "suggested_improvement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trade_offs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "validation_method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "enum": [
+            "confirmed",
+            "inferred",
+            "heuristic"
+          ]
+        },
+        "evidence_classification": {
+          "enum": [
+            "confirmed_structural",
+            "heuristic_maintainability"
+          ]
+        },
+        "known_limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "advisory_only": {
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -488,3 +488,65 @@ partial-status handling gap, without changing teammate API/frontend modules.
 Scanner, checklist, AST implementation, old contracts, dependencies, archive bytes
 and CodeRAG provenance are preserved. No main push, force-push or merge is authorized.
 Phase 6 has not begun; no complete vulnerability impact mapping is implemented.
+
+## Phase 6 — Architectural Security Impact Mapping (2026-11-25)
+
+Verified Phase 5 completion at local/remote 662ddaa83f21bae2369184ffb1fec2719c47845c,
+clean working tree, and saved 281-test passing baseline. Phase 6 adds impact_analyzer.py,
+impact_paths.py and impact_cli.py without changing existing scanner/checklist/AST/
+graph implementations or schemas. No dependencies are installed or changed.
+
+The pure mapper reuses ScanResult, RepositoryStructure and ArchitectureGraph.
+It normalizes relative/Windows paths, validates source ranges and graph-node
+association, and reuses AST enclosing-symbol helpers. Missing, malformed, duplicate,
+unparsed, out-of-range, unmapped or budget-limited findings remain explicit.
+Graph/source reference mismatches fail closed. Shared contract identity does not
+prove that a scan and structure are the same content version; the backend must
+bind all stages to an immutable project repository version.
+
+Original finding ID, rule ID, source, severity, CWE and location are preserved
+in a distinct nontext metadata object. Title/message and arbitrary raw evidence
+are deliberately omitted; input findings remain untouched. No literal values,
+source snippets, credentials or raw diagnostics are exported. Evidence references
+include source locations and enclosing function/method/class descriptors.
+
+Reverse traversal is cached per vulnerable module; same-module findings reuse it.
+The engine identifies direct/transitive dependents with graph-hop distances,
+architectural roles/confidence and bounded shortest import paths. Additional
+shortest alternatives follow a decreasing-distance DAG, so cycles cannot recurse
+indefinitely. Counts are static potential relevance, not assigned vulnerabilities,
+exploit probabilities or security scores. Unrelated outgoing branches are excluded.
+
+Limits cover findings, module traversals, depth/nodes/edges/paths, extra path search,
+proof records and diagnostics. Any clipped proof is marked on affected findings
+and module analyses. Unresolved/ambiguous imports make impact coverage partial
+even when the graph builder completed its resolved subset. No failed empty scan
+is presented as a successful zero-impact result. Shared module/evidence tables
+avoid duplicating large proof arrays in repository-wide output.
+
+Created fixtures/impact_demo with seven static files: Flask app, blueprint API,
+auth wrapper, service, database, circular-import helper and unrelated utility.
+Actual native Semgrep -> AST -> graph -> ASIM pipeline detects one HIGH/CWE-89
+sql-injection finding at database.py:11, maps Repository.lookup / Repository, and
+returns one mapped finding and zero unmapped findings. Direct dependent is
+services.py (distance 1); transitive dependents are api.py/cycle.py (distance 2)
+and app.py (distance 3). The architecture has seven nodes, six import edges and
+one cyclic component. Four shortest proof paths use four distinct supporting
+edges. unrelated.py and auth.py are excluded from this finding's dependent set.
+Nothing in the fixture is imported/executed; no DB, HTTP request or auth flow runs.
+
+Final full regression: 342 passed in 22.86s, comprising 320 unit/static tests
+(including 58 new ASIM tests) and 22 native-backed tests (including three new
+end-to-end assertions over a real pipeline). Unit tests supply synthetic normalized
+findings and actual AST/graph objects; they do not claim actual scanner detection.
+Native tests verify detection/mapping, exact dependent sets with the cycle, schema
+validation and exact representative JSON from fresh scanner output. Previous
+12-rule/15-check/structure/graph tests remain passing.
+
+Added contracts/security-impact-v1.schema.json, contracts/examples/security-impact-v1.json
+and IMPACT_INTEGRATION.md. The guide covers single-finding/repository analysis,
+frontend highlighting of existing IDs, Gemini evidence consumption, privacy,
+source-version responsibilities and uncertainty. API/Gemini/frontend code is not
+changed. Added LF normalization only for the new demo fixtures and updated scoped
+AGENTS/security docs/report. Original dependency declarations, contracts, fixtures
+and all CodeRAG provenance hashes are preserved. Phase 7 has not begun.

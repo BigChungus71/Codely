@@ -208,3 +208,7 @@ An actual graph of the shared checkout has 86 nodes, 51 merged edges, 81 import
 evidence records and one cyclic component; its partial result is saved locally
 in ignored `.semgrep-local/phase5-shared-graph.json`. These are observations, not
 architecture quality conclusions. No new dependencies or prior contracts changed.
+
+Phase 6 now consumes this unchanged graph through
+`impact_analyzer.analyze_security_impact(scan, structure, architecture)`.
+See IMPACT_INTEGRATION.md for potential-relevance semantics and coverage limits.

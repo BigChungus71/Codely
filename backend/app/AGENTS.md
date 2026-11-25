@@ -28,3 +28,10 @@ with all supporting evidence; no fabricated unresolved edges or runtime-call cla
 Preserve confidence/coverage and bound traversal. See ARCHITECTURE_INTEGRATION.md.
 Commit/push only security-analysis. Stop before the complete Phase 6 impact mapper;
 no API/frontend/Gemini work or metric-only architecture quality verdicts.
+
+The user subsequently authorized Phase 6 ASIM. Reuse existing scan/structure/graph
+objects; preserve explicit unmapped/partial/truncated states and severity only on
+original findings. Static dependent reachability is potential relevance, not
+confirmed exploit propagation. Do not export source values or duplicate GenAI
+modules. See IMPACT_INTEGRATION.md. Commit/push only security-analysis and stop
+before Phase 7 architecture rules/optimization checks.

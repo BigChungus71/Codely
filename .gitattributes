@@ -2,3 +2,4 @@
 reference/coderag/** -text whitespace=-blank-at-eol
 *.zip -text
 fixtures/structure_demo/** text eol=lf
+fixtures/impact_demo/** text eol=lf

@@ -48,6 +48,7 @@ class Extractor(ast.NodeVisitor):
         self.file, self.module_id = file, module_id
         self.classes, self.functions, self.imports, self.symbols, self.calls = [], [], [], [], []
         self.frameworks, self.classifications = [], []
+        self.route_records = []
         self.scopes = [(module_id, '', 'module')]
         self.aliases = [{}]
         self.objects = [{}]
@@ -109,12 +110,17 @@ class Extractor(ast.NodeVisitor):
             if obj[0] == 'flask' and method == 'route' and not methods:
                 # Default can be affected by framework configuration; do not invent methods.
                 methods = []
+            is_lit_path = bool(decorator.args and isinstance(decorator.args[0], ast.Constant)
+                               and isinstance(decorator.args[0].value, str))
             self.frameworks.append({'id': self.node_id('route', decorator, symbol_id),
                 'framework': obj[0], 'kind': 'route', 'receiver': receiver,
                 'receiver_kind': obj[1], 'symbol_id': symbol_id, 'methods': methods,
-                'path_is_literal': bool(decorator.args and isinstance(decorator.args[0], ast.Constant)
-                                        and isinstance(decorator.args[0].value, str)),
+                'path_is_literal': is_lit_path,
                 'path': '<redacted>', **location(self.file, decorator)})
+            if is_lit_path and decorator.args[0].value.startswith('/'):
+                raw_path = decorator.args[0].value.split('?', 1)[0].rstrip('/') or '/'
+                self.route_records.append({'module_id': self.module_id, 'file': self.file, 'symbol_id': symbol_id,
+                    'methods': methods, 'raw_pattern': raw_path, **location(self.file, decorator)})
             self.classify('controller', 'confirmed', decorator, 'framework_route_decorator', symbol_id)
         return records
 

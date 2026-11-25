@@ -7,8 +7,15 @@ rules:
   message: Review dynamic evaluation and prefer a parser or explicit operations.
   metadata:
     title: Dynamic evaluation
+    description: Detects eval() calls in JavaScript, TypeScript, JSX, or TSX code.
+    severity: MEDIUM
     cwe:
     - CWE-95
+    owasp:
+    - A03:2021 - Injection
+    remediation: Replace eval() with JSON.parse() for structured data or explicit function dispatch.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Injection_Prevention_Cheat_Sheet.html
   pattern: eval(...)
 - id: codely.web.function-constructor
   languages:
@@ -18,8 +25,15 @@ rules:
   message: Review dynamic function construction and prefer explicit operations.
   metadata:
     title: Dynamic function constructor
+    description: Detects dynamic Function(...) construction in JavaScript/TypeScript.
+    severity: MEDIUM
     cwe:
     - CWE-95
+    owasp:
+    - A03:2021 - Injection
+    remediation: Avoid constructing functions from strings; use static functions or explicit strategy maps.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Injection_Prevention_Cheat_Sheet.html
   pattern-either:
   - pattern: new Function(...)
   - pattern: Function(...)
@@ -32,8 +46,15 @@ rules:
     pattern does not establish user control.
   metadata:
     title: Concatenated shell command
+    description: Detects child_process exec/execSync invoked with a concatenated command string.
+    severity: MEDIUM
     cwe:
     - CWE-78
+    owasp:
+    - A03:2021 - Injection
+    remediation: Use execFile/spawn with shell disabled and pass arguments as an array.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html
   pattern-either:
   - pattern: $CP.exec($LEFT + $RIGHT, ...)
   - pattern: $CP.execSync($LEFT + $RIGHT, ...)
@@ -46,8 +67,15 @@ rules:
     untrusted content.
   metadata:
     title: Raw HTML assignment
+    description: Detects direct assignment to DOM innerHTML or outerHTML properties.
+    severity: MEDIUM
     cwe:
     - CWE-79
+    owasp:
+    - A03:2021 - Injection
+    remediation: Use textContent/innerText or sanitize untrusted HTML with a trusted sanitizer such as DOMPurify.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
   pattern-either:
   - pattern: $ELEMENT.innerHTML = $VALUE;
   - pattern: $ELEMENT.outerHTML = $VALUE;
@@ -60,8 +88,15 @@ rules:
     store.
   metadata:
     title: TLS verification disabled
+    description: Detects rejectUnauthorized false options or NODE_TLS_REJECT_UNAUTHORIZED disabled globally.
+    severity: MEDIUM
     cwe:
     - CWE-295
+    owasp:
+    - A02:2021 - Cryptographic Failures
+    remediation: Keep TLS certificate verification enabled and configure a trusted CA bundle when needed.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html
   pattern-either:
   - pattern: '{ ..., rejectUnauthorized: false, ... }'
   - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -74,26 +109,53 @@ rules:
     pattern does not establish external input.
   metadata:
     title: Concatenated filesystem path
+    description: Detects fs.readFile or readFileSync invoked with concatenated path strings.
+    severity: MEDIUM
     cwe:
     - CWE-22
+    owasp:
+    - A01:2021 - Broken Access Control
+    remediation: Resolve paths against a fixed root directory and verify containment before reading files.
+    references:
+    - https://owasp.org/www-community/attacks/Path_Traversal
   pattern-either:
   - pattern: $FS.readFile($LEFT + $RIGHT, ...)
   - pattern: $FS.readFileSync($LEFT + $RIGHT, ...)
 - id: codely.web.credential-literal
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   severity: WARNING
   message: Review this credential-like variable initialized with a literal. Confirm it is a placeholder or inject its value at runtime.
   metadata:
     title: Credential-like web literal
-    cwe: [CWE-798]
+    description: Detects JS/TS credential-named variables initialized with non-empty string literals.
+    severity: MEDIUM
+    cwe:
+    - CWE-798
+    owasp:
+    - A07:2021 - Identification and Authentication Failures
+    remediation: Load secrets from environment variables or a secret manager rather than hardcoding literals.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
   pattern-regex: '(?i)\b(?:const|let|var)\s+(?:password|apiKey|clientSecret)(?:\s*:\s*string)?\s*=\s*["''][^"''\r\n]{6,}["'']'
 - id: codely.web.security-random
-  languages: [javascript, typescript]
+  languages:
+  - javascript
+  - typescript
   severity: WARNING
   message: Use a cryptographically secure random generator for tokens and other security-sensitive values. Review whether this variable is security-sensitive.
   metadata:
     title: Math.random used for a token-like value
-    cwe: [CWE-330]
+    description: Detects Math.random() assigned to variables with token, nonce, secret, or password names.
+    severity: MEDIUM
+    cwe:
+    - CWE-330
+    owasp:
+    - A02:2021 - Cryptographic Failures
+    remediation: Use crypto.randomBytes or crypto.randomUUID for security-sensitive tokens and secrets.
+    references:
+    - https://nodejs.org/api/crypto.html#cryptorandombytessize-callback
   patterns:
     - pattern-either:
         - pattern: const $TOKEN = Math.random();
@@ -101,3 +163,83 @@ rules:
     - metavariable-regex:
         metavariable: $TOKEN
         regex: '(?i).*(token|nonce|secret|password).*'
+- id: codely.web.sql-concatenation
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review concatenated SQL query construction and bind parameters separately.
+  metadata:
+    title: Concatenated SQL query in JS/TS
+    description: Detects SQL query or execute calls receiving concatenated strings.
+    severity: MEDIUM
+    cwe:
+    - CWE-89
+    owasp:
+    - A03:2021 - Injection
+    remediation: Use parameterized queries or ORM query builders instead of concatenating values into SQL strings.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
+  pattern-either:
+  - pattern: $DB.query($LEFT + $RIGHT, ...)
+  - pattern: $DB.execute($LEFT + $RIGHT, ...)
+- id: codely.web.dangerously-set-inner-html
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review React dangerouslySetInnerHTML usage and sanitize untrusted HTML before rendering.
+  metadata:
+    title: React dangerouslySetInnerHTML usage
+    description: Detects React dangerouslySetInnerHTML prop usage in JSX or TSX components.
+    severity: MEDIUM
+    cwe:
+    - CWE-79
+    owasp:
+    - A03:2021 - Injection
+    remediation: Render structured JSX elements instead, or sanitize HTML explicitly with a trusted sanitizer.
+    references:
+    - https://react.dev/reference/react-dom/components/common#dangerously-setting-the-inner-html
+  pattern-either:
+  - pattern: '<$TAG ... dangerouslySetInnerHTML={{ __html: $VALUE }} ... />'
+  - pattern: '<$TAG ... dangerouslySetInnerHTML={{ __html: $VALUE }} ...>...</$TAG>'
+- id: codely.web.insecure-cookie
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review Express cookie configuration with httpOnly or secure explicitly disabled.
+  metadata:
+    title: Insecure Express cookie configuration
+    description: Detects cookie options explicitly setting httpOnly or secure to false.
+    severity: MEDIUM
+    cwe:
+    - CWE-614
+    owasp:
+    - A05:2021 - Security Misconfiguration
+    remediation: Set httpOnly true and secure true on session and authentication cookies.
+    references:
+    - https://expressjs.com/en/advanced/best-practice-security.html
+  pattern-either:
+  - pattern: '$RES.cookie($NAME, $VAL, { ..., httpOnly: false, ... })'
+  - pattern: '$RES.cookie($NAME, $VAL, { ..., secure: false, ... })'
+- id: codely.web.open-redirect
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review Express redirect target derived from request parameters and validate against an allowlist.
+  metadata:
+    title: Unvalidated redirect target
+    description: Detects res.redirect calls using request query or route parameters directly.
+    severity: MEDIUM
+    cwe:
+    - CWE-601
+    owasp:
+    - A01:2021 - Broken Access Control
+    remediation: Validate redirect URLs against a strict allowlist of relative paths or approved hosts.
+    references:
+    - https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html
+  pattern-either:
+  - pattern: $RES.redirect($REQ.query.$PARAM)
+  - pattern: $RES.redirect($REQ.params.$PARAM)

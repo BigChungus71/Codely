@@ -437,7 +437,20 @@
                 "flask",
                 "django",
                 "sqlalchemy",
-                "sqlmodel"
+                "sqlmodel",
+                "spring",
+                "spring_boot",
+                "spring_mvc",
+                "react",
+                "nextjs",
+                "express",
+                "nestjs",
+                "nodejs",
+                "jpa",
+                "prisma",
+                "typeorm",
+                "mongoose",
+                "sequelize"
               ]
             }
           }

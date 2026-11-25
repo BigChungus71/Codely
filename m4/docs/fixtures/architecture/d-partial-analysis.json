@@ -1,0 +1,90 @@
+{
+  "project_id": "synthetic-partial",
+  "revision": "synthetic-partial-v1",
+  "structure_status": "partial",
+  "coverage": {
+    "supported_language": "python",
+    "parser_python_version": "3.12",
+    "column_units": "zero_based_utf8_bytes",
+    "discovered_files": 2,
+    "unresolved_imports": 1,
+    "ambiguous_imports": 0,
+    "dynamic_call_sites": 0,
+    "parsed_files": 1,
+    "skipped_files": 1,
+    "unsupported_files": 0,
+    "bytes_read": 76,
+    "source_roots": [
+      "."
+    ],
+    "excluded_paths": [],
+    "limits": {
+      "max_files": 5000,
+      "max_file_bytes": 1048576,
+      "max_repository_bytes": 52428800,
+      "max_entries": 50000,
+      "max_ast_nodes": 200000,
+      "max_repository_ast_nodes": 1000000
+    },
+    "limitations": [
+      "Static source evidence only; never a complete runtime import or call graph.",
+      "No target code, dependency installation, LLM, import hooks, or external API is executed.",
+      "Host Python grammar/stdlib and configured file, byte, entry and AST limits bound coverage.",
+      "Source-root candidates are conservative; runtime sys.path and packaging hooks are not evaluated.",
+      "Unknown external modules, dynamic imports/attributes, re-exports and wildcard symbols can remain unresolved.",
+      "Filename classifications are inferred; framework declarations do not prove runtime use or authentication coverage.",
+      "Literal defaults, annotation strings, route paths, arguments, assignment values and docstrings are omitted.",
+      "The caller must own a stable repository and prevent concurrent filesystem replacement."
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "syntax_error",
+      "file": "broken.py",
+      "start_line": 1
+    }
+  ],
+  "unresolved_references": [
+    {
+      "kind": "import",
+      "reference_id": "import_89b2ff40bb56b84148a0",
+      "name": "missing_local_dependency",
+      "reason": "not_local_stdlib_or_known_external",
+      "candidate_module_ids": [],
+      "file": "app.py",
+      "start_line": 1,
+      "end_line": 1
+    }
+  ],
+  "omitted_nodes": [
+    {
+      "id": "module_d04413178e2057621213",
+      "reason": "unparsed_module"
+    }
+  ],
+  "omitted_edges": [],
+  "observed_graph": {
+    "nodes": [
+      {
+        "id": "module_568470d013cd12e4f388",
+        "label": "app",
+        "location": {
+          "path": "app.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      }
+    ],
+    "edges": []
+  },
+  "source_evidence": [],
+  "selected_guidelines": [],
+  "registry_version": null,
+  "advice": null,
+  "requires_developer_review": true,
+  "provider": {
+    "status": "not_requested",
+    "mode": null,
+    "code": null
+  }
+}

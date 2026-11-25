@@ -1,5 +1,5 @@
 """Project trusted M3 structure reports into M4's source-grounded advice input."""
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from hashlib import sha256
 import json
 from typing import Literal
@@ -262,7 +262,8 @@ def project_structure(
 
 def advise_from_structure(
     index: RepositoryContext, structure: Mapping[str, object], requirements: str, generator: Generator,
-    *, project_id: str, revision: str,
+    *, project_id: str, revision: str, mandatory_guideline_ids: Collection[str] = (),
 ) -> tuple[ArchitectureProjection, ArchitectureResult]:
     projection = project_structure(index, structure, project_id=project_id, revision=revision)
-    return projection, advise(index, projection.graph, requirements, generator)
+    return projection, advise(index, projection.graph, requirements, generator,
+                              mandatory_guideline_ids=mandatory_guideline_ids)

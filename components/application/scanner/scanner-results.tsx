@@ -9,6 +9,7 @@ import {
   RiArrowUpSLine,
   RiShieldCheckLine,
 } from "@remixicon/react";
+import { Button } from "@/components/base/buttons/button";
 import { useState } from "react";
 import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
 import { cx } from "@/utils/cx";
@@ -23,12 +24,17 @@ export interface ScanFinding {
   file?: string;
   line?: number;
   recommendation?: string;
+  cwe?: string[];
+  ruleId?: string;
 }
 
 interface ScannerResultsProps {
   findings: ScanFinding[];
   /** True while the scan is in progress. */
   loading?: boolean;
+  onOpen?: (path: string, line?: number) => void;
+  onExplain?: (id: string) => void;
+  onImpact?: (id: string) => void;
   /** Epoch-ms timestamp when the scan started. */
   startedAt?: number;
   /** Elapsed duration in seconds once the scan finishes. */
@@ -89,6 +95,9 @@ export function ScannerResults({
   loading = false,
   startedAt,
   durationSeconds,
+  onOpen,
+  onExplain,
+  onImpact,
 }: ScannerResultsProps) {
   if (loading) {
     return (
@@ -110,7 +119,7 @@ export function ScannerResults({
       <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border-button-default bg-background-secondary-default py-16">
         <RiCheckboxCircleFill className="size-10 text-status-lime-text" aria-hidden />
         <p className="text-headline-medium text-text-primary">No issues found</p>
-        <p className="text-body-regular text-text-secondary">Your codebase looks clean. Well done!</p>
+        <p className="text-body-regular text-text-secondary">The configured rules returned zero findings for the files they scanned.</p>
         {durationSeconds !== undefined && (
           <AgentThinking
             variant="stars"
@@ -165,7 +174,7 @@ export function ScannerResults({
         <div key={severity} className="flex flex-col gap-2">
           <h3 className="text-body-medium text-text-secondary">{SEVERITY_META[severity].label}</h3>
           {items.map((finding) => (
-            <FindingRow key={finding.id} finding={finding} />
+            <FindingRow key={finding.id} finding={finding} onOpen={onOpen} onExplain={onExplain} onImpact={onImpact} />
           ))}
         </div>
       ))}
@@ -173,7 +182,7 @@ export function ScannerResults({
   );
 }
 
-function FindingRow({ finding }: { finding: ScanFinding }) {
+function FindingRow({ finding, onOpen, onExplain, onImpact }: Pick<ScannerResultsProps, "onOpen" | "onExplain" | "onImpact"> & { finding: ScanFinding }) {
   const [expanded, setExpanded] = useState(false);
   const meta = SEVERITY_META[finding.severity];
   const Icon = meta.icon;
@@ -205,6 +214,12 @@ function FindingRow({ finding }: { finding: ScanFinding }) {
       {expanded && (
         <div className="flex flex-col gap-3 border-t border-separator-border px-4 pb-4 pt-3">
           <p className="text-body-regular text-text-secondary">{finding.description}</p>
+          {finding.ruleId && <p className="text-body-2-regular text-text-secondary">{finding.ruleId}{finding.cwe?.length ? ` · ${finding.cwe.join(", ")}` : ""}</p>}
+          <div className="flex flex-wrap gap-2">
+            {onOpen && finding.file && <Button variant="secondary" size="small" onClick={() => onOpen(finding.file!, finding.line)}>Open source</Button>}
+            {onImpact && <Button variant="secondary" size="small" onClick={() => onImpact(finding.id)}>Review static impact</Button>}
+            {onExplain && <Button variant="secondary" size="small" onClick={() => onExplain(finding.id)}>Explain finding</Button>}
+          </div>
           {finding.recommendation && (
             <div className="rounded-lg bg-background-secondary-default px-3 py-2">
               <p className="text-body-2-medium text-text-primary">Recommendation</p>

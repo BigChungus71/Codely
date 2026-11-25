@@ -68,9 +68,9 @@ export async function POST(req: Request) {
   }
 
   const { githubUrl, files, config } = parsed.data;
-  if (files.length === 0 && !githubUrl) {
+  if (githubUrl || !files.some((file) => file.content?.trim())) {
     return Response.json(
-      { error: "missing_target", message: "Provide at least one file or GitHub repository URL." },
+      { error: "missing_target", message: "Provide a supported text file for AI review. Use the repository scanner for configured checkouts." },
       { status: 400 },
     );
   }
@@ -93,8 +93,7 @@ export async function POST(req: Request) {
     .join("\n\n");
 
   const prompt = [
-    "Perform a code security and architecture review for the submitted target.",
-    githubUrl ? `Repository URL: ${githubUrl}` : "",
+    "Offer only defensive review suggestions grounded in the submitted text. Do not propose exploits or reproduction steps.",
     enabledChecks ? `Enabled checks:\n- ${enabledChecks}` : "Enabled checks: general static review",
     filesSummary ? `\nSubmitted files:\n${filesSummary}` : "",
     "",
@@ -113,25 +112,18 @@ export async function POST(req: Request) {
     abortSignal: req.signal,
   });
 
-  let findings: ScanFinding[] = [];
+  let findings: ScanFinding[];
   try {
-    const rawJson = extractJsonArray(result.text);
-    const validated = FindingsArraySchema.safeParse(rawJson);
-    if (validated.success) {
-      findings = validated.data.map((item, idx) => ({
-        ...item,
-        id: item.id || `scan-${idx + 1}`,
-      }));
-    }
+    const validated = FindingsArraySchema.parse(extractJsonArray(result.text));
+    const provided = new Map(files.filter((file) => file.content).map((file) => [file.name, file.content!]));
+    findings = validated.map((item, index) => {
+      if (item.file && !provided.has(item.file)) throw new Error("Unknown source path");
+      if (item.line !== undefined && (!item.file || !Number.isInteger(item.line) || item.line < 1
+          || item.line > provided.get(item.file)!.split("\n").length)) throw new Error("Invalid source line");
+      return { ...item, id: item.id || `review-${index + 1}` };
+    });
   } catch {
-    findings = [
-      {
-        id: "scan-1",
-        severity: "info",
-        title: "AI Analysis Summary",
-        description: result.text.trim() || "Scan completed with no structured findings returned.",
-      },
-    ];
+    return Response.json({ error: "invalid_review", message: "The AI provider did not return a source-grounded review." }, { status: 502 });
   }
 
   const completedAt = Date.now();

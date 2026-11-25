@@ -54,3 +54,19 @@ No teammates' backend/frontend modules, archive bytes, or root README were chang
 Semgrep tests, plus three backend-hook status tests. The original compatibility
 probe also passed (vulnerable=1, safe=0, errors=0). This validates security
 modules and the hook contract, not live endpoints from other branches.
+
+## Phase 3 worker integration
+
+The migration was pushed and verified as aecdcfe10c199ff8afa89bf5488d8c00394fae0f
+on security-analysis. main and teammates' branches were not updated.
+
+Keep the original full ScanResult available and call
+`backend.app.checklists.evaluate_repository(path, scan_result).to_dict()` before
+converting it to the backend's findings/errors-only model. No additional scan
+is performed. See CHECKLIST_INTEGRATION.md and contracts/checklist-v1.schema.json.
+The scanner hook remains backward compatible; no backend endpoint is added.
+
+Full Phase 3 regression: 149 passing tests (130 unit/static, 19 native). The
+original twelve security rules and 37-fixture/25-finding expectations still pass.
+The new demo output is committed in contracts/examples/checklist-v1.json and
+compared exactly against real native scanner/checklist output in tests.

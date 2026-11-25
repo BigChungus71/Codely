@@ -306,3 +306,64 @@ replacement during snapshot creation. The caller must own and stabilize the
 repository. Supported findings indicate reviewable risks, not exploitability;
 zero findings does not establish repository security. Checklist, architecture,
 impact mapping, API/backend wiring and frontend work remain out of scope.
+
+## Shared repository migration and Phase 3 (2026-11-25)
+
+Work is now in C:/Users/bharg/Codely-shared on security-analysis, created from
+origin/main 0805457b96a2f60e768bd9efbc22e091f3f1d89b. The original C:/Users/bharg/codely
+source remains as a backup. Backend branch feature/backend-core at ada47e4 and
+frontend branch feat/frontend-workspace were inspected, not merged or modified.
+main contains only the original archives and README; both remain unchanged.
+
+Migration commit aecdcfe10c199ff8afa89bf5488d8c00394fae0f was pushed and verified
+on origin/security-analysis. A saved unrelated GitHub login initially produced
+HTTP 403; owner-account authentication resolved that. Only security-analysis was
+pushed; no merge or force-push was used. Repository-local commit identity was
+chosen with user authorization. All 21 staged provenance source hashes were
+verified exactly, with Git attributes protecting archive/reference bytes.
+
+Migration test result: 75 passed (original 72 plus three backend-hook tests).
+The original native compatibility probe passed. A compatibility wrapper adds
+nonempty errors to every partial/error scan for the teammate backend's existing
+hook. The required finding fields match the inspected Pydantic contract; no
+teammate API/LLM/frontend implementation was changed. Direct security requirements
+and the existing exact Windows freeze are isolated from backend/RAG dependencies.
+No environment was copied or dependency installed.
+
+Phase 3 adds a local v1.0.0 reference catalog and fifteen evidence-based checks:
+credentials, environment access, sensitive paths/ignore policy, debug settings,
+TLS verification, SQL, shell/dynamic execution, password hashing, deserialization,
+CORS, authentication indicators, manifest presence, version constraints, test
+filename presence, and final Docker USER. Profiling uses static imports and
+file/manifest presence. It is not Phase 4 structure/graph extraction.
+
+The evaluator reuses the supplied ScanResult and never launches a scanner. Its
+CLI scans exactly once unless an existing trusted scan JSON is supplied. Scan
+input must belong to the same immutable repository version. All four statuses
+(PASS, FAIL, NEEDS_REVIEW, NOT_APPLICABLE) are explicit. Positive evidence retains
+FAIL under partial coverage; uncertainty never becomes a scanner-based PASS.
+Authentication coverage cannot be proven from imports/decorators. Secret-named
+files are inspected by presence only, and no source/configuration/credential
+values or raw scanner messages appear in checklist output.
+
+Reference links use actual CWE/OWASP, Twelve-Factor and official framework,
+packaging, Git, pytest and Docker documentation. Empty standards mappings are
+used for engineering indicators without a direct mapping. No comprehensive
+compliance, vulnerability coverage, runtime authentication or exploitability
+claim is made. The existing finding contract remains unchanged; the checklist
+has a separate versioned JSON schema.
+
+Actual Phase 3 full regression: 149 tests pass, comprising 130 unit/static tests
+and 19 real native Semgrep tests. All original scanner expectations still pass.
+The new static demo contains two Python files and two synthetic scanner findings.
+A native scan is reused to produce 8 PASS, 2 FAIL, 1 NEEDS_REVIEW and 4 NOT_APPLICABLE;
+the complete output is saved in contracts/examples/checklist-v1.json and compared
+against fresh native output by integration tests. Raw target code, tests, setup.py
+and Dockerfile instructions are never executed.
+
+See CHECKLIST_INTEGRATION.md for exact usage, status semantics and limits: bounded
+UTF-8/host-grammar inventory, supported taint inputs/APIs, root ignore glob subset,
+no Git history/tracking or image inspection, limited dependency format parsing,
+static naming/framework indicators and required stable caller-owned repositories.
+Backend branches still need to be combined by the team; no live endpoint wiring
+or hosted CI result is claimed. Phase 4 has not begun.

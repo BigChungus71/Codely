@@ -100,3 +100,21 @@ Run `.\.venv\Scripts\python.exe tools\verify_semgrep.py` from a normal local
 PowerShell session to check both fixtures and parse the resulting JSON. Inside
 the restricted sandbox, `semgrep-core` fails at `socketpair`; this does not
 require reinstalling the scanner. See the Phase 1.1 report for exact evidence.
+
+## Phase 3 reference checklist
+
+The versioned 15-check catalog complements the scanner without changing finding
+fields or rescanning inside the evaluator. Use `backend.app.checklists.evaluate_repository`
+with the existing ScanResult. See [CHECKLIST_INTEGRATION.md](CHECKLIST_INTEGRATION.md)
+for statuses, limitations and worker integration, and
+[representative JSON](contracts/examples/checklist-v1.json) for a real fixture result.
+
+```powershell
+python -m backend.app.checklists fixtures/checklist_demo
+```
+
+Phase 3 verification: 149 tests pass, including 19 actual native tests and all
+original scanner regressions. The demo scans two Python files, returns two
+synthetic security findings, and evaluates to 8 PASS / 2 FAIL / 1 NEEDS_REVIEW /
+4 NOT_APPLICABLE. No code from that repository is executed. No Phase 4 work, API
+endpoints or frontend implementation is included.

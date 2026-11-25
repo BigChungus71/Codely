@@ -84,3 +84,17 @@ context lookup; no Gemini call or automatic source export occurs.
 Phase 3 remote completion at 98b9d8d was verified first. Full Phase 4 regression:
 210 passed, including all prior 19 native tests; 61 tests cover the new AST engine.
 See STRUCTURE_INTEGRATION.md for capabilities, uncertainty and limits.
+
+## Phase 5 graph worker seam
+
+Reuse the existing RepositoryStructure with
+`backend.app.analyzers.architecture_graph.build_architecture_graph(structure)`.
+The graph keeps required nodes/edges fields and adds optional evidence, statistics,
+status and coverage. No scanner, checklist or AST code/contract is modified.
+
+The teammate backend hook expects path -> dict, not a structure object. Its
+current Pydantic Graph discards richer metadata and does not check partial status;
+the API owner must preserve/check those fields before exposing the full graph.
+No teammate-owned adapter/API/schema/frontend was changed in this phase. See
+ARCHITECTURE_INTEGRATION.md for integration and the React Flow presentation map.
+Full regression: 281 passing tests, including the original 19 native tests.

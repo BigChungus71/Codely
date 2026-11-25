@@ -428,3 +428,63 @@ across Windows checkouts. Original CodeRAG hashes and local backup are preserved
 No backend/frontend, scanner/checklist schema, full graph, impact mapping, cycle
 detector or architecture recommendation engine was changed/implemented. Phase 5
 has not begun. See STRUCTURE_INTEGRATION.md for usage and remaining limitations.
+
+## Phase 5 — architecture dependency graph engine (2026-11-25)
+
+Verified local/remote security-analysis baseline ed8c16b and clean working tree.
+Phase 4 saved test report showed 210 passing tests. Existing NetworkX 3.6.1 is reused
+without installing or changing dependencies.
+
+Added architecture_graph.py, architecture_traversal.py and architecture_cli.py.
+The pure builder consumes RepositoryStructure without reading or parsing the
+repository again. One Python module/file becomes one node; only unique resolved
+internal imports produce importer -> imported edges. Multiple statements are merged
+per pair with all distinct import evidence retained. Duplicate/conflicting records,
+invalid/dangling edges, source gaps and graph resource limits are handled explicitly.
+
+Required shared node/edge fields remain unchanged. Optional metadata preserves
+classification confidence/evidence, parsed state, fan metrics, statistics, diagnostics
+and coverage. Display roles reuse AST indicators; conventional entry-point filenames
+can be inferred but are never confirmed from naming or graph degree. Source literals
+and unrelated source metadata are not forwarded. The NetworkX topology is frozen,
+and a public graph copy is detached from internal traversal state.
+
+Graph intelligence includes direct and incoming neighbors, bounded forward/reverse
+BFS, one deterministic shortest evidence path per returned module, strong/weak
+components, isolated nodes, self-imports, fan-in/out and cycle detection using SCCs
+with one deterministic witness per cyclic component. No unbounded all-simple-cycle
+or all-path enumeration occurs. Reverse traversal paths retain true import direction.
+Evidence edges are de-duplicated across overlapping paths, and truncation reasons
+are explicit. Generic module lookup/path helpers prepare Phase 6 without consuming
+security findings or claiming actual vulnerability impact.
+
+Actual verification: 71 new graph tests pass. The full suite returned 281 passed
+in 44.47s: 262 unit/static tests and all original 19 real native Semgrep/checklist
+tests. All prior scanner/checklist/AST regressions pass. New tests use synthetic
+RepositoryStructure objects and actual AST-backed fixtures; target code is never
+executed. Cases cover chains, layered indicators, cycles/self-imports, disconnected
+components, duplicates/conflicts, evidence, reverse paths, traversal budgets, stable
+ordering/IDs, Windows paths, partial coverage, privacy, shared contract compatibility,
+a 1,000-module chain and a 1,100-module cycle.
+
+Representative structure fixture graph: partial status (deliberate syntax error),
+13 nodes, 7 edges, 7 evidence records, 12 SCCs, one cyclic SCC, seven weak components,
+six observed isolated modules, max fan-in 4 and max fan-out 2. Full payload is in
+contracts/examples/architecture-graph-v1.json and compared to fresh actual output.
+The separate architecture-graph-v1 JSON schema also accepts the legacy minimum
+required fields. Existing schemas remain unchanged.
+
+An actual shared-checkout graph was built from a single AST analysis: partial,
+86 module nodes, 51 merged edges, 81 import evidence records, one cyclic component,
+55 weak components and 53 observed isolated modules. Its metadata is saved in
+ignored .semgrep-local/phase5-shared-graph.json. This is not a verified runtime call
+graph, complete dependency inventory, architecture-quality score or exploitability
+assessment. External/stdlib/unresolved/namespace-only imports do not invent edges.
+
+Added the graph/traversal modules, CLI, tests, schema/example and architecture
+integration guide; updated scoped AGENTS and integration/readme/report docs.
+The guide documents frontend mapping and the existing backend's optional-field/
+partial-status handling gap, without changing teammate API/frontend modules.
+Scanner, checklist, AST implementation, old contracts, dependencies, archive bytes
+and CodeRAG provenance are preserved. No main push, force-push or merge is authorized.
+Phase 6 has not begun; no complete vulnerability impact mapping is implemented.

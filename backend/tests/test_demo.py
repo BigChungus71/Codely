@@ -17,6 +17,8 @@ def demo(tmp_path, monkeypatch):
     monkeypatch.setenv('VOICE_AI_AGENT_PATH', str(tmp_path))
     for key in ['CODELY_SCANNER_ADAPTER','CODELY_ARCHITECTURE_ADAPTER','CODELY_EXPLANATION_ADAPTER','GEMINI_API_KEY','SEMGREP_CONFIG']:
         monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv('CODELY_PYTHON_DEMO_PATH', str(tmp_path / 'missing'))
+    monkeypatch.delenv('CODELY_ALLOW_EXTERNAL_AI', raising=False)
     api.cache.clear()
     return TestClient(app), tmp_path
 
@@ -159,3 +161,24 @@ def test_frontend_cross_origin(demo):
     })
     assert response.status_code == 200
     assert response.headers['access-control-allow-origin'] == '*'
+
+
+def test_design_question_uses_doc_evidence_and_constraints(demo, monkeypatch):
+    from codely import teammate_services
+
+    client, root = demo
+    (root / 'DESIGN.md').write_text('Capacity planning considers concurrency and a limited infrastructure budget.\n')
+
+    class Provider:
+        def generate(self, instruction, payload, schema):
+            assert payload['constraints'] == 'Limited infrastructure budget'
+            evidence = next(entry for entry in payload['evidence'] if entry['path'] == 'DESIGN.md')
+            return schema(answer='Assess capacity before scaling.', cited_evidence=[evidence['id']])
+
+    monkeypatch.setattr(teammate_services, 'live_provider', Provider)
+    response = client.post('/api/projects/voice-ai-agent/design-question', json={
+        'question': 'How do we plan capacity and concurrency?',
+        'constraints': 'Limited infrastructure budget',
+    })
+    assert response.status_code == 200
+    assert response.json()['sources'][0]['file'] == 'DESIGN.md'

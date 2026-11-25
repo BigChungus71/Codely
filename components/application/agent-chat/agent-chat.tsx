@@ -68,6 +68,10 @@ export function AgentChat({
   const [scrolledUnder, setScrolledUnder] = useState(false);
   const [canClash, setCanClash] = useState(false);
   const [restored, setRestored] = useState(false);
+  const [project, setProject] = useState<string | null>(null);
+  useEffect(() => {
+    setProject(new URLSearchParams(window.location.search).get("project"));
+  }, []);
 
   /** Codely always starts in live mode; demo transport is a silent fallback. */
   const [transport] = useState(
@@ -165,7 +169,7 @@ export function AgentChat({
     const trimmed = text.trim();
     if (!trimmed || busy) return;
     setActiveUpdatedAt(Date.now());
-    sendMessage({ text: trimmed }, { body: { demo: false } });
+    sendMessage({ text: trimmed }, { body: { demo: false, ...(project ? { project } : {}) } });
     setInput("");
   };
 
@@ -333,7 +337,7 @@ export function AgentChat({
               {messages.length > 0 ? headerTitle(allThreads, activeId) : "Codely"}
             </span>
             <span className="hidden shrink-0 text-caption-1-regular text-text-tertiary md:block">
-              crush every bug like a pro
+              {project ? `Repository · ${project}` : "crush every bug like a pro"}
             </span>
 
             <div className="ms-auto flex items-center gap-1">
@@ -423,7 +427,7 @@ export function AgentChat({
 
                   {error && (
                     <p role="alert" className="px-1 text-body-regular text-text-tertiary">
-                      Something went wrong. Check the server logs, then try again.
+                      {error.message || "Chat request failed."}
                     </p>
                   )}
                 </div>

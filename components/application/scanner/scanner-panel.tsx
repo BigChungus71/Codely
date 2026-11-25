@@ -1,162 +1,219 @@
 "use client";
 
-import { useState } from "react";
-import { RiShieldCheckLine, RiScanLine } from "@remixicon/react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/base/buttons/button";
-import { ScannerUpload, type ScanFile } from "@/components/application/scanner/scanner-upload";
-import { ScannerGithubInput } from "@/components/application/scanner/scanner-github-input";
-import { ScannerConfig, type ScanConfig } from "@/components/application/scanner/scanner-config";
-import { ScannerResults, type ScanFinding } from "@/components/application/scanner/scanner-results";
-import { recordCodelyScan } from "@/utils/codely-metrics";
+import { Select, SelectItem } from "@/components/base/select/select";
+import { ScannerResults } from "./scanner-results";
+import {
+  completedFindings, createCodelyClient, type Explanation, type FindingsResponse,
+  type Graph, type Project, type SourceFile, type TreeNode,
+} from "@/integrations/frontend/codely-client";
 import { cx } from "@/utils/cx";
 
-const GITHUB_RE = /^https:\/\/github\.com\/[^/]+\/[^/]+(\/.*)?$/;
+const api = createCodelyClient(process.env.NEXT_PUBLIC_CODELY_API_URL ?? "http://127.0.0.1:8000");
+const message = (error: unknown) => error instanceof Error ? error.message : "Request failed";
 
-type ScanState = "idle" | "scanning" | "done";
-
-const DEFAULT_CONFIG: ScanConfig = {
-  security: true,
-  dependencies: true,
-  architecture: true,
-  comparison: false,
-  baseline: "clean",
-};
-
-/** Demo findings shown when no real backend is wired. */
-const DEMO_FINDINGS: ScanFinding[] = [
-  {
-    id: "1",
-    severity: "critical",
-    title: "SQL Injection vulnerability",
-    description: "User input is concatenated directly into a SQL query without parameterisation. An attacker can read or modify any data in the database.",
-    file: "src/api/users.ts",
-    line: 42,
-    recommendation: "Use parameterised queries or a query builder (e.g. knex, Prisma). Never interpolate user input into SQL strings.",
-  },
-  {
-    id: "2",
-    severity: "high",
-    title: "Hardcoded secret detected",
-    description: "An API key or password was found embedded in source code. If committed to a public repository, this credential is compromised.",
-    file: "src/config.ts",
-    line: 8,
-    recommendation: "Move secrets to environment variables and add this file pattern to .gitignore. Rotate the exposed credential immediately.",
-  },
-  {
-    id: "3",
-    severity: "high",
-    title: "Outdated dependency with known CVE",
-    description: "Package lodash@3.10.1 has a known prototype-pollution vulnerability (CVE-2019-10744).",
-    recommendation: "Upgrade lodash to 4.17.21 or later. Run `npm audit fix` to resolve automatically.",
-  },
-  {
-    id: "4",
-    severity: "medium",
-    title: "Missing CSRF protection",
-    description: "State-changing POST endpoints do not validate a CSRF token, allowing cross-site request forgery attacks.",
-    file: "src/api/auth.ts",
-    recommendation: "Add a CSRF token header requirement to all state-mutating routes. Use a library like csurf or implement the synchroniser-token pattern.",
-  },
-  {
-    id: "5",
-    severity: "medium",
-    title: "Circular dependency detected",
-    description: "Module A imports Module B, which imports Module A, creating a circular reference that can cause initialisation failures and hard-to-trace bugs.",
-    file: "src/services/order.ts",
-    recommendation: "Extract the shared logic into a third module that both A and B import, breaking the cycle.",
-  },
-  {
-    id: "6",
-    severity: "low",
-    title: "Unused exported function",
-    description: "The function `calculateDiscount` is exported but never imported elsewhere in the project.",
-    file: "src/utils/pricing.ts",
-    line: 56,
-    recommendation: "Remove the export or the function if it is dead code. If it is intended for future use, add a TODO comment.",
-  },
-  {
-    id: "7",
-    severity: "info",
-    title: "Missing TSDoc comments on public API",
-    description: "12 exported functions lack documentation comments, which makes IDE hover-help less useful for consumers.",
-    recommendation: "Add TSDoc comments explaining parameters, return values, and thrown errors for all public exports.",
-  },
-];
+function RepositoryTree({ nodes, onOpen }: { nodes: TreeNode[]; onOpen: (path: string) => void }) {
+  return (
+    <ul className="flex flex-col gap-1">
+      {nodes.map((node) => (
+        <li key={node.path}>
+          {node.type === "directory" ? (
+            <details>
+              <summary className="cursor-pointer py-1 text-body-2-medium text-text-primary">{node.name}</summary>
+              <div className="ps-4"><RepositoryTree nodes={node.children ?? []} onOpen={onOpen} /></div>
+            </details>
+          ) : (
+            <Button variant="ghost" size="small" onClick={() => onOpen(node.path)}>{node.name}</Button>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function ScannerPanel() {
-  const [files, setFiles] = useState<ScanFile[]>([]);
-  const [githubUrl, setGithubUrl] = useState("");
-  const [config, setConfig] = useState<ScanConfig>(DEFAULT_CONFIG);
-  const [scanState, setScanState] = useState<ScanState>("idle");
-  const [findings, setFindings] = useState<ScanFinding[]>([]);
-
-  const githubValid = githubUrl === "" || GITHUB_RE.test(githubUrl);
-  const hasInput = files.length > 0 || (githubUrl.length > 0 && githubValid);
-  const canScan = hasInput && scanState !== "scanning";
-
-  const startScan = () => {
-    if (!canScan) return;
-    setScanState("scanning");
-    setFindings([]);
-    // Simulate a scan — replace with a real API call when the backend is ready.
-    setTimeout(() => {
-      setFindings(DEMO_FINDINGS);
-      setScanState("done");
-      recordCodelyScan(DEMO_FINDINGS.length, Math.max(180, files.length * 140));
-    }, 2200);
-  };
-
+  const [projects, setProjects] = useState<Project[] | null>(null);
+  const [project, setProject] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    api.projects().then(({ projects }) => {
+      if (!active) return;
+      setProjects(projects);
+      setProject(projects[0]?.project_id ?? "");
+    }).catch((failure: unknown) => { if (active) setError(message(failure)); });
+    return () => { active = false; };
+  }, []);
   return (
     <div className="flex flex-col gap-6">
-      {/* Hero */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <RiShieldCheckLine className="size-6 text-accent-500" aria-hidden />
-          <h2 className="text-title-2-medium text-text-primary">Code Scanner</h2>
-        </div>
-        <p className="text-body-regular text-text-secondary">
-          Drop a file or paste a GitHub link. Codely will crush every bug like a pro.
-        </p>
-      </div>
-
-      {/* Input section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <ScannerUpload files={files} onChange={setFiles} />
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-separator-border" />
-            <span className="text-body-2-regular text-text-tertiary">or</span>
-            <div className="h-px flex-1 bg-separator-border" />
-          </div>
-          <ScannerGithubInput value={githubUrl} onChange={setGithubUrl} />
-        </div>
-        <ScannerConfig config={config} onChange={setConfig} />
-      </div>
-
-      {/* Scan button */}
-      <div className="flex items-center justify-between gap-4">
-        <p className={cx("text-body-2-regular text-text-tertiary", hasInput && "opacity-0")}>
-          Add a file or GitHub URL to begin.
-        </p>
-        <Button
-          variant="primary"
-          size="medium"
-          leadingIcon={RiScanLine}
-          disabled={!canScan}
-          onClick={startScan}
-        >
-          {scanState === "scanning" ? "Scanning…" : "Run Scan"}
-        </Button>
-      </div>
-
-      {/* Results */}
-      {(scanState === "scanning" || scanState === "done") && (
-        <div className="flex flex-col gap-4">
-          <div className="h-px bg-separator-border" />
-          <h3 className="text-headline-medium text-text-primary">Findings</h3>
-          <ScannerResults findings={findings} loading={scanState === "scanning"} />
-        </div>
+      {error && <p role="alert" className="text-text-error-primary">{error}</p>}
+      {!projects && !error && <p role="status">Loading repositories…</p>}
+      {projects && (
+        <Select aria-label="Repository" selectedKey={project} onSelectionChange={(key) => setProject(String(key))}>
+          {projects.map((item) => <SelectItem key={item.project_id} id={item.project_id}>{item.name}</SelectItem>)}
+        </Select>
       )}
+      {project && <RepositoryWorkspace key={project} project={project} />}
     </div>
+  );
+}
+
+function RepositoryWorkspace({ project }: { project: string }) {
+  const [tree, setTree] = useState<TreeNode[] | null>(null);
+  const [treeError, setTreeError] = useState("");
+  const [file, setFile] = useState<SourceFile>();
+  const [fileStatus, setFileStatus] = useState("");
+  const [line, setLine] = useState<number>();
+  const markedLine = useRef<HTMLSpanElement>(null);
+  const fileRequest = useRef(0);
+  const [result, setResult] = useState<FindingsResponse>();
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState("");
+  const [explanation, setExplanation] = useState<Explanation>();
+  const [reviewStatus, setReviewStatus] = useState("");
+  const reviewRequest = useRef(0);
+  const [graph, setGraph] = useState<Graph>();
+  const [graphStatus, setGraphStatus] = useState("");
+  const [loadingGraph, setLoadingGraph] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api.tree(project).then((response) => { if (active) setTree(response.tree); })
+      .catch((failure: unknown) => { if (active) setTreeError(message(failure)); });
+    return () => { active = false; };
+  }, [project]);
+
+  useEffect(() => { markedLine.current?.scrollIntoView({ block: "nearest" }); }, [file, line]);
+
+  async function openFile(path: string, sourceLine?: number) {
+    const request = ++fileRequest.current;
+    setFileStatus("Opening source…");
+    try {
+      const next = await api.file(project, path);
+      if (request !== fileRequest.current) return;
+      setFile(next);
+      setLine(sourceLine);
+      setFileStatus("");
+    } catch (failure) {
+      if (request === fileRequest.current) setFileStatus(message(failure));
+    }
+  }
+
+  async function scan() {
+    setScanning(true);
+    setResult(undefined);
+    setScanError("");
+    ++reviewRequest.current;
+    setExplanation(undefined);
+    setReviewStatus("");
+    try {
+      setResult(await api.scan(project));
+    } catch (failure) {
+      setScanError(message(failure));
+    } finally {
+      setScanning(false);
+    }
+  }
+
+  async function explain(id: string) {
+    const request = ++reviewRequest.current;
+    setExplanation(undefined);
+    setReviewStatus("Requesting explanation…");
+    try {
+      const next = await api.explain(project, id);
+      if (request !== reviewRequest.current) return;
+      setExplanation(next);
+      setReviewStatus("");
+    } catch (failure) {
+      if (request === reviewRequest.current) setReviewStatus(message(failure));
+    }
+  }
+
+  async function loadGraph() {
+    setLoadingGraph(true);
+    setGraph(undefined);
+    setGraphStatus("Analyzing Python structure…");
+    try {
+      setGraph(await api.architecture(project));
+      setGraphStatus("");
+    } catch (failure) {
+      setGraphStatus(message(failure));
+    } finally {
+      setLoadingGraph(false);
+    }
+  }
+
+  const coverage = result?.diagnostics?.find((entry) => entry.code === "coverage");
+  const nodes = new Map(graph?.nodes.map((node) => [node.id, node]));
+  return (
+    <>
+      <section className="flex flex-col gap-4 rounded-3xl border border-border-button-default p-4">
+        <h2 className="text-headline-medium">Repository source</h2>
+        {treeError && <p role="alert" className="text-text-error-primary">{treeError}</p>}
+        {!tree && !treeError && <p role="status">Loading files…</p>}
+        {tree && <RepositoryTree nodes={tree} onOpen={openFile} />}
+        {fileStatus && <p role="status">{fileStatus}</p>}
+        {file && (
+          <div>
+            <h3 className="text-body-medium">{file.path}</h3>
+            <pre dir="ltr" className="whitespace-pre-wrap break-all rounded-xl bg-background-secondary-default p-4 text-start">
+              {file.content.split("\n").map((text, index) => (
+                <span key={index} ref={line === index + 1 ? markedLine : undefined}
+                  className={cx("block", line === index + 1 && "bg-background-tertiary-default text-text-primary")}>
+                  <span className="me-4 text-text-tertiary" aria-hidden>{index + 1}</span>{text}
+                </span>
+              ))}
+            </pre>
+          </div>
+        )}
+      </section>
+      <section className="flex flex-col gap-4">
+        <div><Button variant="primary" disabled={scanning} onClick={scan}>Run Python security scan</Button></div>
+        {scanError && <p role="alert" className="text-text-error-primary">{scanError}</p>}
+        {result && <p role="status">{result.cached ? "Cached scan" : "Scan completed"}{coverage ? ` · ${coverage.snapshot_files} Python files analyzed` : ""}</p>}
+        {(scanning || result?.status === "completed") && (
+          <ScannerResults findings={result ? completedFindings(result) : []} loading={scanning}
+            onOpen={openFile} onExplain={explain} />
+        )}
+        {reviewStatus && <p role="status">{reviewStatus}</p>}
+        {explanation && (
+          <div className="flex flex-col gap-2 rounded-xl bg-background-secondary-default p-4">
+            <h3 className="text-headline-medium">Finding explanation</h3>
+            <p>{explanation.explanation}</p><p>{explanation.potential_impact}</p><p>{explanation.recommendation}</p>
+            {explanation.suggested_code && <pre className="whitespace-pre-wrap" dir="ltr">{explanation.suggested_code}</pre>}
+            {explanation.assumptions_and_limitations?.map((limit, index) => <p key={index}>{limit}</p>)}
+            <p className="text-body-2-regular text-text-secondary">Developer review required.</p>
+          </div>
+        )}
+      </section>
+      <section className="flex flex-col gap-4">
+        <div><Button variant="secondary" disabled={loadingGraph} onClick={loadGraph}>Load Python architecture</Button></div>
+        {graphStatus && <p role="status">{graphStatus}</p>}
+        {graph && (
+          <>
+            <h2 className="text-headline-medium">Observed modules and imports</h2>
+            {graph.status === "partial" && <p>Partial analysis. Some files could not be parsed.</p>}
+            <ul className="flex flex-wrap gap-2">
+              {graph.nodes.map((node) => <li key={node.id}><Button variant="secondary" size="small" onClick={() => openFile(node.file)}>{node.label}</Button></li>)}
+            </ul>
+            {graph.edges.length === 0 && <p>No internal imports were resolved.</p>}
+            <ul className="flex flex-col gap-2">
+              {graph.edges.map((edge, index) => (
+                <li key={index} className="flex flex-wrap items-center gap-2">
+                  <span>{nodes.get(edge.source)?.label}</span><span>→ {edge.relationship} →</span>
+                  <span>{nodes.get(edge.target)?.label}</span>
+                  {edge.file && <Button variant="ghost" size="small" onClick={() => openFile(edge.file!, edge.start_line ?? undefined)}>Open import</Button>}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
+      <Link href={{ pathname: "/", query: { project } }} className="text-body-medium text-accent-700 underline">
+        Ask a system-design question about this repository
+      </Link>
+    </>
   );
 }

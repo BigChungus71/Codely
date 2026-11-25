@@ -4,6 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import {
   convertToModelMessages,
   createGateway,
+  createUIMessageStream,
   createUIMessageStreamResponse,
   safeValidateUIMessages,
   smoothStream,
@@ -318,12 +319,6 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { provider, reason } = resolveProvider();
-
-  if (!provider) {
-    return Response.json({ error: "missing_api_key", message: reason }, { status: 503 });
-  }
-
   const badBody = Response.json(
     { error: "invalid_body", message: "Expected JSON with a messages array." },
     { status: 400 },
@@ -349,6 +344,50 @@ export async function POST(req: Request) {
       { error: "invalid_messages", message: validated.error.message },
       { status: 400 },
     );
+  }
+
+  const project = (body as { project?: unknown } | null)?.project;
+  if (typeof project === "string" && project.length > 0) {
+    const question = validated.data.findLast((message) => message.role === "user")?.parts
+      .flatMap((part) => part.type === "text" ? [part.text] : []).join("\n") ?? "";
+    if (!question.trim() || question.length > 4000) {
+      return Response.json({ message: "Enter a repository question of up to 4,000 characters." }, { status: 400 });
+    }
+    const base = process.env.CODELY_BACKEND_URL ?? "http://127.0.0.1:8000";
+    try {
+      const response = await fetch(new URL(`/api/projects/${encodeURIComponent(project)}/design-question`, base), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+        signal: AbortSignal.any([req.signal, AbortSignal.timeout(120_000)]),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        const message = typeof result.detail === "string" ? result.detail : "Repository AI request failed.";
+        return Response.json({ message }, { status: response.status });
+      }
+      const sources = result.sources.map((source: { file: string; start_line: number; end_line: number }) =>
+        `- ${source.file}:${source.start_line}–${source.end_line}`).join("\n");
+      const text = `${result.answer}\n\nSources\n${sources}`;
+      const stream = createUIMessageStream({
+        execute({ writer }) {
+          const id = "repository-answer";
+          writer.write({ type: "start" });
+          writer.write({ type: "text-start", id });
+          writer.write({ type: "text-delta", id, delta: text });
+          writer.write({ type: "text-end", id });
+          writer.write({ type: "finish" });
+        },
+      });
+      return createUIMessageStreamResponse({ stream });
+    } catch {
+      return Response.json({ message: "The repository AI backend could not be reached." }, { status: 502 });
+    }
+  }
+
+  const { provider, reason } = resolveProvider();
+  if (!provider) {
+    return Response.json({ error: "missing_api_key", message: reason }, { status: 503 });
   }
 
   const result = streamText({

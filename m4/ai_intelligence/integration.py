@@ -38,4 +38,5 @@ def review_for_m2(
         "recommendation": draft["recommended_remediation"],
         "suggested_code": edits[0]["suggested_code"] if len(edits) == 1 else None,
         "requires_developer_review": True,
+        "assumptions_and_limitations": draft["assumptions_and_limitations"],
     }

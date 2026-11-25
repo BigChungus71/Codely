@@ -9,3 +9,7 @@ next-env.d.ts
 # Keys stay out of git. .env.example documents what goes in .env.local.
 .env*
 !.env.example
+.semgrep-local/
+__pycache__/
+.pytest_cache/
+.venv/

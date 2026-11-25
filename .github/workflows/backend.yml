@@ -8,10 +8,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r backend/requirements-demo.txt
-      - run: python -m pytest tests -q
-        working-directory: backend
+      - run: pip install -r requirements-integration.txt
+      - run: python -m pytest backend/tests m4/tests -q
+        env:
+          PYTHONPATH: ".:backend:m4"
+          CODELY_RUN_SEMGREP_INTEGRATION: "1"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: node --experimental-strip-types --test integrations/frontend/codely-client.test.mjs
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run typecheck

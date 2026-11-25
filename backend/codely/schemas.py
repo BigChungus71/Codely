@@ -18,6 +18,7 @@ class Finding(BaseModel):
 class ScanResult(BaseModel):
     findings: list[Finding]
     # A partial scanner result must not masquerade as a completed clean scan.
+    diagnostics: list[dict] = Field(default_factory=list)
     errors: list[dict] = Field(default_factory=list)
 
 class FindingsResponse(BaseModel):
@@ -25,6 +26,7 @@ class FindingsResponse(BaseModel):
     status: Literal['completed', 'not_scanned', 'stale']
     repository_version: str
     cached: bool
+    diagnostics: list[dict] = Field(default_factory=list)
     scanned_at: str | None = None
     findings: list[Finding]
 
@@ -36,6 +38,7 @@ class Explanation(BaseModel):
     recommendation: str = Field(min_length=1)
     suggested_code: str | None = None
     requires_developer_review: Literal[True] = True
+    assumptions_and_limitations: list[str] = Field(default_factory=list)
 
 class Node(BaseModel):
     id: str
@@ -47,8 +50,13 @@ class Edge(BaseModel):
     source: str
     target: str
     relationship: str
+    file: str | None = None
+    start_line: int | None = None
+    end_line: int | None = None
 
 class Graph(BaseModel):
+    status: Literal['complete', 'partial'] = 'complete'
+    diagnostics: list[dict] = Field(default_factory=list)
     project_id: str
     nodes: list[Node]
     edges: list[Edge]

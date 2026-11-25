@@ -9,19 +9,21 @@ export interface Finding {
 }
 export interface FindingsResponse {
   project_id: string; status: "completed" | "not_scanned" | "stale";
-  repository_version: string; cached: boolean; scanned_at: string | null; findings: Finding[];
+  repository_version: string; cached: boolean; scanned_at: string | null; diagnostics?: {code?: string; language?: string; snapshot_files?: number}[]; findings: Finding[];
 }
 export interface Project { project_id: string; name: string; status: "ready"; languages: string[] }
 export interface TreeNode { name: string; path: string; type: "file" | "directory"; children?: TreeNode[] }
 export interface SourceFile { project_id: string; path: string; language: string; content: string }
 export interface Explanation {
   finding_id: string; status: "completed"; explanation: string; potential_impact: string;
-  recommendation: string; suggested_code: string | null; requires_developer_review: true;
+  recommendation: string; suggested_code: string | null; requires_developer_review: true; assumptions_and_limitations?: string[];
 }
 export interface Graph {
+  status: "complete" | "partial";
+  diagnostics: { code?: string }[];
   project_id: string;
   nodes: { id: string; label: string; type: string; file: string }[];
-  edges: { source: string; target: string; relationship: string }[];
+  edges: { source: string; target: string; relationship: string; file?: string | null; start_line?: number | null }[];
 }
 /** Structurally assignable to the frontend's existing ScanFinding. */
 export interface DisplayFinding {
@@ -50,8 +52,16 @@ export function createCodelyClient(baseUrl: string, fetcher: typeof fetch = fetc
   const base = baseUrl.replace(/\/+$/, "");
   async function request<T>(path: string, method = "GET"): Promise<T> {
     const response = await fetcher(`${base}/api${path}`, { method, cache: "no-store", signal: AbortSignal.timeout(100_000) });
-    const body = await response.json();
-    if (!response.ok) throw new CodelyApiError(response.status, typeof body.detail === "string" ? body.detail : `Backend returned HTTP ${response.status}`);
+    const body = await response.json().catch(() => null);
+    if (!response.ok) {
+      const detail = body?.detail;
+      const message = typeof detail === "string" ? detail : detail?.message;
+      const codes = detail?.diagnostics?.map((entry: {code?: string}) => entry.code).filter(Boolean);
+      throw new CodelyApiError(response.status, message && codes?.length
+        ? `${message} (${[...new Set(codes)].join(", ")})`
+        : message ?? `Backend returned HTTP ${response.status}`);
+    }
+    if (body === null) throw new CodelyApiError(502, "Backend returned an invalid response");
     return body as T;
   }
   const projectPath = (id: string) => `/projects/${encodeURIComponent(id)}`;

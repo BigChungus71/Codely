@@ -9,13 +9,19 @@ SKIP = {'.git', 'node_modules', 'target', 'dist', 'build', '__pycache__', '.venv
 LANGUAGES = {'.java': 'java', '.ts': 'typescript', '.tsx': 'typescript', '.js': 'javascript', '.jsx': 'javascript', '.py': 'python', '.xml': 'xml', '.json': 'json', '.md': 'markdown', '.yml': 'yaml', '.yaml': 'yaml', '.properties': 'properties', '.css': 'css', '.html': 'html', '.sql': 'sql', '.sh': 'shell', '.txt': 'text'}
 MAX_BYTES = 512_000
 
+PROJECTS = {
+    'voice-ai-agent': ('VoiceAIAgentPro', 'VOICE_AI_AGENT_PATH', '../../VoiceAIAgentPro'),
+    'python-demo': ('Python analysis fixture', 'CODELY_PYTHON_DEMO_PATH', '../fixtures/checklist_demo'),
+}
+
 def root_for(project_id: str) -> Path:
-    if project_id != 'voice-ai-agent':
+    if project_id not in PROJECTS:
         raise HTTPException(404, 'Unknown project ID')
-    raw = Path(os.getenv('VOICE_AI_AGENT_PATH', '../../VoiceAIAgentPro')).expanduser()
+    name, variable, default = PROJECTS[project_id]
+    raw = Path(os.getenv(variable, default)).expanduser()
     root = (raw if raw.is_absolute() else BASE / raw).resolve()
     if not root.is_dir():
-        raise HTTPException(503, 'VoiceAIAgentPro is unavailable; configure VOICE_AI_AGENT_PATH')
+        raise HTTPException(503, f'{name} is unavailable; configure {variable}')
     return root
 
 def allowed(path: Path) -> bool:

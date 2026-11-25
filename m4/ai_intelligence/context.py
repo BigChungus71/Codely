@@ -15,7 +15,7 @@ from .gemini import ProviderError
 
 EXTENSIONS = {
     ".java", ".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".py", ".yaml",
-    ".yml", ".toml", ".json", ".xml", ".properties", ".gradle", ".sql",
+    ".yml", ".toml", ".json", ".xml", ".properties", ".gradle", ".sql", ".md", ".txt",
 }
 SKIP = {
     "node_modules", "vendor", "target", "build", "dist", "out", "coverage", "venv",

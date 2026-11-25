@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely checklist v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalog_version",
+    "profile",
+    "coverage",
+    "summary",
+    "checks"
+  ],
+  "properties": {
+    "catalog_version": {
+      "const": "1.0.0"
+    },
+    "profile": {
+      "type": "object"
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "status",
+        "scanner_status",
+        "diagnostics",
+        "limitations"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "complete",
+            "partial",
+            "error"
+          ]
+        },
+        "scanner_status": {
+          "enum": [
+            "complete",
+            "partial",
+            "error",
+            "not_provided",
+            "invalid",
+            "unverified"
+          ]
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "PASS",
+        "FAIL",
+        "NEEDS_REVIEW",
+        "NOT_APPLICABLE"
+      ],
+      "properties": {
+        "PASS": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "FAIL": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "NEEDS_REVIEW": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "NOT_APPLICABLE": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 15,
+      "maxItems": 15,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "title",
+          "description",
+          "cwe",
+          "reference_categories",
+          "reference_urls",
+          "remediation",
+          "limitations",
+          "status",
+          "reason",
+          "evidence",
+          "related_finding_ids"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "remediation": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "cwe": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reference_categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reference_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "related_finding_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "NEEDS_REVIEW",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "file",
+                "kind"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?!/)(?!.*\\\\).+$"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "start_line": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end_line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

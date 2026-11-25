@@ -2,9 +2,10 @@ import logging
 from pathlib import Path
 from datetime import datetime, timezone
 from threading import Lock
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, Query
 from . import adapters
-from .repository import root_for, tree, source, files, version, LANGUAGES
+from .repository import PROJECTS, root_for, tree, source, files, version, LANGUAGES
 from .schemas import ScanResult, FindingsResponse, Explanation, Graph, ProjectsResponse, TreeResponse, FileResponse
 
 router = APIRouter(prefix='/api', tags=['Codely'])
@@ -26,9 +27,22 @@ def invoke(service, *args):
 
 @router.get('/projects', response_model=ProjectsResponse)
 def projects():
-    root = root_for('voice-ai-agent')
-    languages = sorted({LANGUAGES.get(Path(f).suffix) for f in files(root)} - {None})
-    return {'projects': [{'project_id': 'voice-ai-agent', 'name': 'VoiceAIAgentPro', 'status': 'ready', 'languages': languages}]}
+    available = []
+    for project_id, (name, _, _) in PROJECTS.items():
+        try:
+            root = root_for(project_id)
+        except HTTPException:
+            continue
+        languages = sorted({LANGUAGES[Path(path).suffix.lower()] for path in files(root)})
+        available.append({'project_id': project_id, 'name': name, 'status': 'ready', 'languages': languages})
+    if not available:
+        raise HTTPException(503, 'No configured repository is available')
+    return {'projects': available}
+
+
+@router.get('/health')
+def health():
+    return {'status': 'ok'}
 
 
 @router.get('/projects/{project_id}/tree', response_model=TreeResponse, response_model_exclude_none=True)
@@ -63,14 +77,14 @@ def scan(project_id: str):
         raise HTTPException(409, 'Another scan is running; retry shortly')
     try:
         current = version(root)
-        previous = cache.get(str(root))
+        previous = cache.get((project_id, root))
         if previous and previous['repository_version'] == current:
             return {**previous, 'cached': True}
         result = invoke(validated_scan, root)
         if version(root) != current:
             raise HTTPException(409, 'Repository changed during scan; retry')
-        response = {'project_id': project_id, 'status': 'completed', 'repository_version': current, 'cached': False, 'scanned_at': datetime.now(timezone.utc).isoformat(), 'findings': [f.model_dump() for f in result.findings]}
-        cache[str(root)] = response
+        response = {'project_id': project_id, 'status': 'completed', 'repository_version': current, 'cached': False, 'diagnostics': result.diagnostics, 'scanned_at': datetime.now(timezone.utc).isoformat(), 'findings': [f.model_dump() for f in result.findings]}
+        cache[(project_id, root)] = response
         return response
     finally:
         scan_lock.release()
@@ -80,7 +94,7 @@ def scan(project_id: str):
 def findings(project_id: str):
     root = root_for(project_id)
     current = version(root)
-    previous = cache.get(str(root))
+    previous = cache.get((project_id, root))
     if previous and previous['repository_version'] == current:
         return {**previous, 'cached': True}
     return {'project_id': project_id, 'status': 'stale' if previous else 'not_scanned', 'repository_version': current, 'cached': False, 'findings': []}
@@ -103,7 +117,7 @@ def explanation(project_id: str, finding_id: str):
     _, text = source(root, finding['file'])
     start = max(1, finding['start_line'] - 12)
     end = min(finding['end_line'] + 12, start + 100)
-    context = {'file': finding['file'], 'start_line': start, 'content': '\n'.join(text.splitlines()[start-1:end])[:16000]}
+    context = {'project_id': project_id, 'root': root, 'file': finding['file'], 'start_line': start, 'content': '\n'.join(text.splitlines()[start-1:end])[:16000]}
     # Exclude potentially large raw scanner output from the LLM request.
     evidence = {k: v for k, v in finding.items() if k != 'evidence'}
     output = invoke(validated_explanation, evidence, context)
@@ -130,3 +144,20 @@ def architecture(project_id: str):
     result = invoke(validated_graph, project_id, root)
     if version(root) != current: raise HTTPException(409, 'Repository changed during analysis; retry')
     return result
+
+
+class DesignQuestion(BaseModel):
+    question: str = Field(min_length=1, max_length=4000)
+    constraints: str = Field(default='', max_length=4000)
+
+
+@router.post('/projects/{project_id}/design-question')
+def design_question(project_id: str, request: DesignQuestion):
+    from .teammate_services import answer_design
+
+    root = root_for(project_id)
+    current = version(root)
+    answer = invoke(answer_design, project_id, root, request.question, request.constraints)
+    if current != version(root):
+        raise HTTPException(409, 'Repository changed during retrieval; retry')
+    return answer

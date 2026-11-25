@@ -98,6 +98,33 @@ For verification, M2/M3 can apply the reviewed `proposed_diff` to a disposable c
 
 ## M3 architecture graph
 
+For project-scoped architecture advice, use `ai_intelligence.architecture_integration.review_architecture` as a synchronous worker. It accepts the M3 `repository-structure-v1` report and reuses M4 projection and advice. The current M2 `GET /api/projects/{project_id}/architecture` hook receives only a checkout path and returns the existing graph DTO. The integration branch also has a separate free-form design question route. Use the advice worker from a project-aware service without changing either existing response shape.
+
+```python
+from fastapi.concurrency import run_in_threadpool
+from ai_intelligence.architecture_integration import review_architecture
+
+# These values come from M2's authorized snapshot and report store.
+result = await run_in_threadpool(
+    review_architecture,
+    authorized_index,
+    cached_m3_report,
+    provider,
+    project_id=authorized_project_id,
+    revision=current_revision,
+    report_binding=recorded_report_identity,
+    requirements=user_requirements,
+    policy=server_architecture_policy,
+)
+response = result.model_dump(mode="json")
+```
+
+M2 authenticates and authorizes the request and selects the immutable snapshot. Construct `RepositoryContext(project_id, authorized_root, revision=revision)` from that snapshot. Record a `SnapshotIdentity(project_id=..., revision=...)` when M3 analyzes it, then store it with the report. Supply that stored identity independently of the current authorized identity. A metadata match checks consistency and cannot attest report provenance. M2 owns the report store, freshness checks, external-processing approval, provider lifecycle, and any revision checks around the response. Project identifiers, revisions, and mandatory policy configuration must come from server-side state. M4 reads evidence from the supplied snapshot and does not resolve paths from a request.
+
+The worker validates the response and returns the observed graph, advice, selected guidelines, cited evidence, and M3 coverage and omissions. The mode identifies mock or live results. It propagates validation, snapshot, and provider failures for M2 to translate into sanitized HTTP responses.
+
+The [M1 frontend handoff](FRONTEND_ARCHITECTURE_HANDOFF.md) provides the proposed presentation envelope, TypeScript mapping, and offline fixtures. The advice envelope can represent a provider failure while retaining a same-revision observed graph.
+
 Pass a selected observed subgraph to `architecture.advise(index, graph, requirements, provider)`. Both nodes and edges require small source ranges so recommendations can cite actual evidence.
 
 ```json

@@ -49,6 +49,7 @@ class GroqTests(unittest.TestCase):
     def test_failures_are_sanitized_and_not_retried(self):
         request = httpx.Request("POST", "https://api.groq.com", headers={"Authorization": "fixture-secret"})
         for failure, expected in (
+            (groq.AuthenticationError("fixture-secret", response=httpx.Response(401, request=request), body={}), "401"),
             (groq.RateLimitError("fixture-secret", response=httpx.Response(429, request=request), body={}), "429"),
             (groq.APITimeoutError(request), "timed out"),
             (groq.APIConnectionError(message="fixture-secret", request=request), "connection failed"),
@@ -65,6 +66,7 @@ class GroqTests(unittest.TestCase):
     def test_truncated_and_schema_invalid_data_are_rejected(self):
         for finish, content in (
             ("length", '{"message":"ok"}'),
+            ("stop", '{not JSON'),
             ("stop", '{"extra":"unexpected"}'),
             ("stop", '{"message":"fixture-secret"}'),
         ):

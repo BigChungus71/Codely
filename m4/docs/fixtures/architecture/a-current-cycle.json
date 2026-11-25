@@ -1,0 +1,100 @@
+{
+  "project_id": "synthetic-cycle",
+  "revision": "synthetic-cycle-v1",
+  "structure_status": "complete",
+  "coverage": {
+    "supported_language": "python",
+    "parser_python_version": "3.12",
+    "column_units": "zero_based_utf8_bytes",
+    "discovered_files": 2,
+    "unresolved_imports": 0,
+    "ambiguous_imports": 0,
+    "dynamic_call_sites": 0,
+    "parsed_files": 2,
+    "skipped_files": 0,
+    "unsupported_files": 0,
+    "bytes_read": 144,
+    "source_roots": [
+      "."
+    ],
+    "excluded_paths": [],
+    "limits": {
+      "max_files": 5000,
+      "max_file_bytes": 1048576,
+      "max_repository_bytes": 52428800,
+      "max_entries": 50000,
+      "max_ast_nodes": 200000,
+      "max_repository_ast_nodes": 1000000
+    },
+    "limitations": [
+      "Static source evidence only; never a complete runtime import or call graph.",
+      "No target code, dependency installation, LLM, import hooks, or external API is executed.",
+      "Host Python grammar/stdlib and configured file, byte, entry and AST limits bound coverage.",
+      "Source-root candidates are conservative; runtime sys.path and packaging hooks are not evaluated.",
+      "Unknown external modules, dynamic imports/attributes, re-exports and wildcard symbols can remain unresolved.",
+      "Filename classifications are inferred; framework declarations do not prove runtime use or authentication coverage.",
+      "Literal defaults, annotation strings, route paths, arguments, assignment values and docstrings are omitted.",
+      "The caller must own a stable repository and prevent concurrent filesystem replacement."
+    ]
+  },
+  "diagnostics": [],
+  "unresolved_references": [],
+  "omitted_nodes": [],
+  "omitted_edges": [],
+  "observed_graph": {
+    "nodes": [
+      {
+        "id": "module_fb38d0df85c48da6e2c1",
+        "label": "orders",
+        "location": {
+          "path": "orders.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      {
+        "id": "module_2497954a77d52c456ace",
+        "label": "payments",
+        "location": {
+          "path": "payments.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "dependency_38139cc1e83117fb2162",
+        "source": "module_fb38d0df85c48da6e2c1",
+        "target": "module_2497954a77d52c456ace",
+        "label": "imports",
+        "location": {
+          "path": "orders.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      {
+        "id": "dependency_3c120632771dc0af0a0d",
+        "source": "module_2497954a77d52c456ace",
+        "target": "module_fb38d0df85c48da6e2c1",
+        "label": "imports",
+        "location": {
+          "path": "payments.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      }
+    ]
+  },
+  "source_evidence": [],
+  "selected_guidelines": [],
+  "registry_version": null,
+  "advice": null,
+  "requires_developer_review": true,
+  "provider": {
+    "status": "not_requested",
+    "mode": null,
+    "code": null
+  }
+}

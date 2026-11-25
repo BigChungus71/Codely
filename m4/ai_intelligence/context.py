@@ -185,10 +185,12 @@ class SemanticIndex:
 
 
 class RepositoryContext:
-    def __init__(self, project_id: str, root: Path, *, embedder: Embedder | None = None):
+    def __init__(self, project_id: str, root: Path, *, embedder: Embedder | None = None,
+                 revision: str | None = None):
         if not project_id or not Path(root).is_dir():
             raise ContextError("A project ID and repository directory are required")
         self.project_id = project_id
+        self.revision = revision
         self.files: dict[str, Source] = {}
         self.skipped = Counter()
         self.chunks: list[Evidence] = []

@@ -1,5 +1,55 @@
 # M4 development diary
 
+## Task 10 chronology and Phase 6 verification · 2026-11-25
+
+1. **Phase 1 · Audit.** Inspected the M1, M2, M3 and M4 branches. M3 already produced structural relationships, M4 already generated grounded advice, and M2 already exposed an observed graph contract. The gap was the handoff between them.
+2. **Phase 2 · Projection.** Added `architecture_adapter.py`, snapshot revision support in `context.py`, adapter tests, and pinned public M3 fixtures. Chose deterministic bounded selection and retained unresolved references separately. All 30 tests passed at that checkpoint.
+3. **Phase 3 · Guidelines.** Added `guidelines.py`, the 11-entry JSON registry with four M3 checklist links, and guideline-aware validation in `architecture.py`. All 41 tests passed at that checkpoint.
+4. **Phase 4 · M2 worker.** Added `architecture_integration.py` and integration tests. Required separate trusted bindings for the report and snapshot. All 47 tests passed, and a standalone FastAPI threadpool probe returned HTTP 200 in mock mode.
+5. **Phase 5 · M1 handoff.** Added the handoff guide, TypeScript contract, fixture generator, five synthetic fixtures, and fixture tests. Removed the dedicated live probes and preserved provider implementations and offline failure tests. The historical Groq requests returned HTTP 404. The results are retained in [the historical report](LIVE_ARCHITECTURE_VERIFICATION.md). Live verification is deferred.
+6. **Phase 6 · Final verification and submission.** Added the implementation summary and expanded setup and handoff instructions in the README. Re-ran all 52 offline tests with zero skips, regenerated all five fixtures byte for byte, and passed strict TypeScript checking against both M2 graph client contracts. No external AI requests were made. The architecture PR targets the original M4 branch and contains only M4 files.
+
+The offline workflow preserves the observed graph on unavailable advice and labels mock recommendations explicitly. Live AI generation was never successfully verified. The configured provider code, finding-review engine, and teammate files stayed intact. The submission excludes local environment files, credentials, private source, model artifacts, caches, and sensitive logs. M2 owns report provenance and authorized snapshot binding. M1 owns the viewer wiring, proposal overlay, and provider-state display. See the [final implementation summary](ARCHITECTURE_IMPLEMENTATION_SUMMARY.md).
+
+## Task 10 revised Phase 5 · M1 frontend handoff · 2026-11-25
+
+- Fetched without merging and inspected M1 `b899602`, M2 `ada47e4`, M3 `3a87132`, the demo integration branch `2bf4e68`, and the architecture branch `750b26b`. The demo already has a project graph client and observed graph viewer with module focus, import arrows, zoom, pagination and source links. The handoff reuses these interfaces and describes advice and proposed graph rendering separately.
+- Added `docs/FRONTEND_ARCHITECTURE_HANDOFF.md`, five versioned-by-snapshot synthetic JSON examples under `docs/fixtures/architecture/`, a TypeScript contract and graph adapter, and `docs/demo/build_architecture_handoff.py`. The builder runs M3 structure analysis, M4 graph projection and the advice worker with explicit mocks or a simulated unavailable provider. The observed graph is identical in the cycle, proposal and unavailable examples.
+- Reproduced all five fixtures byte for byte with the pinned M3 analyzer. Strict TypeScript checking accepted all five JSON payloads and the graph adapter against both inspected M2 graph client types. All 52 offline regressions passed with zero skips, including the previous 49 and three fixture contract tests.
+- Removed both dedicated live probe scripts. The provider implementations, existing offline failure tests, and historical verification results remain available. Live provider verification is deferred following the earlier HTTP 404 results. No external AI requests were made in this phase.
+- M2 still needs to publish the advice envelope from an authorized project-aware service. M1 owns UI wiring and the proposal overlay. The handoff is fixture-backed and no teammate files were changed.
+
+## Historical live Groq verification attempt · 2026-11-25
+
+- Verified that the existing provider loaded the local credential and selected `openai/gpt-oss-120b`. Added the opt-in `docs/demo/live_architecture.py` harness. It generates synthetic repositories and reuses the M3 analyzer, M4 compatibility adapters, guideline registry, and vulnerability review engine.
+- Three architecture requests and one vulnerability request reached the configured endpoint and returned HTTP 404. The source-free model-catalog request also returned HTTP 404. No live completions, token usage, explanations, or recommendations were available to assess. The observed graphs were preserved and provider failures remained explicit.
+- All 49 offline regressions passed with zero skips, including the original 47. Extended failure coverage for authentication, malformed JSON, unsupported evidence, invalid proposal endpoints, and graph preservation on timeout.
+- [Live verification report](LIVE_ARCHITECTURE_VERIFICATION.md) records latencies and selected guideline IDs. The cause of the HTTP 404 responses and live provider quality remain unverified.
+
+## Task 10 Phase 4 · M2 architecture advice worker · 2026-11-25
+
+- Confirmed the local and remote architecture branch at `750b26b`. Fetched M2 `ada47e4`, M3 `662ddaa`, and the demo integration branch `ef96710` without merging. M2's architecture hook returns a graph DTO. The demo branch already generates observed graphs and serves free-form design questions. M3 now has a dependency graph engine. The new worker complements these paths with grounded advice and consumes the existing M3 repository structure report.
+- Added `ai_intelligence/architecture_integration.py`. The worker compares the current M2-authorized project and revision to the captured snapshot and to the separately stored M3 report binding before calling the existing projection and advice. The response validates and preserves provider mode, graph, recommendations, evidence citations, and coverage and omission metadata. Mandatory guideline IDs come from server policy.
+- M2 owns authentication, authorization, immutable snapshots, report provenance, freshness, provider lifecycle and permission to send source externally. Identity equality checks binding consistency. M3 v1 contains no independent revision attestation. Evidence lookup rejects path traversal and paths absent from the snapshot, including skipped symlinks.
+- All 47 regressions passed with zero skips, including six new integration tests. A separate FastAPI TestClient probe ran the worker in a threadpool and returned HTTP 200 with a validated response, seven graph edges, and `mode: mock`. No live provider or teammate endpoint was changed. The M2 route still needs to call the worker using its authorized project and report store.
+
+## Task 10 Phase 3 · Engineering guideline knowledge base · 2026-11-25
+
+- Added `ai_intelligence/architecture_guidelines.json` with 11 guidelines at registry version `1.0.0`. Each entry records its stable ID, applicability, limitations, source, benefits, trade-offs, and selection conditions. Verified references in Microsoft Learn, Spring Modulith, Spring Boot, OWASP, Twelve-Factor App, and FastAPI documentation. Linked the applicable M3 checklist IDs `authentication-indicators`, `environment-configuration`, `hardcoded-credentials`, and `test-presence` at the inspected M3 commit. M3 remains responsible for checklist evaluation.
+- Added `ai_intelligence/guidelines.py` to validate the registry and deterministically select relevant entries from observed edges, component names, source excerpts, and scoped requirements. A directed cycle selects the cycle guideline. A small selected graph favors simplicity. Framework hints require recognizable evidence. Only trusted caller configuration can mark a guideline mandatory. Selection identifies review topics and does not establish compliance or vulnerability.
+- Extended `architecture.py` and the Phase 2 adapter to send selected guidance and its version through the existing provider interface. Recommendations can carry guideline IDs and assumptions alongside the existing evidence, components, benefits, and trade-offs. Validation rejects fabricated or unselected guideline IDs and citations unrelated to the stated components. The provider-facing JSON schema includes all required fields for strict output. Python deserialization and legacy mock fixtures still accept older recommendations.
+- Added 11 tests in `tests/test_guidelines.py`. All 41 tests passed with zero skips using `python -m unittest discover -s tests`. This includes the previous 30 tests. The committed M3 fixture produced a labeled mock recommendation referencing `arch.avoid-circular-dependencies` and citing both import anchors, `src/demo/nested/helpers.py:2-2` and `src/demo/services.py:3-3`. No live provider was called.
+- Selection is heuristic and limited to the selected graph, excerpts, and requirements. A small subgraph does not establish project size, and absent framework evidence does not establish that a framework is unused. Mandatory labels express caller policy without making compliance determinations. Live provider behavior and M2 architecture API integration remain unverified.
+
+## Task 10 Phase 2 · M3-to-M4 architecture adapter · 2026-11-25
+
+- Added `ai_intelligence/architecture_adapter.py` with `project_structure` and `advise_from_structure`. The latter passes the projected graph and the exact same `RepositoryContext` to the existing `architecture.advise()`. Added an optional snapshot revision to `ai_intelligence/context.py` for project and revision checks. Existing context callers can omit the revision.
+- Inspected M3's `repository-structure-v1.schema.json` and copied its committed report and synthetic checkout from `ed8c16b49141dd30301b032d4aab0a80f11a5b8d` into `tests/fixtures/m3_structure/`. The adapter validates the consumed v1 fields and cross-checks dependency records against their linked imports, endpoints, source ranges, and parse status. It preserves upstream IDs and hashes the import identity and location when a dependency ID is absent. Module anchors use the first nonblank line in the reported module span. Import edges retain their reported range.
+- Selection prefers supported dependencies in canonical source order and fills remaining node slots with standalone modules. It retains at most 15 nodes and 20 edges, with a 12,000-character evidence allowance that leaves room for the existing advice function to retrieve repeated anchors. Coverage, diagnostics, unresolved references, omission IDs and reasons, and selected source evidence remain available in the projection.
+- The committed fixture projected to 12 nodes and seven edges, including the two directions of its circular dependency. The report retained three unresolved references and one omitted unparsed module. The architecture mock returned a proposal, a trade-off, and the source citation `src/demo/__init__.py:2-2`. No provider API was called.
+- `tests/test_architecture_adapter.py` adds 11 tests. All 30 tests passed with zero skips using `python -m unittest discover -s tests -v` with the existing M4 virtual environment. Tests include a changed backing checkout to verify that evidence still comes from the captured snapshot.
+- M3 v1 provides no embedded project or revision identity. A trusted caller must associate the report and authorized snapshot with the same project and revision. The adapter compares those identifiers and checks evidence against the captured source. It cannot independently attest which checkout produced the M3 report. The projection covers parsed modules and verified internal import records. The guideline registry and M2 architecture API binding remain outside Phase 2.
+
 ## Team repository integration · 2026-11-25
 
 - Prepared `feature/ai-intelligence` from `main` at `0805457`. Main is the default branch and contains the reference archives. The frontend, FastAPI backend, and security implementation remain on separate branches. This change is additive under `m4/`. The public contribution contains only M4 code, synthetic fixtures, tests, requirements, and documentation. The original VoiceAIAgentPro materials and local credentials stayed in the workspace.
@@ -14,7 +64,7 @@
 
 - Installed Groq SDK 1.7.0 in the M4 virtual environment. Added `GroqGenerator` for `openai/gpt-oss-120b`, strict JSON Schema structured outputs, and validation against the existing Pydantic draft contracts. `M4_PROVIDER` or the CLI override selects Groq, Gemini, or mock. The workspace now sets `M4_PROVIDER=groq`. Other callers without a provider setting retain the offline default. An explicit live provider returns its own failures.
 - Groq uses the fixed HTTPS API endpoint, a bounded configurable timeout, and no automatic retry. Rate limits, timeouts, connection failures, API status errors, and invalid output produce sanitized errors. The credential is read from the environment or workspace `.env`.
-- The synthetic review and architecture probes are available in `docs/demo/groq_synthetic.py`. The live command stopped at credential initialization because M4's environment lacked `GROQ_API_KEY`. There is no live result to report.
+- At this checkpoint the synthetic review and architecture probes were in `docs/demo/groq_synthetic.py`. The live command stopped at credential initialization because M4's environment lacked `GROQ_API_KEY`. There is no live result to report.
 
 ### Local embeddings and tests
 
@@ -144,7 +194,7 @@ Suggested commit: `docs: deliver M4 integration and VoiceAIAgentPro verification
 
 ## Remaining checklist
 
-- [ ] Verify live Gemini generation and embeddings with an approved source set and a configured credential.
+- Live provider verification is deferred. It is outside the remaining implementation roadmap.
 - [ ] Wire the M2 backend and M3 normalized findings, structural graph, and full ruleset.
 - [ ] Validate proposed changes with the team ruleset and application tests in a team-controlled isolation workflow.
 - [ ] Evaluate retrieval recall on larger repositories, stronger secret detection, and project index lifecycle.

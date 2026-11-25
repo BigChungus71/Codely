@@ -4,7 +4,6 @@ import { useDirection } from "@/components/foundations/direction/direction";
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
-  RiBankCardLine,
   RiBookOpenLine,
   RiCheckboxCircleFill,
   RiCloseLine,
@@ -56,7 +55,7 @@ export interface SettingsModalProps {
   onClose: () => void;
   /** Page selected each time the modal opens. */
   defaultPage?: SettingsPage;
-  /** Optional product artwork used by the animated Current plan card. */
+  /** Optional product artwork source (unused in Codely — kept for API compatibility). */
   planArtSrc?: string;
   /** Optional marketplace pane, including its own fixed header and scroll region. */
   marketplace?: ReactNode;
@@ -82,7 +81,6 @@ const NAV_GROUPS: { label: string; items: NavEntry[] }[] = [
       { label: "Profile", icon: RiSchoolLine, page: "profile" },
       { label: "Marketplace", icon: RiStore2Line, page: "marketplace" },
       { label: "Appearance", icon: RiPaletteLine },
-      { label: "Billing", icon: RiBankCardLine },
       { label: "Rules and Workflows", icon: RiOrganizationChart },
       { label: "Tools", icon: RiToolsFill, page: "tools" },
       { label: "Storage", icon: RiDatabase2Line, page: "storage" },

@@ -113,7 +113,7 @@ export function AgentComposer({
             value={value}
             onChange={(event) => onValueChange(event.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Ask me anything"
+            placeholder="Ask Codely anything — or drop a file to scan…"
             autoComplete="off"
             className="h-5 min-w-0 flex-1 bg-transparent text-body-regular text-text-primary caret-text-primary outline-none placeholder:text-text-tertiary"
           />
@@ -156,7 +156,7 @@ export function AgentComposer({
 
       <div className="flex h-[26px] w-full items-center justify-between">
         <div className="flex items-center gap-3">
-          <StatusItem icon={RiInfinityLine} label={provider ?? "Not configured"} />
+          <StatusItem icon={RiInfinityLine} label={provider ?? "Codely"} />
         </div>
         <div className="flex items-center gap-3">
           <StatusItem

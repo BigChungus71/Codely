@@ -1,6 +1,7 @@
 {
-  "name": "boardui-chat-starter",
+  "name": "codely",
   "version": "0.1.0",
+  "description": "Codely — crush every bug like a pro",
   "private": true,
   "scripts": {
     "dev": "next dev",

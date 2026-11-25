@@ -3,10 +3,8 @@
 import { useTemplateCopy } from "@/components/foundations/template-copy/template-copy";
 
 import { useState } from "react";
-import { Button } from "@/components/base/buttons/button";
 import { Select, SelectItem } from "@/components/base/select/select";
 import { Switch } from "@/components/base/switch/switch";
-import { PlanArtFlame } from "./plan-art-flame";
 import {
   SettingsCard,
   SettingsRow,
@@ -14,15 +12,10 @@ import {
 } from "./settings-rows";
 
 /**
- * Figma source: Board UI → "Settings/General" (node 4079:13037), the right
- * pane of the settings modal. Taller than the 614px modal, so the pane
- * scrolls within the shell.
+ * Codely — General settings panel.
  *
  * Sections, 24px apart:
- *   plan          "Current plan" chip, Ultra $149/mo, upgrade button, and the
- *                 artwork bleeding off the right edge under a radial fade
- *                 into the card background.
- *   limits        single row with a "Manage limits" button.
+ *   developer     "Developer Mode" toggle — enables raw scan output & verbose logs.
  *   pull requests two select rows (Review provider / PR destination).
  *   notifications four toggle rows, only "Critical requests" on by default.
  */
@@ -30,9 +23,10 @@ import {
 /** Compact white select trigger (h 32, radius/lg) per the Figma rows. */
 const SELECT_TRIGGER = "h-8 w-auto gap-1 rounded-lg px-2 py-1.5";
 
-export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
+export function SettingsGeneral({ planArtSrc: _ }: { planArtSrc?: string }) {
   const localize = useTemplateCopy();
   const [toggles, setToggles] = useState({
+    developerMode: false,
     critical: true,
     system: false,
     sound: false,
@@ -44,57 +38,17 @@ export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
 
   return localize((
     <div className="flex w-full flex-col gap-6">
-      {/* Current plan */}
-      <div className="relative w-full overflow-hidden rounded-2xl bg-background-secondary-default">
-        {/* Artwork bleeding off the right edge, fading into the card bg.
-            Rendered through a WebGL shader: waving like a wind-torn flag with
-            a continuous burning-edge effect (see plan-art-flame.tsx). */}
-        <div aria-hidden className="absolute -top-[11px] start-[328px] size-[277px]">
-          <PlanArtFlame
-            src={planArtSrc}
-            className="size-full object-cover"
-          />
-          {/* Fades into the card, whatever colour that is: the stops mix the
-              card's own token rather than a hardcoded #f7f7f7, which stayed
-              white and haloed the artwork in dark mode. Mixing toward 0% of
-              the token instead of `transparent` also avoids the grey fringe
-              sRGB interpolation gives when a colour fades to rgba(0,0,0,0). */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(closest-side at center,
-                color-mix(in srgb, var(--color-background-secondary-default) 0%, transparent) 13%,
-                color-mix(in srgb, var(--color-background-secondary-default) 13%, transparent) 37%,
-                color-mix(in srgb, var(--color-background-secondary-default) 85%, transparent) 86%,
-                var(--color-background-secondary-default) 100%)`,
-            }}
-          />
-        </div>
-
-        <div className="relative flex flex-col gap-2.5 py-3 pe-2.5 ps-3">
-          <div className="flex flex-col gap-2">
-            <span className="inline-flex w-fit items-center rounded-md bg-background-tertiary-default px-1.5 py-0.5 text-body-2-medium text-text-secondary">
-              Current plan
-            </span>
-            <div className="flex flex-col gap-0.5">
-              <p className="text-headline-medium text-text-primary">Ultra $149/mo</p>
-              <p className="text-body-2-regular text-text-secondary">
-                You are on 7x more usage than Regular.
-              </p>
-            </div>
-          </div>
-          <Button variant="secondary" size="small" className="w-fit">
-            Upgrade to Max
-          </Button>
-        </div>
-      </div>
-
-      {/* Limits */}
+      {/* Developer Mode */}
       <SettingsCard>
-        <SettingsRow label="Limits" description="You are on 7x more usage than Premium">
-          <Button variant="secondary" size="small">
-            Manage limits
-          </Button>
+        <SettingsRow
+          label="Developer Mode"
+          description="Enable advanced tooling, raw scan output, and verbose logs."
+        >
+          <Switch
+            aria-label="Developer Mode"
+            isSelected={toggles.developerMode}
+            onChange={setToggle("developerMode")}
+          />
         </SettingsRow>
       </SettingsCard>
 
@@ -125,7 +79,7 @@ export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
               defaultSelectedKey="inside"
               triggerClassName={SELECT_TRIGGER}
             >
-              <SelectItem id="inside">Inside BoardUI</SelectItem>
+              <SelectItem id="inside">Inside Codely</SelectItem>
               <SelectItem id="browser">In the browser</SelectItem>
             </Select>
           </SettingsRow>
@@ -168,7 +122,7 @@ export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
           </SettingsRow>
           <SettingsRow
             label="Dispatch alerts"
-            description="Push notification on your phone when BoardUI messages you"
+            description="Push notification on your phone when Codely messages you"
           >
             <Switch
               aria-label="Dispatch alerts"

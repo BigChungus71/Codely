@@ -63,6 +63,74 @@ export interface AgentChatHistoryProps {
   className?: string;
 }
 
+/**
+ * Embedded chat-history section for the left sidebar: New chat button,
+ * scrollable list of recent threads, and export control.
+ */
+export function SidebarChatHistory({
+  threads,
+  activeId,
+  onSelect,
+  onNewChat,
+  onRename,
+  onToggleUnread,
+  onDelete,
+  onExport,
+  disabled = false,
+}: Omit<AgentChatHistoryProps, "className">) {
+  const localize = useTemplateCopy();
+  return localize((
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      <div className="flex items-center justify-between px-1">
+        <span className="text-body-2-medium text-text-tertiary">Chats</span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onExport}
+            disabled={threads.length === 0}
+            aria-label={threads.length === 0 ? "No chats to export" : `Export ${threads.length} chats`}
+            title={threads.length === 0 ? "No chats to export" : `Export ${threads.length} chats`}
+            className="inline-flex size-6 cursor-pointer items-center justify-center rounded-md text-foreground-icon-tertiary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <RiDownloadLine className="size-3.5 shrink-0" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={onNewChat}
+            disabled={disabled}
+            aria-label="New chat"
+            title="New chat"
+            className="inline-flex size-6 cursor-pointer items-center justify-center rounded-md text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RiAddLine className="size-4 shrink-0" aria-hidden />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto [scrollbar-width:none]">
+        {threads.length === 0 ? (
+          <p className="px-2 py-1 text-body-2-regular text-text-tertiary">
+            Chats you start show up here.
+          </p>
+        ) : (
+          threads.map((thread) => (
+            <ThreadRow
+              key={thread.id}
+              thread={thread}
+              active={thread.id === activeId}
+              disabled={disabled}
+              onSelect={onSelect}
+              onRename={onRename}
+              onToggleUnread={onToggleUnread}
+              onDelete={onDelete}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  ));
+}
+
 export function AgentChatHistory({
   threads,
   activeId,
@@ -209,16 +277,16 @@ function AccountMenu({ threads }: { threads: ChatThreadSummary[] }) {
       }}
     >
       <DropdownTrigger
-        aria-label="Mertcan Esmergul account menu"
+        aria-label="Ninad account menu"
         className={cx(
           "flex min-w-0 flex-1 items-center gap-2 rounded-2lg px-1 py-1 text-start",
           "transition-colors hover:bg-background-secondary-hover",
           isOpen && "bg-background-secondary-hover",
         )}
       >
-        <Avatar size="sm" initials="M" color="neutral" alt="Mertcan Esmergul" />
+        <Avatar size="sm" initials="N" color="neutral" alt="Ninad" />
         <span className="min-w-0 flex-1 truncate text-body-2-medium text-text-primary">
-          Mertcan Esmergul
+          Ninad
         </span>
       </DropdownTrigger>
 
@@ -252,16 +320,6 @@ function AccountMenu({ threads }: { threads: ChatThreadSummary[] }) {
             <div className="flex flex-col gap-1 pb-1">
               <UsageRow label="Chats" value={`${threads.length} of ${THREAD_CAPACITY}`} percent={chatPercent} />
               <UsageRow label="Storage" value={formatBytes(storedBytes)} percent={storagePercent} />
-              <button
-                type="button"
-                onClick={close}
-                className="flex w-full cursor-pointer items-center gap-2 rounded-2lg py-1 pe-2 ps-9 text-start transition-colors hover:bg-background-secondary-default"
-              >
-                <span className="flex-1 truncate text-body-2-medium whitespace-nowrap text-text-primary">
-                  Upgrade to Max
-                </span>
-                <RiGlobalLine className="size-4 shrink-0 text-foreground-icon-tertiary" aria-hidden />
-              </button>
             </div>
           )}
 
@@ -309,7 +367,7 @@ function UsageRow({ label, value, percent }: { label: string; value: string; per
 /** Bytes the stored chats occupy. UTF-16 in storage, so two bytes a character. */
 function measureStoredBytes() {
   try {
-    return (window.localStorage.getItem("boardui:agent-chat-threads")?.length ?? 0) * 2;
+    return (window.localStorage.getItem("codely:agent-chat-threads")?.length ?? 0) * 2;
   } catch {
     return 0;
   }

@@ -8,10 +8,8 @@ import {
   RiCloseLine,
   RiDashboardLine,
   RiFilter3Fill,
-  RiLayoutGridLine,
-  RiLoginBoxLine,
   RiMenuLine,
-  RiUserAddLine,
+  RiShieldCheckLine,
 } from "@remixicon/react";
 import type { ComponentType } from "react";
 import { usePathname } from "next/navigation";
@@ -22,7 +20,6 @@ import {
   type DashboardNavItem,
 } from "@/components/application/dashboard/dashboard-sidebar";
 import { NotificationBell } from "@/components/application/app-shell/notification-bell";
-import { ProOfferCard } from "@/components/application/app-shell/pro-offer-card";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { Breadcrumb, BreadcrumbItem } from "@/components/base/breadcrumb/breadcrumb";
 import { Button } from "@/components/base/buttons/button";
@@ -61,11 +58,8 @@ export function useStarterBase(): string {
 export function starterNav(base: string): DashboardNavItem[] {
   return [
     { key: "chat", label: "Chat", icon: RiChatAiLine, href: base || "/" },
+    { key: "scanner", label: "Scanner", icon: RiShieldCheckLine, href: `${base}/scanner` },
     { key: "dashboard", label: "Dashboard", icon: RiDashboardLine, href: `${base}/dashboard` },
-    { key: "components", label: "Components and Blocks", icon: RiLayoutGridLine, href: `${base}/components` },
-    // Auth screens, as examples: full-page, so nothing is selected while on them.
-    { key: "login", label: "Sign in", icon: RiLoginBoxLine, href: `${base}/login` },
-    { key: "signup", label: "Sign up", icon: RiUserAddLine, href: `${base}/signup` },
   ];
 }
 
@@ -74,8 +68,8 @@ export function useStarterSelected(): string {
   const pathname = usePathname() ?? "";
   const base = useStarterBase();
   const rest = pathname.slice(base.length);
+  if (rest.startsWith("/scanner")) return "scanner";
   if (rest.startsWith("/dashboard")) return "dashboard";
-  if (rest.startsWith("/components")) return "components";
   return "chat";
 }
 
@@ -149,12 +143,12 @@ export function AppShell({
           <header className="flex w-full flex-col gap-2">
             <Breadcrumb>
               <BreadcrumbItem href="#">
-                <Avatar size="xs" color="blue" initials="B" />
-                Board team
+                <Avatar size="xs" color="blue" initials="C" />
+                Codely
               </BreadcrumbItem>
               <BreadcrumbItem href="#">
-                <Avatar size="xs" color="neutral" initials="M" />
-                Mertcan
+                <Avatar size="xs" color="neutral" initials="N" />
+                ninad
               </BreadcrumbItem>
               <BreadcrumbItem current icon={Icon}>
                 {title}
@@ -191,7 +185,6 @@ export function AppShell({
           <div className="flex w-full flex-col gap-4 pb-4">{children}</div>
         </div>
       </main>
-      <ProOfferCard />
     </div>
   ));
 }

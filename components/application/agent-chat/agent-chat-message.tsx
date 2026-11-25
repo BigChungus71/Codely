@@ -6,6 +6,7 @@ import { RiCheckLine, RiFileCopyLine, RiVolumeMuteLine, RiVolumeUpLine } from "@
 import { motion, useReducedMotion } from "motion/react";
 import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { Logo } from "@/components/foundations/brand/logo";
 import { cx } from "@/utils/cx";
 
 /**
@@ -35,16 +36,30 @@ export function AgentMessage({ role, text, streaming = false, at }: AgentMessage
 
   if (role === "user") {
     return localize((
-      <p className="ms-auto flex w-fit max-w-[75%] flex-col rounded-2xl bg-background-primary-default px-3 py-[11px] text-start text-body-regular break-words whitespace-pre-wrap text-text-primary shadow-card">
-        {text}
-      </p>
+      <div className="ms-auto flex max-w-[78%] flex-col items-end gap-1">
+        <span className="px-1 text-caption-1-medium text-text-tertiary">You</span>
+        <p className="w-fit rounded-2xl rounded-se-sm bg-accent-500 px-3.5 py-2.5 text-start text-body-regular break-words whitespace-pre-wrap text-white shadow-xs">
+          {text}
+        </p>
+      </div>
     ));
   }
 
   return localize((
-    <div className="group/message flex flex-col gap-1 px-1">
-      <StreamedText text={text} />
-      <MessageActions text={text} at={at} hidden={streaming} />
+    <div className="group/message flex items-start gap-2.5 px-1">
+      <Logo size={28} className="mt-0.5 rounded-lg" />
+      <div className="flex min-w-0 max-w-[85%] flex-col gap-1.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-caption-1-semibold text-text-primary">Codely</span>
+          <span className="rounded-full bg-background-tertiary-default px-1.5 py-0.5 text-[10px] font-medium leading-none text-text-secondary">
+            AI Bot
+          </span>
+        </div>
+        <div className="rounded-2xl rounded-ss-sm border border-border-button-default bg-background-primary-default px-4 py-3 shadow-xs">
+          <StreamedText text={text} />
+        </div>
+        <MessageActions text={text} at={at} hidden={streaming} />
+      </div>
     </div>
   ));
 }

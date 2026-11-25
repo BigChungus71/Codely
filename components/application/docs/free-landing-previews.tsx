@@ -120,7 +120,7 @@ export function FileUploadPreview() {
       if (input) {
         const transfer = new DataTransfer();
         transfer.items.add(
-          new File([new Uint8Array(1_800_000)], "boardui-components.pdf", { type: "application/pdf" }),
+          new File([new Uint8Array(1_800_000)], "codely-components.pdf", { type: "application/pdf" }),
         );
         input.files = transfer.files;
         input.dispatchEvent(new Event("change", { bubbles: true }));
@@ -182,8 +182,8 @@ export function MeetingSchedulePreview() {
       <div className="flex w-[220px] shrink-0 flex-col gap-4 rounded-2xl bg-background-primary-default p-4 shadow-xs">
         <Avatar size="sm" color="blue" initials="M" />
         <div>
-          <p className="text-body-medium text-text-primary">Mertcan Esmergul</p>
-          <p className="text-body-2-regular text-text-secondary">hi@mertcan.works</p>
+          <p className="text-body-medium text-text-primary">ninad</p>
+          <p className="text-body-2-regular text-text-secondary">hi@codely.com</p>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-headline-medium text-text-primary">30 min intro meeting</p>

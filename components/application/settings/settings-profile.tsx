@@ -89,15 +89,15 @@ export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
             aria-label="Email"
             type="email"
             leadingIcon={RiMailLine}
-            initialValue="hi@mertcan.works"
+            initialValue="hi@codely.com"
             onSaved={onSaved}
           />
         </SettingsRow>
         <SettingsRow label="First name">
-          <SavableInput aria-label="First name" initialValue="Mertcan" onSaved={onSaved} />
+          <SavableInput aria-label="First name" initialValue="ninad" onSaved={onSaved} />
         </SettingsRow>
         <SettingsRow label="Last name">
-          <SavableInput aria-label="Last name" initialValue="Esmergül" onSaved={onSaved} />
+          <SavableInput aria-label="Last name" initialValue="kalyan" onSaved={onSaved} />
         </SettingsRow>
         <SettingsRow label="Date of birth">
           <button
@@ -128,7 +128,7 @@ export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
       </SettingsCard>
 
       <SettingsCard>
-        <SettingsRow label="BoardUI account">
+        <SettingsRow label="Codely account">
           <Button variant="secondary" size="small" leadingIcon={RiExternalLinkLine}>
             Manage
           </Button>

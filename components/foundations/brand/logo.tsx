@@ -1,54 +1,40 @@
 import Image from "next/image";
 import { cx } from "@/utils/cx";
 
-/** BoardUI mark. Renders the brand icon at a fixed pixel size (24 / 32 / 40).
- *  `mono` swaps between the light and dark black-and-white assets through the
- *  shared theme class on the document root. */
+/** Codely mark. Renders the theme-aware brand logo (`/logo/2.png` in light mode,
+ *  `/logo/1.png` in dark mode) via `.theme-logo-light` / `.theme-logo-dark`. */
 export function Logo({
   size = 32,
-  mono = false,
+  mono: _mono = false,
   className,
 }: {
   size?: number;
   mono?: boolean;
   className?: string;
 }) {
-  if (mono) {
-    return (
-      <>
-        <Image
-          src="/brand/boardui_logo_blackandwhite.png"
-          alt="BoardUI"
-          width={size}
-          height={size}
-          className={cx("theme-logo-light shrink-0", className)}
-          priority
-        />
-        <Image
-          src="/brand/boardui_logo_blackandwhite_dark.png"
-          alt="BoardUI"
-          width={size}
-          height={size}
-          className={cx("theme-logo-dark shrink-0", className)}
-          priority
-        />
-      </>
-    );
-  }
-
   return (
-    <Image
-      src="/brand/boardui_logo.png"
-      alt="BoardUI"
-      width={size}
-      height={size}
-      className={cx("shrink-0", className)}
-      priority
-    />
+    <>
+      <Image
+        src="/logo/2.png"
+        alt="Codely"
+        width={size}
+        height={size}
+        className={cx("theme-logo-light shrink-0 object-cover", className)}
+        priority
+      />
+      <Image
+        src="/logo/1.png"
+        alt="Codely"
+        width={size}
+        height={size}
+        className={cx("theme-logo-dark shrink-0 object-cover", className)}
+        priority
+      />
+    </>
   );
 }
 
-/** Theme-aware metallic BoardUI Pro mark. */
+/** Theme-aware Codely mark (alias for ProLogo). */
 export function ProLogo({
   size = 36,
   className,
@@ -60,24 +46,24 @@ export function ProLogo({
   decorative?: boolean;
   priority?: boolean;
 }) {
-  const alt = decorative ? "" : "BoardUI Pro";
+  const alt = decorative ? "" : "Codely";
 
   return (
     <>
       <Image
-        src="/brand/boardui_pro.png"
+        src="/logo/2.png"
         alt={alt}
         width={size}
         height={size}
-        className={cx("theme-logo-light shrink-0 object-contain", className)}
+        className={cx("theme-logo-light shrink-0 object-cover", className)}
         priority={priority}
       />
       <Image
-        src="/brand/boardui_pro_dark.png"
+        src="/logo/1.png"
         alt={alt}
         width={size}
         height={size}
-        className={cx("theme-logo-dark shrink-0 object-contain", className)}
+        className={cx("theme-logo-dark shrink-0 object-cover", className)}
         priority={priority}
       />
     </>

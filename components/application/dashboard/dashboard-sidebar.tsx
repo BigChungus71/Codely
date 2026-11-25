@@ -16,13 +16,11 @@ import {
   RiCalendarLine,
   RiChatAiLine,
   RiCloseLine,
-  RiCustomerServiceLine,
   RiHomeLine,
   RiImageAiLine,
   RiKanbanView2,
   RiMegaphoneLine,
   RiSearchLine,
-  RiSettings4Line,
   RiSideBarFill,
   RiUserSmileLine,
 } from "@remixicon/react";
@@ -219,6 +217,7 @@ export function DashboardSidebar({
   selected = "home",
   items = DASHBOARD_NAV,
   flat = false,
+  sidebarSlot,
   className,
 }: {
   /** Rendered inside the mobile drawer: always expanded, close button instead of collapse. */
@@ -238,6 +237,8 @@ export function DashboardSidebar({
   items?: DashboardNavItem[];
   /** Removes the floating panel treatment for a sidebar revealed beneath mobile content. */
   flat?: boolean;
+  /** Optional embedded section rendered below the primary nav when expanded (e.g. recent chats). */
+  sidebarSlot?: ReactNode;
   className?: string;
 } = {}) {
   const localize = useTemplateCopy();
@@ -251,9 +252,7 @@ export function DashboardSidebar({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const collapsed = mobile ? false : collapsedState;
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const matches = (label: string) => label.toLocaleLowerCase().includes(normalizedQuery);
-  const secondaryLabels = ["Support", "Settings"];
-  const secondaryMatch = secondaryLabels.some(matches);
+  const secondaryMatch = false;
 
   const activateSearch = useCallback(() => {
     if (!mobile) setCollapsed(false);
@@ -352,6 +351,7 @@ export function DashboardSidebar({
               collapsed={collapsed}
               suppressHover={suppressUserHover}
               onHoverSuppressionEnd={() => setSuppressUserHover(false)}
+              onOpenSettings={() => setSettingsOpen(true)}
               avatarClassName={
                 flat
                   ? "bg-background-tertiary-default dark:bg-background-secondary-default"
@@ -515,6 +515,12 @@ export function DashboardSidebar({
               secondaryMatch={secondaryMatch}
             />
           </nav>
+
+          {!collapsed && sidebarSlot && (
+            <div className="mt-1 flex min-h-0 flex-1 flex-col border-t border-separator-border pt-3">
+              {sidebarSlot}
+            </div>
+          )}
         </div>
       </div>
 
@@ -528,20 +534,6 @@ export function DashboardSidebar({
               className={flat ? "!bg-background-secondary-default" : undefined}
             />
           ))}
-        {/* Secondary nav */}
-        <nav className="flex w-full flex-col gap-1">
-          {matches("Support") && (
-            <NavItem icon={RiCustomerServiceLine} label="Support" collapsed={collapsed} />
-          )}
-          {matches("Settings") && (
-            <NavItem
-              icon={RiSettings4Line}
-              label="Settings"
-              collapsed={collapsed}
-              onClick={() => setSettingsOpen(true)}
-            />
-          )}
-        </nav>
 
         {/* Team card → opens the profile menu next to the sidebar */}
         <DashboardTeamMenu

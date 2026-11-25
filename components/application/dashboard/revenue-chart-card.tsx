@@ -58,7 +58,8 @@ export const REVENUE_DATA: RevenuePoint[] = [
   { label: "Dec", current: 14703.92, previous: 11924 },
 ];
 
-const formatK = (value: number) => (value >= 1000 ? `$${Math.round(value / 1000)}k` : `$${value}`);
+const formatK = (value: number, prefix = "$") =>
+  value >= 1000 ? `${prefix}${Math.round(value / 1000)}k` : `${prefix}${value}`;
 const formatMoney = (value: number) =>
   value.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
@@ -87,12 +88,15 @@ function ActiveDot({ cx: x, cy: y }: { cx?: number; cy?: number }) {
 export function RevenueChartCard({
   data = REVENUE_DATA,
   title = "Revenue",
+  prefix = "$",
   className,
 }: {
   /** Twelve points, one per month; defaults to the demo year. */
   data?: RevenuePoint[];
   /** Headline label when no month is hovered. */
   title?: string;
+  /** Optional unit prefix (e.g. "$" for currency, "" for line counts). */
+  prefix?: string;
   className?: string;
 } = {}) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -128,14 +132,14 @@ export function RevenueChartCard({
               key={activeIndex ?? "total"}
               className="animate-number-fade text-title-1-medium whitespace-nowrap text-text-primary tabular-nums"
             >
-              ${formatMoney(display)}
+              {prefix}{formatMoney(display)}
             </p>
             <Chip variant="bold" color={delta.color}>
               {delta.label}
             </Chip>
           </div>
           <p className="text-body-2-medium text-text-tertiary tabular-nums">
-            ${formatMoney(comparison)} {point ? "a year earlier" : "last year"}
+            {prefix}{formatMoney(comparison)} {point ? "a year earlier" : "last year"}
           </p>
         </div>
         <dl className="flex shrink-0 items-center gap-4 text-body-2-medium text-text-secondary">
@@ -172,7 +176,7 @@ export function RevenueChartCard({
               width={44}
               domain={[0, yMax * 1.1]}
               tickCount={4}
-              tickFormatter={formatK}
+              tickFormatter={(value: number) => formatK(value, prefix)}
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 12, fill: "var(--color-text-tertiary)" }}

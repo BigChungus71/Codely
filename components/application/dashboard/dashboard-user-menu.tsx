@@ -4,7 +4,7 @@ import { useTemplateCopy, useTemplateLanguageSelector } from "@/components/found
 
 import { useDirection } from "@/components/foundations/direction/direction";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
-import { RiAddFill, RiEqualizer3Line } from "@remixicon/react";
+import { RiAddFill, RiCustomerServiceLine, RiEqualizer3Line, RiSettings4Line } from "@remixicon/react";
 import {
   Button as AriaButton,
   Dialog as AriaDialog,
@@ -26,7 +26,7 @@ import { cx } from "@/utils/cx";
  * avatars + name), a full-bleed divider, then "Add user" / "Manage" actions.
  */
 
-type AvatarColor = "neutral" | "lime" | "pink";
+type AvatarColor = "neutral" | "blue" | "lime" | "pink";
 
 type UserRow = {
   initials: string;
@@ -36,9 +36,10 @@ type UserRow = {
 };
 
 const USERS: UserRow[] = [
-  { initials: "M", color: "neutral", name: "Mertcan Esmergul" },
-  { initials: "S", color: "lime", name: "Steven Raule" },
-  { initials: "L", color: "pink", name: "Lauren Proso" },
+  { initials: "N", color: "neutral", name: "ninad", isSelected: true },
+  { initials: "K", color: "lime", name: "kalyan" },
+  { initials: "B", color: "pink", name: "bhargav" },
+  { initials: "S", color: "blue", name: "soumay" },
 ];
 
 /** Label slot on the trigger: blurs + fades away as the rail collapses. */
@@ -79,7 +80,13 @@ function UserMenuItem({ initials, color, name, isSelected, onSelect }: UserRow &
 /** The dropdown's contents — users-with-access list + Add user/Manage
  *  actions — split out so other triggers (e.g. the calendar template's
  *  inbox icon) can open the same panel without duplicating it. */
-export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
+export function AccountMenuContent({
+  onSelect,
+  onOpenSettings,
+}: {
+  onSelect: () => void;
+  onOpenSettings?: () => void;
+}) {
   const localize = useTemplateCopy();
   const languageSelector = useTemplateLanguageSelector();
   return localize((
@@ -97,6 +104,31 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
       {/* Divider centered in the 28px gap between the list and the actions */}
       <div className="-mx-2.5 my-3.5 h-px bg-border-button-default" />
 
+      {/* Profile actions: Settings & Support */}
+      <div className="flex w-full flex-col gap-1 pb-2">
+        {onOpenSettings && (
+          <AriaButton
+            type="button"
+            onPress={() => {
+              onSelect();
+              onOpenSettings();
+            }}
+            className="flex w-full cursor-pointer items-center gap-2 rounded-2lg px-2 py-1.5 text-start outline-none transition-colors hover:bg-background-primary-hover focus-visible:bg-background-primary-hover"
+          >
+            <RiSettings4Line className="size-4 shrink-0 text-foreground-icon-secondary" aria-hidden />
+            <span className="text-body-medium text-text-primary">Settings</span>
+          </AriaButton>
+        )}
+        <a
+          href="mailto:hi@codely.com"
+          onClick={onSelect}
+          className="flex w-full cursor-pointer items-center gap-2 rounded-2lg px-2 py-1.5 text-start outline-none transition-colors hover:bg-background-primary-hover focus-visible:bg-background-primary-hover"
+        >
+          <RiCustomerServiceLine className="size-4 shrink-0 text-foreground-icon-secondary" aria-hidden />
+          <span className="text-body-medium text-text-primary">Support</span>
+        </a>
+      </div>
+
       {/* Actions — pb-2 makes the space below the buttons match their
           left/right inset (panel p-2.5 + row px-2 = 18px on every side). */}
       <div className="flex w-full items-center gap-3 px-2 pb-2">
@@ -108,7 +140,10 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
           size="small"
           leadingIcon={RiEqualizer3Line}
           className="flex-1"
-          onClick={onSelect}
+          onClick={() => {
+            onSelect();
+            onOpenSettings?.();
+          }}
         >
           Manage
         </Button>
@@ -122,6 +157,7 @@ export function DashboardUserMenu({
   collapsed = false,
   suppressHover = false,
   onHoverSuppressionEnd,
+  onOpenSettings,
   avatarClassName,
 }: {
   collapsed?: boolean;
@@ -129,6 +165,7 @@ export function DashboardUserMenu({
   suppressHover?: boolean;
   /** Re-arms hover after the pointer fully leaves the trigger. */
   onHoverSuppressionEnd?: () => void;
+  onOpenSettings?: () => void;
   avatarClassName?: string;
 }) {
   const localize = useTemplateCopy();
@@ -150,7 +187,7 @@ export function DashboardUserMenu({
   return localize((
     <AriaDialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <AriaButton
-        aria-label="Mertcan Esmergul"
+        aria-label="ninad"
         onPointerLeave={() => {
           if (suppressHover) onHoverSuppressionEnd?.();
         }}
@@ -173,10 +210,10 @@ export function DashboardUserMenu({
           collapsed && "w-9 justify-center gap-0 before:-inset-x-[3px]",
         )}
       >
-        <Avatar size="md" color="neutral" initials="M" className={avatarClassName} />
+        <Avatar size="md" color="neutral" initials="N" className={avatarClassName} />
         <Collapsible collapsed={collapsed}>
           <span className="flex items-center gap-0.5">
-            <span className="text-body-medium whitespace-nowrap text-text-primary">Mertcan Esmergul</span>
+            <span className="text-body-medium whitespace-nowrap text-text-primary">ninad</span>
             <ChevronUpDownSmall className="size-4 shrink-0 text-foreground-icon-tertiary" />
           </span>
         </Collapsible>
@@ -194,7 +231,7 @@ export function DashboardUserMenu({
         )}
       >
         <AriaDialog aria-label="Account menu" className="flex flex-col outline-none">
-          <AccountMenuContent onSelect={() => setIsOpen(false)} />
+          <AccountMenuContent onSelect={() => setIsOpen(false)} onOpenSettings={onOpenSettings} />
         </AriaDialog>
       </AriaPopover>
     </AriaDialogTrigger>

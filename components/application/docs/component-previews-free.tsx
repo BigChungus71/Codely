@@ -660,7 +660,7 @@ function InputPreviewCard() {
 
   useEffect(() => {
     if (!hovered) return;
-    const EMAIL = "hello@boardui.com";
+    const EMAIL = "hello@codely.com";
     const QUERY = "data table";
     const timers: number[] = [];
     let delay = 350;
@@ -887,7 +887,7 @@ export const FREE_COMPONENT_PREVIEWS: Partial<Record<PreviewHref, () => React.Re
         <Notification
           status="success"
           title="Deployment finished"
-          description="boardui.com is live on production."
+          description="codely.com is live on production."
           timestamp="2m ago"
         />
       </div>
@@ -992,7 +992,7 @@ export const FREE_COMPONENT_PREVIEWS: Partial<Record<PreviewHref, () => React.Re
           { src: "/avatars/john-clarkson.webp", alt: "John Clarkson", initials: undefined },
           { src: "/avatars/aspen-lubin.webp", alt: "Aspen Lubin", initials: undefined },
           { src: "/avatars/kianna-vaccaro.webp", alt: "Kianna Vaccaro", initials: undefined },
-          { src: undefined, alt: "Mertcan Esmergul", initials: "M" },
+          { src: undefined, alt: "ninad", initials: "M" },
         ].map((person, i) => (
           <div
             key={person.alt}

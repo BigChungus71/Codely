@@ -20,8 +20,21 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chat",
-  description: "A streaming AI chat on your own model key, built with BoardUI.",
+  title: "Codely — crush every bug like a pro",
+  description: "Codely — AI-powered code security scanner and architecture reviewer. Crush every bug like a pro.",
+  icons: {
+    icon: [
+      { url: "/logo/2.png", media: "(prefers-color-scheme: light)", type: "image/png" },
+      { url: "/logo/1.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+    ],
+    shortcut: "/logo/2.png",
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: "Codely — crush every bug like a pro",
+    description: "AI-powered code security scanner and architecture reviewer.",
+    siteName: "Codely",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -35,8 +48,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="flex min-h-full flex-col font-sans">
         {/* Applies the stored theme before first paint, so a dark-mode visitor
             never sees a light flash. The key matches the theme toggle. */}
-        <Script id="boardui-theme" strategy="beforeInteractive">
-          {`(function(){try{var dark=localStorage.getItem("boardui:theme")==="dark";document.documentElement.classList.toggle("dark",dark)}catch(e){document.documentElement.classList.remove("dark")}})();`}
+        <Script id="codely-theme" strategy="beforeInteractive">
+          {`(function(){try{var dark=localStorage.getItem("codely:theme")==="dark";document.documentElement.classList.toggle("dark",dark)}catch(e){document.documentElement.classList.remove("dark")}})();`}
         </Script>
         <DirectionProvider locale="en-US">{children}</DirectionProvider>
       </body>

@@ -29,11 +29,11 @@ def hook(variable: str):
 def scan_repository(project_path: str):
     custom = hook('CODELY_SCANNER_ADAPTER')
     if custom: return custom(project_path)
-    executable = shutil.which('semgrep')
+    executable = os.getenv('CODELY_SEMGREP_EXECUTABLE') or shutil.which('semgrep')
     config = os.getenv('SEMGREP_CONFIG')
     if not config and executable:
-        from .teammate_services import scan_python
-        return scan_python(project_path)
+        from .teammate_services import scan_bundled
+        return scan_bundled(project_path)
     if not executable or not config:
         raise HTTPException(503, 'Scanner unavailable: provide CODELY_SCANNER_ADAPTER or install Semgrep and set SEMGREP_CONFIG')
     command = [executable, 'scan', '--json', '--metrics=off', '--disable-version-check', '--strict', '--config', config]
@@ -74,6 +74,20 @@ def architecture(project_path: str):
         return custom(project_path)
     from .teammate_services import project_graph
     return project_graph(project_path)
+
+
+def system_architecture(project_path: str):
+    custom = hook('CODELY_SYSTEM_ARCHITECTURE_ADAPTER')
+    if custom:
+        return custom(project_path)
+    try:
+        from m4.ai_intelligence.system_graph import analyze_system
+    except ModuleNotFoundError as error:
+        if not error.name or not 'm4.ai_intelligence.system_graph'.startswith(error.name):
+            raise
+        raise HTTPException(503, 'System analyzer unavailable; install the architecture feature or configure its adapter')
+    return analyze_system(project_path)
+
 
 
 def explain(finding: dict, context: dict):

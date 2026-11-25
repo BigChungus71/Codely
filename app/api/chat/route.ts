@@ -97,6 +97,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const origin = req.headers.get("origin");
+  if (origin && origin !== new URL(req.url).origin) {
+    return Response.json({ message: "Origin is not allowed." }, { status: 403 });
+  }
   const badBody = Response.json(
     { error: "invalid_body", message: "Expected JSON with a messages array." },
     { status: 400 },

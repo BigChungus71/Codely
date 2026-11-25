@@ -75,21 +75,18 @@ export function AgentComposer({
       {/* radius omitted: ComposerLoader defaults to a full pill, matching the form. */}
       <ComposerLoader
         active={busy}
-        colors={["#1d4ed8", "#1e3a8a", "#2563eb", "#1e40af"]}
+        colors={[
+          "var(--color-accent-600)",
+          "var(--color-accent-500)",
+          "var(--color-accent-400)",
+          "var(--color-accent-700)",
+        ]}
       >
-        {/* The pill sits one step lighter than the chat surface behind it in
-            both themes (white on neutral-100 in light, neutral-800 on
-            neutral-900 in dark), so a single token works without a dark
-            override. Its controls then step back down to secondary. */}
+        {/* Solid pill surface sits on top of the outward glow so only the
+            exterior halo radiates around the composer, leaving the input crisp. */}
         <form
           onSubmit={submit}
-          className={cx(
-            "flex h-[52px] w-full items-center gap-2.5 rounded-full p-2",
-            // ComposerLoader paints its own pill surface and runs the light
-            // behind its children, so an opaque form would cover the light
-            // entirely. While busy the form steps aside and lets it show.
-            busy ? "bg-transparent" : "bg-background-primary-default shadow-xs",
-          )}
+          className="flex h-[52px] w-full items-center gap-2.5 rounded-full bg-background-primary-default p-2 shadow-xs"
         >
           {/* Attachment slot. Plain on purpose — the plugin panel behind this
               button in the Pro composer is part of what that component sells. */}

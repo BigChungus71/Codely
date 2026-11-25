@@ -6,7 +6,8 @@ import { Button } from "@/components/base/buttons/button";
 import { Select, SelectItem } from "@/components/base/select/select";
 import { ScannerResults } from "./scanner-results";
 import {
-  completedFindings, createCodelyClient, type Explanation, type FindingImpact, type FindingsResponse,
+  CodelyApiError, completedFindings, createCodelyClient, toDisplayFinding,
+  type Explanation, type Finding, type FindingImpact, type FindingsResponse, type GraphView, type ScanCoverage,
   type Graph, type Project, type SourceFile, type TreeNode,
 } from "@/integrations/frontend/codely-client";
 import { cx } from "@/utils/cx";
@@ -76,6 +77,9 @@ function RepositoryWorkspace({ project }: { project: string }) {
   const [explanation, setExplanation] = useState<Explanation>();
   const [reviewStatus, setReviewStatus] = useState("");
   const reviewRequest = useRef(0);
+  const [partialCoverage, setPartialCoverage] = useState<ScanCoverage>();
+  const [partialFindings, setPartialFindings] = useState<Finding[]>([]);
+  const [view, setView] = useState<GraphView>("system");
   const impactRequest = useRef(0);
   const [impact, setImpact] = useState<FindingImpact>();
   const [impactStatus, setImpactStatus] = useState("");
@@ -114,6 +118,8 @@ function RepositoryWorkspace({ project }: { project: string }) {
     setResult(undefined);
     setScanError("");
     ++reviewRequest.current;
+    setPartialCoverage(undefined);
+    setPartialFindings([]);
     ++impactRequest.current;
     setImpact(undefined);
     setImpactStatus("");
@@ -124,6 +130,10 @@ function RepositoryWorkspace({ project }: { project: string }) {
       setScanDuration((Date.now() - started) / 1000);
     } catch (failure) {
       setScanError(message(failure));
+      if (failure instanceof CodelyApiError) {
+        setPartialCoverage(failure.coverage);
+        setPartialFindings(failure.findings);
+      }
     } finally {
       setScanning(false);
     }
@@ -160,9 +170,9 @@ function RepositoryWorkspace({ project }: { project: string }) {
   async function loadGraph() {
     setLoadingGraph(true);
     setGraph(undefined);
-    setGraphStatus("Analyzing Python structure…");
+    setGraphStatus("Analyzing repository structure…");
     try {
-      setGraph(await api.architecture(project));
+      setGraph(await api.architecture(project, view));
       setGraphStatus("");
     } catch (failure) {
       setGraphStatus(message(failure));
@@ -171,7 +181,8 @@ function RepositoryWorkspace({ project }: { project: string }) {
     }
   }
 
-  const coverage = result?.diagnostics?.find((entry) => entry.code === "coverage");
+  const priorCoverage = result?.diagnostics?.find((entry) => entry.code === "coverage");
+  const coverage = result?.coverage ?? partialCoverage;
   return (
     <>
       <section className="flex flex-col gap-4 rounded-3xl border border-border-button-default p-4">
@@ -195,9 +206,25 @@ function RepositoryWorkspace({ project }: { project: string }) {
         )}
       </section>
       <section className="flex flex-col gap-4">
-        <div><Button variant="primary" disabled={scanning} onClick={scan}>Run Python security scan</Button></div>
+        <div><Button variant="primary" disabled={scanning} onClick={scan}>Run repository security scan</Button></div>
         {scanError && <p role="alert" className="text-text-error-primary">{scanError}</p>}
-        {result && <p role="status">{result.cached ? "Cached scan" : "Scan completed"}{coverage ? ` · ${coverage.snapshot_files} Python files analyzed` : ""}</p>}
+        {result && <p role="status">{result.cached ? "Cached scan" : "Scan completed"}{!coverage && priorCoverage ? ` · ${priorCoverage.snapshot_files} files in scanner snapshot` : ""}</p>}
+        {coverage && (
+          <section aria-label="Scan coverage" className="flex flex-col gap-1 rounded-xl bg-background-secondary-default p-4">
+            <h3 className="text-headline-medium">Scan coverage</h3>
+            <p>Detected: {coverage.detected_languages.join(", ") || "None"}</p>
+            <p>Analyzed: {coverage.analyzed_languages.join(", ") || "None"}</p>
+            <p>Unsupported: {coverage.unsupported_languages.join(", ") || "None detected"}</p>
+            <p>{coverage.scanned_files} scanned · {coverage.excluded_files} observed files excluded · {coverage.excluded_directory_count} directories pruned</p>
+            {coverage.unscanned_supported_files > 0 && <p>{coverage.unscanned_supported_files} staged files were unscanned.</p>}
+          </section>
+        )}
+        {partialFindings.length > 0 && (
+          <section aria-label="Partial findings">
+            <h3 className="text-headline-medium">Partial findings</h3>
+            <ScannerResults findings={partialFindings.map(toDisplayFinding)} onOpen={openFile} />
+          </section>
+        )}
         {(scanning || result?.status === "completed") && (
           <ScannerResults findings={result ? completedFindings(result) : []} loading={scanning}
             onOpen={openFile} onExplain={explain} onImpact={reviewImpact} startedAt={scanStarted} durationSeconds={scanDuration} />
@@ -231,7 +258,15 @@ function RepositoryWorkspace({ project }: { project: string }) {
         )}
       </section>
       <section className="flex flex-col gap-4">
-        <div><Button variant="secondary" disabled={loadingGraph} onClick={loadGraph}>Load Python architecture</Button></div>
+        <div className="flex flex-wrap items-end gap-2">
+          <Select aria-label="Architecture view" selectedKey={view} isDisabled={loadingGraph} onSelectionChange={(key) => {
+            if (key === "dependencies" || key === "system") { setView(key); setGraph(undefined); setGraphStatus(""); }
+          }}>
+            <SelectItem id="system">System Architecture</SelectItem>
+            <SelectItem id="dependencies">Code Dependencies</SelectItem>
+          </Select>
+          <Button variant="secondary" disabled={loadingGraph} onClick={loadGraph}>Load architecture</Button>
+        </div>
         {graphStatus && <p role="status">{graphStatus}</p>}
         {graph && <ArchitectureViewer graph={graph} onOpen={openFile} />}
       </section>
@@ -253,14 +288,22 @@ function ArchitectureViewer({ graph, onOpen }: {
   const pageSize = 16;
   const pages = Math.max(1, Math.ceil(edges.length / pageSize));
   const focused = nodes.get(focus);
+  const system = graph.graph_type === "system";
+  const groups = [...new Set(graph.nodes.map((node) => node.type))].sort();
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <h2 className="text-headline-medium">Observed modules and imports</h2>
+      <h2 className="text-headline-medium">{system ? "Observed system architecture" : "Observed code dependencies"}</h2>
       <p className="text-body-2-regular text-text-secondary">
-        {graph.nodes.length} Python modules · {graph.edges.length} directed imports
+        {graph.nodes.length} {system ? "components" : "modules"} · {graph.edges.length} directed relationships
         {graph.status === "partial" && " · Partial coverage"}
       </p>
+      {system && <p className="text-body-2-regular text-text-secondary">
+        {groups.map((type) => `${type.replaceAll("_", " ")}: ${graph.nodes.filter((node) => node.type === type).length}`).join(" · ")}
+      </p>}
+      {graph.diagnostics.length > 0 && <p className="text-body-2-regular text-text-secondary">
+        {Array.from(new Set(graph.diagnostics.flatMap((item) => item.code ? [item.code.replaceAll("_", " ")] : []))).join(" · ")}
+      </p>}
       <div className="flex flex-wrap items-center gap-2">
         <Select aria-label="Focus architecture module" selectedKey={focus} onSelectionChange={(key) => {
           setFocus(String(key)); setPage(0);
@@ -273,10 +316,10 @@ function ArchitectureViewer({ graph, onOpen }: {
         <Button variant="ghost" size="small" disabled={zoom >= 175} onClick={() => setZoom(zoom + 25)}>Zoom in</Button>
         <span aria-live="polite">{zoom}%</span>
       </div>
-      {edges.length === 0 && <p>No internal imports were resolved for this selection.</p>}
+      {edges.length === 0 && <p>No directed relationships were observed for this selection.</p>}
       {edges.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-border-button-default bg-background-secondary-default p-3 focus-visible:ring-2 focus-visible:ring-border-focus-ring"
-          role="region" aria-label="Directed import graph, scroll horizontally to pan" tabIndex={0}>
+          role="region" aria-label="Directed architecture graph, scroll horizontally to pan" tabIndex={0}>
           <ul className="flex w-max min-w-full flex-col gap-2" style={{ zoom: zoom / 100 }}>
             {edges.slice(page * pageSize, (page + 1) * pageSize).map((edge) => {
               const from = nodes.get(edge.source);
@@ -284,9 +327,17 @@ function ArchitectureViewer({ graph, onOpen }: {
               return (
                 <li key={edge.id ?? `${edge.source}:${edge.target}`} className="flex items-center gap-2">
                   {from && <Button variant="secondary" size="small" onClick={() => onOpen(from.file)}>{from.label}</Button>}
-                  <span className="text-body-2-regular text-text-secondary">{edge.relationship} →</span>
+                  <span className="text-body-2-regular text-text-secondary">{edge.relationship.replaceAll("_", " ")} {edge.confidence === "inferred" ? "(inferred)" : ""} →</span>
                   {to && <Button variant="secondary" size="small" onClick={() => onOpen(to.file)}>{to.label}</Button>}
-                  {edge.file && <Button variant="ghost" size="small" onClick={() => onOpen(edge.file!, edge.start_line ?? undefined)}>Open import</Button>}
+                  {edge.evidence?.length ? (
+                    <details className="text-body-2-regular text-text-secondary">
+                      <summary className="cursor-pointer">Evidence</summary>
+                      {edge.evidence.map((anchor) => (
+                        <Button key={`${anchor.file}:${anchor.start_line}`} variant="ghost" size="small"
+                          onClick={() => onOpen(anchor.file, anchor.start_line)}>{anchor.file}:{anchor.start_line}</Button>
+                      ))}
+                    </details>
+                  ) : edge.file && <Button variant="ghost" size="small" onClick={() => onOpen(edge.file!, edge.start_line ?? undefined)}>Open source</Button>}
                 </li>
               );
             })}

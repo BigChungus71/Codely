@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass, field
 import ast
 import json
 import os
+import shutil
 from pathlib import Path
 import stat
 import subprocess
@@ -30,6 +31,15 @@ EXCLUDED = {'.git', '.venv', 'venv', '__pycache__', 'node_modules',
 MAX_FILES = 5000
 MAX_FILE_BYTES = 1024 * 1024
 MAX_TOTAL_BYTES = 50 * 1024 * 1024
+
+
+def scanner_executable():
+    configured = os.environ.get('CODELY_SEMGREP_EXECUTABLE')
+    if configured:
+        return str(Path(configured).expanduser().resolve())
+    name = 'semgrep.exe' if os.name == 'nt' else 'semgrep'
+    sibling = Path(sys.executable).parent / name
+    return str(sibling) if sibling.is_file() else (shutil.which(name) or str(sibling))
 
 
 def _linked(path):
@@ -180,10 +190,8 @@ def scan_repository(project_path: str) -> ScanResult:
                 SEMGREP_VERSION_CACHE_PATH=str(work / 'version'),
                 SEMGREP_SEND_METRICS='off', SEMGREP_ENABLE_VERSION_CHECK='0',
                 PYTHONUTF8='1', PYTHONIOENCODING='utf-8', PYTHONSAFEPATH='1')
-            scanner = Path(sys.executable).parent / ('semgrep.exe' if os.name == 'nt'
-                                                     else 'semgrep')
             configs = [part for config in sorted(packs.values()) for part in ('--config', str(config))]
-            command = [str(scanner), 'scan', *configs, '--json',
+            command = [scanner_executable(), 'scan', *configs, '--json',
                        '--metrics=off', '--disable-version-check', '--no-git-ignore',
                        '--no-rewrite-rule-ids', '--disable-nosem',
                        '--novcs', '--project-root', str(snapshot),

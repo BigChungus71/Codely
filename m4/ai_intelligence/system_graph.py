@@ -6,7 +6,8 @@ import os
 from pathlib import Path
 import re
 import stat
-from xml.etree import ElementTree
+from defusedxml import ElementTree
+from defusedxml.common import DefusedXmlException
 
 from .context import _language
 
@@ -162,7 +163,7 @@ class SystemGraph:
                 if '<!DOCTYPE' in text.upper():
                     raise ValueError
                 project = ElementTree.fromstring(text)
-            except (ElementTree.ParseError, ValueError):
+            except (ElementTree.ParseError, DefusedXmlException, ValueError):
                 self.diagnostics.append({'code': 'invalid_manifest', 'file': file})
                 return
             dependencies = {entry.findtext('{*}artifactId') for entry in

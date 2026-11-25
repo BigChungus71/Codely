@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createCodelyClient, CodelyApiError, toDisplayFinding, completedFindings} from './codely-client.ts';
 const finding={id:'real-id',rule_id:'rule',source:'semgrep',severity:'HIGH',title:'Scanner title',message:'Original evidence',file:'backend/Example.java',start_line:12,end_line:14,cwe:[],evidence:{}};
 test('maps backend fields to existing scanner display shape without inventing advice',()=>{
- assert.deepEqual(toDisplayFinding(finding),{id:'real-id',severity:'high',scannerSeverity:'HIGH',title:'Scanner title',description:'Original evidence',file:'backend/Example.java',line:12});
+ assert.deepEqual(toDisplayFinding(finding),{id:'real-id',severity:'high',scannerSeverity:'HIGH',title:'Scanner title',description:'Original evidence',file:'backend/Example.java',line:12,cwe:[],ruleId:'rule'});
  assert.match(toDisplayFinding({...finding,severity:'UNKNOWN'}).description,/UNKNOWN/);
 });
 test('only a completed empty scan is displayed as clean',()=>{
@@ -19,4 +19,13 @@ test('routes, methods, and encoded file paths match backend contracts',async()=>
 test('unavailable service propagates instead of becoming fake findings',async()=>{
  const client=createCodelyClient('',async()=>new Response(JSON.stringify({detail:'Scanner unavailable'}),{status:503}));
  await assert.rejects(client.scan('voice-ai-agent'),e=>e instanceof CodelyApiError&&e.status===503&&e.message==='Scanner unavailable');
+});
+
+test('architecture view and failure coverage survive the client boundary', async () => {
+  const client = createCodelyClient('', async (url) => {
+    if (url.endsWith('?view=system')) return new Response(JSON.stringify({graph_type:'system'}));
+    return new Response(JSON.stringify({detail:{message:'Incomplete scan',coverage:{status:'timeout'},findings:[]}}),{status:504});
+  });
+  assert.equal((await client.architecture('voice', 'system')).graph_type,'system');
+  await assert.rejects(client.scan('voice'), error => error.coverage.status === 'timeout');
 });

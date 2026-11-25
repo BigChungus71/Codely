@@ -1,4 +1,3 @@
-import importlib.resources
 import json
 from pathlib import Path
 import re
@@ -7,12 +6,13 @@ import jsonschema
 from ruamel.yaml import YAML
 
 from backend.app.analyzers.semgrep_adapter import ROOT, RULE
+from tools.validate_security_rules import semgrep_package
 
 
 def test_trusted_rule_catalog_and_offline_schema():
     yaml = YAML(typ='safe')
     pack = yaml.load(RULE.read_text(encoding='utf-8'))
-    schema_file = importlib.resources.files('semgrep').joinpath(
+    schema_file = semgrep_package().joinpath(
         'semgrep_interfaces/rule_schema_v1.yaml')
     jsonschema.Draft7Validator(yaml.load(schema_file.read_text())).validate(pack)
     rules = pack['rules']

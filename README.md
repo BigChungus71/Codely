@@ -1,23 +1,12 @@
 # Codely
 
-> **crush every bug like a pro.**
-
-Codely is an AI-powered code security scanner and architecture reviewer. Drop a file, paste a GitHub repository link, or ask a question — Codely scans for vulnerabilities, dependency risks, and architectural flaws and walks you through the findings conversationally.
-
-## Features
-
-- **Code Scanner** — upload files or paste a GitHub URL; get findings mapped to OWASP Top 10, known CVEs, and architecture patterns
-- **Conversational analysis** — findings are injected into the Codely chatbot so you can ask follow-up questions and get fix suggestions
-- **Architecture comparison** — compare your project against Clean Architecture, Hexagonal, MVC, and more
-- **Developer Mode** — toggle raw scan output and verbose logs in Settings
+Codely is a repository-aware security review and architecture demo. Use the scanner to browse configured checkouts, run native Semgrep, inspect source-linked findings, or switch between the Python dependency graph and the Java/React system view. Repository chat can use retrieved evidence and user constraints.
 
 ## Run locally
 
-```bash
-npm install
-cp .env.example .env.local   # add your model key to AI_API_KEY
-npm run dev
-```
+Follow the [demo runbook](docs/DEMO_RUNBOOK.md) to start Next.js, FastAPI and the separate Semgrep tool environment. The security checks, merge scope and remaining scanner dependency advisories are in the [release report](docs/MAIN_RELEASE_SECURITY.md).
+
+The original CodeRAG backend and extension archives remain available as historical inputs. Use the maintained application and runbook for the demo.
 
 ## Stack
 
@@ -30,7 +19,7 @@ npm run dev
 
 | Variable | Required | Description |
 |---|---|---|
-| `AI_API_KEY` | Yes | Model provider key (OpenAI, Anthropic, Google, OpenRouter, Groq, xAI, Vercel AI Gateway) |
+| `AI_API_KEY` | For live chat | Model provider key (OpenAI, Anthropic, Google, OpenRouter, Groq, xAI, Vercel AI Gateway) |
 | `CHAT_MODEL` | No | Override the default model for your provider |
 | `AI_PROVIDER` | No | Name the provider when the key has no recognisable shape (e.g. `mistral`) |
 | `AI_BASE_URL` | No | Any OpenAI-compatible server (Ollama, LM Studio, vLLM) |

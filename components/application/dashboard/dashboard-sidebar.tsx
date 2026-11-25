@@ -22,6 +22,7 @@ import {
   RiHomeLine,
   RiImageAiLine,
   RiKanbanView2,
+  RiLayoutLeft2Line,
   RiMegaphoneLine,
   RiSearchLine,
   RiSideBarFill,
@@ -100,16 +101,17 @@ function NavItem({
   const localize = useTemplateCopy();
   const isInternal = href.startsWith("/") && !onClick;
   const classes = cx(
-    "flex items-center justify-between overflow-hidden rounded-2lg p-2",
+    "flex items-center overflow-hidden rounded-2lg p-2 outline-none",
+    "focus-visible:ring-2 focus-visible:ring-border-focus-ring",
     "transition-[width,background-color] duration-300 ease-in-out",
-    collapsed ? "w-9" : "w-full",
+    collapsed ? "w-9 justify-center" : "w-full justify-between",
     isSelected
       ? "bg-linear-to-b from-accent-500 to-accent-600 shadow-nav-selected"
       : "hover:bg-background-secondary-hover",
   );
   const content = (
     <>
-      <span className="flex min-w-0 items-center gap-2">
+      <span className={cx("flex min-w-0 items-center", collapsed ? "gap-0" : "gap-2")}>
         <Icon
           className={cx("size-5 shrink-0", isSelected ? "text-white" : "text-foreground-icon-secondary")}
           aria-hidden
@@ -370,64 +372,83 @@ export function DashboardSidebar({
       <div
         className="-m-2 flex min-h-0 w-[calc(100%+16px)] flex-1 flex-col gap-3 overflow-y-auto p-2 [scrollbar-width:none]"
       >
-        {/* Top bar: Codely logo left, search + collapse right (ChatGPT-style in Codely design language) */}
+        {/* Top bar: Codely logo (transforms to open-sidebar control on hover when collapsed) */}
         <div
           className={cx(
             "flex w-full items-center transition-[gap] duration-300 ease-in-out",
             collapsed
-              ? "flex-col items-center justify-center gap-2.5"
+              ? "flex-col items-center justify-center gap-2"
               : "flex-row justify-between px-1 pt-0.5",
           )}
         >
-          <Link
-            href="/"
-            aria-label="Codely home"
-            className="flex items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring"
-          >
-            {collapsed ? <Logo size={24} /> : <CodelyWordmark height={20} />}
-          </Link>
+          {collapsed ? (
+            <button
+              type="button"
+              aria-label="Open sidebar"
+              aria-expanded={false}
+              title="Open sidebar"
+              onClick={() => setCollapsed(false)}
+              className="group/logo-toggle relative flex size-9 cursor-pointer items-center justify-center rounded-full outline-none transition-colors duration-200 hover:bg-background-secondary-hover focus-visible:bg-background-secondary-hover focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+            >
+              <span className="flex items-center justify-center transition-all duration-200 group-hover/logo-toggle:scale-75 group-hover/logo-toggle:opacity-0 group-focus-visible/logo-toggle:scale-75 group-focus-visible/logo-toggle:opacity-0">
+                <Logo size={22} showDot />
+              </span>
+              <span className="pointer-events-none absolute inset-0 flex scale-75 items-center justify-center text-foreground-icon-primary opacity-0 transition-all duration-200 group-hover/logo-toggle:scale-100 group-hover/logo-toggle:opacity-100 group-focus-visible/logo-toggle:scale-100 group-focus-visible/logo-toggle:opacity-100">
+                <RiLayoutLeft2Line className="size-5 rtl:-scale-x-100" aria-hidden />
+              </span>
+            </button>
+          ) : (
+            <Link
+              href="/"
+              aria-label="Codely home"
+              className="flex items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+            >
+              <CodelyWordmark height={20} />
+            </Link>
+          )}
 
-          <div className={cx("flex items-center gap-1", collapsed && "flex-col gap-2")}>
-            {!flat && (
-              <button
-                ref={searchTriggerRef}
-                type="button"
-                aria-label="Search chats and navigation"
-                title="Quick Search (⌘L)"
-                onClick={activateSearch}
-                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary"
-              >
-                <RiSearchLine className="size-[18px]" aria-hidden />
-              </button>
-            )}
-            {mobile ? (
-              <button
-                type="button"
-                aria-label="Close sidebar"
-                onClick={onClose}
-                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary"
-              >
-                <RiCloseLine className="size-5" aria-hidden />
-              </button>
-            ) : (
-              <button
-                type="button"
-                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                aria-expanded={!collapsed}
-                onClick={() => {
-                  const isExpanding = collapsedState;
-                  if (!isExpanding) deactivateSearch(false);
-                  setCollapsed(!collapsedState);
-                }}
-                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary"
-              >
-                <RiSideBarFill
-                  className={cx("size-[18px] transition-transform duration-300 ease-in-out", collapsed ? "rtl:-scale-x-100" : "-scale-x-100 rtl:scale-x-100")}
-                  aria-hidden
-                />
-              </button>
-            )}
-          </div>
+          {!collapsed && (
+            <div className="flex items-center gap-1">
+              {!flat && (
+                <button
+                  ref={searchTriggerRef}
+                  type="button"
+                  aria-label="Search chats and navigation"
+                  title="Quick Search (⌘L)"
+                  onClick={activateSearch}
+                  className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary outline-none transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+                >
+                  <RiSearchLine className="size-[18px]" aria-hidden />
+                </button>
+              )}
+              {mobile ? (
+                <button
+                  type="button"
+                  aria-label="Close sidebar"
+                  onClick={onClose}
+                  className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary outline-none transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+                >
+                  <RiCloseLine className="size-5" aria-hidden />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  aria-label="Collapse sidebar"
+                  aria-expanded
+                  onClick={() => {
+                    deactivateSearch(false);
+                    setCollapsed(true);
+                  }}
+                  className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary outline-none transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+                >
+                  <RiSideBarFill
+                    className="size-[18px] -scale-x-100 transition-transform duration-300 ease-in-out rtl:scale-x-100"
+                    aria-hidden
+                  />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Inline search input when active */}
@@ -461,41 +482,61 @@ export function DashboardSidebar({
           </div>
         )}
 
-        {/* Prominent New chat button (ChatGPT-style in Codely's surface language, with shimmer on click) */}
-        <button
-          type="button"
-          onClick={handleNewChat}
-          disabled={newChatBusy}
-          aria-label="New chat"
-          title={collapsed ? "New chat" : undefined}
-          className={cx(
-            "relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-xl border p-2 text-start transition-all duration-200",
-            "border-border-button-default bg-background-primary-default/90 hover:bg-background-primary-hover shadow-2xs",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-            newChatShimmer && "border-accent-500/60 ring-2 ring-accent-500/20",
-            collapsed ? "w-9 justify-center" : "w-full",
-          )}
-        >
-          <RiEditBoxLine
-            className={cx(
-              "size-[18px] shrink-0 transition-colors",
-              newChatShimmer ? "text-accent-500" : "text-foreground-icon-primary",
-            )}
-            aria-hidden
-          />
-          <Collapsible collapsed={collapsed}>
-            <span
+        <div className="flex w-full min-h-0 flex-1 flex-col gap-1">
+          {/* New chat action (un-highlighted at rest, highlights cleanly on hover/click, centered when collapsed) */}
+          <div className={cx("flex w-full flex-col gap-1", !collapsed && "px-0.5")}>
+            <button
+              type="button"
+              onClick={handleNewChat}
+              disabled={newChatBusy}
+              aria-label="New chat"
+              title={collapsed ? "New chat" : undefined}
               className={cx(
-                "text-body-medium whitespace-nowrap",
-                newChatShimmer ? "agent-progress-loading-text" : "text-text-primary",
+                "group/newchat relative flex cursor-pointer items-center overflow-hidden rounded-2lg p-2 text-start outline-none transition-colors duration-200",
+                "hover:bg-background-secondary-hover active:bg-background-tertiary-default",
+                "focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                newChatShimmer && "bg-background-secondary-hover",
+                collapsed ? "w-9 justify-center gap-0" : "w-full gap-2",
               )}
             >
-              New chat
-            </span>
-          </Collapsible>
-        </button>
+              <RiEditBoxLine
+                className={cx(
+                  "size-5 shrink-0 transition-colors",
+                  newChatShimmer
+                    ? "text-accent-500"
+                    : "text-foreground-icon-secondary group-hover/newchat:text-foreground-icon-primary",
+                )}
+                aria-hidden
+              />
+              <Collapsible collapsed={collapsed}>
+                <span
+                  className={cx(
+                    "text-body-medium whitespace-nowrap transition-colors",
+                    newChatShimmer
+                      ? "agent-progress-loading-text"
+                      : "text-text-secondary group-hover/newchat:text-text-primary",
+                  )}
+                >
+                  New chat
+                </span>
+              </Collapsible>
+            </button>
 
-        <div className="flex w-full min-h-0 flex-1 flex-col gap-3">
+            {collapsed && !flat && (
+              <button
+                ref={searchTriggerRef}
+                type="button"
+                aria-label="Search chats and navigation"
+                title="Quick Search (⌘L)"
+                onClick={activateSearch}
+                className="flex size-9 cursor-pointer items-center justify-center rounded-2lg text-foreground-icon-secondary outline-none transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+              >
+                <RiSearchLine className="size-5" aria-hidden />
+              </button>
+            )}
+          </div>
+
           {/* Primary nav */}
           <nav className={cx("flex w-full flex-col gap-1", !collapsed && "px-0.5")}>
             <NavRows
@@ -508,7 +549,7 @@ export function DashboardSidebar({
           </nav>
 
           {!collapsed && sidebarSlot && (
-            <div className="mt-1 flex min-h-0 flex-1 flex-col border-t border-separator-border pt-3">
+            <div className="mt-2 flex min-h-0 flex-1 flex-col border-t border-separator-border pt-3">
               {sidebarSlot}
             </div>
           )}

@@ -1,9 +1,12 @@
+import hmac
 import os
 import time
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from models.schemas import (
     IndexRequest, IndexResponse,
@@ -34,13 +37,39 @@ app = FastAPI(
 
 
 
-# Allow VS Code extension (webview) to call this API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"]
+def environment_list(name, default):
+    return [part.strip() for part in os.getenv(name, default).split(',') if part.strip()]
+
+
+allowed_origins = environment_list(
+    'CODELY_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000',
 )
+public_paths = {'/', '/health', '/docs', '/redoc', '/openapi.json', '/docs/oauth2-redirect'}
+
+
+@app.middleware('http')
+async def screen_requests(request: Request, call_next):
+    origin = request.headers.get('origin')
+    if origin and origin not in allowed_origins:
+        return JSONResponse({'detail': 'Origin is not allowed'}, status_code=403)
+    path = request.url.path.rstrip('/') or '/'
+    if not path.startswith('/api/') and path not in public_paths:
+        if os.getenv('CODELY_ENABLE_LEGACY_API') != '1':
+            return JSONResponse({'detail': 'Legacy API disabled'}, status_code=404)
+        token = os.getenv('CODELY_LEGACY_API_TOKEN', '')
+        supplied = request.headers.get('authorization', '')
+        if not token or not hmac.compare_digest(supplied.encode(), f'Bearer {token}'.encode()):
+            return JSONResponse({'detail': 'Legacy API authorization required'}, status_code=401)
+    return await call_next(request)
+
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=allowed_origins, allow_methods=['GET', 'POST', 'DELETE'],
+    allow_headers=['Content-Type', 'Authorization'],
+)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=environment_list(
+    'CODELY_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]',
+))
 
 
 # ── LLM: Google Gemini ──────────────────────────────────────────────────────
@@ -431,4 +460,4 @@ async def optional_dependency_unavailable(request, exc):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="127.0.0.1", port=port)

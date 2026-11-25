@@ -13,20 +13,10 @@ for directory in (ROOT, ROOT / 'm4'):
         sys.path.append(str(directory))
 
 
-def scan_python(project_path):
-    from backend.app.analyzers.semgrep_adapter import scan_repository
+def scan_bundled(project_path):
+    from backend.app.analyzers.backend_adapter import scan_repository
 
-    result = scan_repository(project_path)
-    codes = {item['code'] for item in result.diagnostics}
-    if result.status != 'complete':
-        status = 504 if 'scanner_timeout' in codes else 502
-        if codes & {'no_supported_files', 'scanner_or_filesystem_unavailable'}:
-            status = 503
-        raise HTTPException(status, {
-            'message': f'Python scan {result.status}; no completed scan cached',
-            'diagnostics': result.diagnostics,
-        })
-    return result.to_dict()
+    return scan_repository(project_path)
 
 
 def build_project_graph(project_path):

@@ -1,5 +1,5 @@
 import os
-import pickle
+import json
 import numpy as np
 import faiss
 from models.embedding_service import embedding_service
@@ -78,8 +78,8 @@ def index_repo(repo_path: str, index_path: str = "data/coderag.index") -> int:
     # Save index and metadata
     os.makedirs(os.path.dirname(index_path), exist_ok=True)
     faiss.write_index(index, index_path + ".faiss")
-    with open(index_path + ".pkl", "wb") as f:
-        pickle.dump(all_chunks, f)
+    with open(index_path + ".json", "w", encoding="utf-8") as f:
+        json.dump(all_chunks, f)
 
     print(f"[CodeRAG Indexer] Done. {len(all_chunks)} chunks saved to {index_path}")
     return len(all_chunks)

@@ -24,6 +24,8 @@ export interface ScanFinding {
   file?: string;
   line?: number;
   recommendation?: string;
+  cwe?: string[];
+  ruleId?: string;
 }
 
 interface ScannerResultsProps {
@@ -212,6 +214,7 @@ function FindingRow({ finding, onOpen, onExplain, onImpact }: Pick<ScannerResult
       {expanded && (
         <div className="flex flex-col gap-3 border-t border-separator-border px-4 pb-4 pt-3">
           <p className="text-body-regular text-text-secondary">{finding.description}</p>
+          {finding.ruleId && <p className="text-body-2-regular text-text-secondary">{finding.ruleId}{finding.cwe?.length ? ` · ${finding.cwe.join(", ")}` : ""}</p>}
           <div className="flex flex-wrap gap-2">
             {onOpen && finding.file && <Button variant="secondary" size="small" onClick={() => onOpen(finding.file!, finding.line)}>Open source</Button>}
             {onImpact && <Button variant="secondary" size="small" onClick={() => onImpact(finding.id)}>Review static impact</Button>}

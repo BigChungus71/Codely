@@ -7,7 +7,19 @@ export interface Finding {
   file: string; start_line: number; end_line: number; message: string;
   cwe: string[]; evidence: Record<string, unknown>;
 }
+export interface ScanCoverage {
+  status: "complete" | "partial" | "error" | "unsupported" | "timeout";
+  detected_languages: string[];
+  analyzed_languages: string[];
+  unsupported_languages: string[];
+  scanned_files: number;
+  excluded_files: number;
+  excluded_directory_count: number;
+  unscanned_supported_files: number;
+}
+export type GraphView = "system" | "dependencies";
 export interface FindingsResponse {
+  coverage?: ScanCoverage | null;
   project_id: string; status: "completed" | "not_scanned" | "stale";
   repository_version: string; cached: boolean; scanned_at: string | null; diagnostics?: {code?: string; language?: string; snapshot_files?: number}[]; findings: Finding[];
 }
@@ -25,24 +37,26 @@ export interface FindingImpact {
   interpretation: string;
 }
 export interface Graph {
+  graph_type?: GraphView;
+  coverage?: { skipped_files?: number; parsed_files?: Record<string, number> };
   status: "complete" | "partial";
   diagnostics: { code?: string }[];
   project_id: string;
-  nodes: { id: string; label: string; type: string; file: string; parsed: boolean; fan_in: number; fan_out: number }[];
-  edges: { id?: string | null; source: string; target: string; relationship: string; file?: string | null; start_line?: number | null; evidence?: { file: string; start_line: number; end_line: number }[] }[];
+  nodes: { id: string; label: string; type: string; file: string; files?: string[]; parsed: boolean; fan_in: number; fan_out: number }[];
+  edges: { id?: string | null; source: string; target: string; relationship: string; confidence?: "confirmed" | "inferred" | null; file?: string | null; start_line?: number | null; evidence?: { file: string; start_line: number; end_line: number }[] }[];
 }
 /** Structurally assignable to the frontend's existing ScanFinding. */
 export interface DisplayFinding {
   id: string; severity: "critical" | "high" | "medium" | "low" | "info";
   title: string; description: string; file: string; line: number;
-  recommendation?: string; scannerSeverity: Severity;
+  recommendation?: string; cwe: string[]; ruleId: string; scannerSeverity: Severity;
 }
 export function toDisplayFinding(finding: Finding): DisplayFinding {
   const severity = finding.severity === "UNKNOWN" ? "info" : finding.severity.toLowerCase() as DisplayFinding["severity"];
   return {
     id: finding.id, severity, scannerSeverity: finding.severity, title: finding.title,
     description: finding.severity === "UNKNOWN" ? `[Scanner severity: UNKNOWN] ${finding.message}` : finding.message,
-    file: finding.file, line: finding.start_line,
+    file: finding.file, line: finding.start_line, cwe: finding.cwe, ruleId: finding.rule_id,
   };
 }
 /** Prevent a stale/unscanned result from becoming a false "No issues found" UI. */
@@ -51,8 +65,16 @@ export function completedFindings(result: FindingsResponse): DisplayFinding[] {
   return result.findings.map(toDisplayFinding);
 }
 export class CodelyApiError extends Error {
-  status: number;
-  constructor(status: number, message: string) { super(message); this.name = "CodelyApiError"; this.status = status; }
+  readonly status: number;
+  readonly coverage?: ScanCoverage;
+  readonly findings: Finding[];
+  constructor(status: number, message: string, coverage?: ScanCoverage, findings: Finding[] = []) {
+    super(message);
+    this.name = "CodelyApiError";
+    this.status = status;
+    this.coverage = coverage;
+    this.findings = findings;
+  }
 }
 export function createCodelyClient(baseUrl: string, fetcher: typeof fetch = fetch) {
   const base = baseUrl.replace(/\/+$/, "");
@@ -65,7 +87,7 @@ export function createCodelyClient(baseUrl: string, fetcher: typeof fetch = fetc
       const codes = detail?.diagnostics?.map((entry: {code?: string}) => entry.code).filter(Boolean);
       throw new CodelyApiError(response.status, message && codes?.length
         ? `${message} (${[...new Set(codes)].join(", ")})`
-        : message ?? `Backend returned HTTP ${response.status}`);
+        : message ?? `Backend returned HTTP ${response.status}`, detail?.coverage, detail?.findings);
     }
     if (body === null) throw new CodelyApiError(502, "Backend returned an invalid response");
     return body as T;
@@ -79,6 +101,7 @@ export function createCodelyClient(baseUrl: string, fetcher: typeof fetch = fetc
     findings: (id: string) => request<FindingsResponse>(`${projectPath(id)}/findings`),
     explain: (id: string, findingId: string) => request<Explanation>(`${projectPath(id)}/findings/${encodeURIComponent(findingId)}/explain`, "POST"),
     impact: (id: string, findingId: string) => request<FindingImpact>(`${projectPath(id)}/findings/${encodeURIComponent(findingId)}/impact`),
-    architecture: (id: string) => request<Graph>(`${projectPath(id)}/architecture`),
+    architecture: (id: string, view?: GraphView) =>
+      request<Graph>(`${projectPath(id)}/architecture${view ? `?view=${view}` : ""}`),
   };
 }

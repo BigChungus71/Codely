@@ -1,4 +1,4 @@
-import pickle
+import json
 import numpy as np
 import faiss
 from indexer import embedding_service  # reuse the same instance if imported there
@@ -14,9 +14,9 @@ def retrieve(
     Each chunk is a dict: { file, start_line, text }
     """
     # Load index and metadata
+    with open(index_path + ".json", encoding="utf-8") as f:
+        chunks = json.load(f)
     index = faiss.read_index(index_path + ".faiss")
-    with open(index_path + ".pkl", "rb") as f:
-        chunks = pickle.load(f)
 
     # Embed and normalize query
     q_embed = np.array(embedding_service.encode([query])).astype("float32")

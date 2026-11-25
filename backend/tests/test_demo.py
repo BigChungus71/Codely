@@ -22,7 +22,8 @@ def demo(tmp_path, monkeypatch):
     monkeypatch.setenv('CODELY_PYTHON_DEMO_PATH', str(tmp_path / 'missing'))
     monkeypatch.delenv('CODELY_ALLOW_EXTERNAL_AI', raising=False)
     api.cache.clear()
-    return TestClient(app), tmp_path
+    monkeypatch.delenv('CODELY_SEMGREP_EXECUTABLE', raising=False)
+    return TestClient(app, base_url='http://localhost'), tmp_path
 
 
 def finding():
@@ -162,7 +163,7 @@ def test_frontend_cross_origin(demo):
         'Access-Control-Request-Method': 'POST',
     })
     assert response.status_code == 200
-    assert response.headers['access-control-allow-origin'] == '*'
+    assert response.headers['access-control-allow-origin'] == 'http://localhost:3000'
 
 
 def test_design_question_uses_doc_evidence_and_constraints(demo, monkeypatch):
@@ -184,3 +185,16 @@ def test_design_question_uses_doc_evidence_and_constraints(demo, monkeypatch):
     })
     assert response.status_code == 200
     assert response.json()['sources'][0]['file'] == 'DESIGN.md'
+
+
+def test_legacy_routes_and_untrusted_browser_requests_are_blocked(demo, monkeypatch):
+    client, _ = demo
+    monkeypatch.delenv('CODELY_ENABLE_LEGACY_API', raising=False)
+    assert client.post('/retrieve', json={}).status_code == 404
+    monkeypatch.setenv('CODELY_ENABLE_LEGACY_API', '1')
+    monkeypatch.setenv('CODELY_LEGACY_API_TOKEN', 'local-test-token')
+    assert client.post('/retrieve', json={}).status_code == 401
+    assert client.post('/retrieve', json={}, headers={'Authorization': 'Bearer local-test-token'}).status_code == 422
+    assert client.post('/api/projects/voice-ai-agent/scan', headers={'Origin': 'https://untrusted.example'}).status_code == 403
+    assert client.get('/api/health', headers={'Host': 'untrusted.example'}).status_code == 400
+    assert client.get('/api/health').status_code == 200

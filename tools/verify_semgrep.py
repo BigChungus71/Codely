@@ -19,6 +19,7 @@ def main():
         PYTHONUTF8='1', PYTHONIOENCODING='utf-8',
     )
     command = [
+        os.environ.get('CODELY_SEMGREP_EXECUTABLE') or
         str(Path(sys.executable).parent / ('semgrep.exe' if os.name == 'nt' else 'semgrep')), 'scan',
         '--config', 'backend/app/rules/compatibility-smoke.yaml',
         '--json', '--metrics=off', '--disable-version-check', '--no-git-ignore',

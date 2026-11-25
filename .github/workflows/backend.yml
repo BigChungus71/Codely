@@ -1,5 +1,7 @@
 name: Backend contracts
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   smoke:
     runs-on: ubuntu-latest
@@ -9,6 +11,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-integration.txt
+      - run: |
+          python -m venv "$RUNNER_TEMP/codely-semgrep"
+          "$RUNNER_TEMP/codely-semgrep/bin/python" -m pip install -r requirements-security.txt
+          echo "CODELY_SEMGREP_EXECUTABLE=$RUNNER_TEMP/codely-semgrep/bin/semgrep" >> "$GITHUB_ENV"
       - run: python -m pytest backend/tests m4/tests -q
         env:
           PYTHONPATH: ".:backend:m4"
@@ -18,4 +24,5 @@ jobs:
           node-version: '22'
       - run: node --experimental-strip-types --test integrations/frontend/codely-client.test.mjs
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm audit --audit-level=low
       - run: npm run typecheck

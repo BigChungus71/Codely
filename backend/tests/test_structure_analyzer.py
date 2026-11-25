@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import shutil
+import sys
 
 import pytest
 
@@ -369,4 +370,6 @@ def test_structure_contract_and_entity_references(demo):
 def test_representative_structure_json_matches_fixture():
     result = analyze_repository(str(ROOT / 'fixtures/structure_demo')).to_dict()
     expected = json.loads((ROOT / 'contracts/examples/repository-structure-v1.json').read_text())
+    assert result["coverage"]["parser_python_version"] == f"{sys.version_info.major}.{sys.version_info.minor}"
+    expected["coverage"]["parser_python_version"] = result["coverage"]["parser_python_version"]
     assert result == expected

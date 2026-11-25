@@ -1,0 +1,103 @@
+rules:
+- id: codely.web.dynamic-eval
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review dynamic evaluation and prefer a parser or explicit operations.
+  metadata:
+    title: Dynamic evaluation
+    cwe:
+    - CWE-95
+  pattern: eval(...)
+- id: codely.web.function-constructor
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review dynamic function construction and prefer explicit operations.
+  metadata:
+    title: Dynamic function constructor
+    cwe:
+    - CWE-95
+  pattern-either:
+  - pattern: new Function(...)
+  - pattern: Function(...)
+- id: codely.web.command-concatenation
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Prefer a fixed executable and separately validated arguments. This
+    pattern does not establish user control.
+  metadata:
+    title: Concatenated shell command
+    cwe:
+    - CWE-78
+  pattern-either:
+  - pattern: $CP.exec($LEFT + $RIGHT, ...)
+  - pattern: $CP.execSync($LEFT + $RIGHT, ...)
+- id: codely.web.raw-html
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review HTML provenance and sanitization. Prefer plain text for
+    untrusted content.
+  metadata:
+    title: Raw HTML assignment
+    cwe:
+    - CWE-79
+  pattern-either:
+  - pattern: $ELEMENT.innerHTML = $VALUE;
+  - pattern: $ELEMENT.outerHTML = $VALUE;
+- id: codely.web.tls-disabled
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Restore certificate verification and configure the appropriate trust
+    store.
+  metadata:
+    title: TLS verification disabled
+    cwe:
+    - CWE-295
+  pattern-either:
+  - pattern: '{ ..., rejectUnauthorized: false, ... }'
+  - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+- id: codely.web.dynamic-file-path
+  languages:
+  - javascript
+  - typescript
+  severity: WARNING
+  message: Review path normalization and containment before reading. This
+    pattern does not establish external input.
+  metadata:
+    title: Concatenated filesystem path
+    cwe:
+    - CWE-22
+  pattern-either:
+  - pattern: $FS.readFile($LEFT + $RIGHT, ...)
+  - pattern: $FS.readFileSync($LEFT + $RIGHT, ...)
+- id: codely.web.credential-literal
+  languages: [javascript, typescript]
+  severity: WARNING
+  message: Review this credential-like variable initialized with a literal. Confirm it is a placeholder or inject its value at runtime.
+  metadata:
+    title: Credential-like web literal
+    cwe: [CWE-798]
+  pattern-regex: '(?i)\b(?:const|let|var)\s+(?:password|apiKey|clientSecret)(?:\s*:\s*string)?\s*=\s*["''][^"''\r\n]{6,}["'']'
+- id: codely.web.security-random
+  languages: [javascript, typescript]
+  severity: WARNING
+  message: Use a cryptographically secure random generator for tokens and other security-sensitive values. Review whether this variable is security-sensitive.
+  metadata:
+    title: Math.random used for a token-like value
+    cwe: [CWE-330]
+  patterns:
+    - pattern-either:
+        - pattern: const $TOKEN = Math.random();
+        - pattern: let $TOKEN = Math.random();
+    - metavariable-regex:
+        metavariable: $TOKEN
+        regex: '(?i).*(token|nonce|secret|password).*'

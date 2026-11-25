@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "architecture_style": "layered",
+  "layers": {
+    "allowed_dependencies": {
+      "application_entry_point": [
+        "router",
+        "controller",
+        "service",
+        "authentication",
+        "configuration",
+        "utility"
+      ],
+      "router": [
+        "service",
+        "authentication",
+        "configuration",
+        "utility"
+      ],
+      "controller": [
+        "service",
+        "authentication",
+        "configuration",
+        "utility"
+      ],
+      "service": [
+        "data_access",
+        "database_model",
+        "authentication",
+        "configuration",
+        "utility"
+      ],
+      "data_access": [
+        "database_model",
+        "configuration",
+        "utility"
+      ]
+    },
+    "prohibited_dependencies": [
+      {
+        "source": "data_access",
+        "target": "controller",
+        "reason": "Data-access modules must not depend on HTTP controller modules."
+      }
+    ],
+    "prohibit_controller_to_data_access": true,
+    "allow_same_layer": true,
+    "include_inferred_roles": true
+  },
+  "thresholds": {
+    "max_module_lines": 400,
+    "max_module_functions": 15,
+    "max_module_classes": 8,
+    "max_class_methods": 15,
+    "max_function_lines": 60,
+    "max_function_parameters": 6,
+    "max_fan_in": 8,
+    "max_fan_out": 8,
+    "max_total_coupling": 12,
+    "max_inheritance_depth": 3,
+    "max_responsibility_groups_per_module": 3,
+    "include_tests_in_heuristics": false
+  },
+  "disabled_rules": [],
+  "check_circular_dependencies": true,
+  "check_unresolved_dependencies": true
+}

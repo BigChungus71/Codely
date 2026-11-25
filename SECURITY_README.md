@@ -185,3 +185,24 @@ Repository.lookup; one direct and three transitive dependent modules, with
 unrelated/auth modules excluded and circular imports handled safely.
 Final regression: 342 tests pass, including all 22 native-backed tests.
 No new dependency, prior contract change, Gemini call or Phase 7 implementation.
+
+## Phase 7 architecture rules and optimization engine
+
+Reuse existing structure and graph objects without reparsing or executing code:
+
+```python
+from backend.app.analyzers.architecture_rules import evaluate_architecture, load_policy
+policy = load_policy("contracts/examples/architecture-policy-v1.json")
+observations = evaluate_architecture(structure, architecture, policy=policy)
+payload = observations.to_dict()
+evidence_package = observations.gemini_evidence_package()
+```
+
+Supports 12 deterministic structural and heuristic checks (`CODELY-ARCH-001` through
+`CODELY-ARCH-012`), optional architecture policies without assuming layered design,
+advisory recommendations with trade-offs/validation methods, and nontext Gemini evidence
+packages. See [ARCHITECTURE_RULES_INTEGRATION.md](ARCHITECTURE_RULES_INTEGRATION.md),
+[the evaluation schema](contracts/architecture-evaluation-v1.schema.json),
+[the policy schema](contracts/architecture-policy-v1.schema.json),
+[the example policy](contracts/examples/architecture-policy-v1.json), and
+[the demonstration JSON](contracts/examples/architecture-evaluation-v1.json).

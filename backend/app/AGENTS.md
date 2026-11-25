@@ -35,3 +35,11 @@ original findings. Static dependent reachability is potential relevance, not
 confirmed exploit propagation. Do not export source values or duplicate GenAI
 modules. See IMPACT_INTEGRATION.md. Commit/push only security-analysis and stop
 before Phase 7 architecture rules/optimization checks.
+
+The user subsequently authorized Phase 7 Architecture Rules and Optimization Engine.
+Reuse existing RepositoryStructure and ArchitectureGraph without re-parsing, scanner
+execution, target execution, source rewriting, or LLM API calls. Distinguish confirmed
+structural observations from heuristic maintainability concerns, keep observations
+separate from security findings, and do not assume layered architecture when no policy
+is supplied. See ARCHITECTURE_RULES_INTEGRATION.md. Commit/push only security-analysis
+and stop after Phase 7; do not begin Phase 8.

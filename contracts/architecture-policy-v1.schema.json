@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely architecture policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "architecture_style": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+    },
+    "layers": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allowed_dependencies": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "prohibited_dependencies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source",
+                  "target"
+                ],
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "prohibit_controller_to_data_access": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "allow_same_layer": {
+              "type": "boolean"
+            },
+            "include_inferred_roles": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_module_lines": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_module_functions": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_module_classes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_class_methods": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_function_lines": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_function_parameters": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_fan_in": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_fan_out": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_total_coupling": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_inheritance_depth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_responsibility_groups_per_module": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "include_tests_in_heuristics": {
+          "type": "boolean"
+        }
+      }
+    },
+    "disabled_rules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^CODELY-ARCH-0(0[1-9]|1[0-2])$"
+      }
+    },
+    "check_circular_dependencies": {
+      "type": "boolean"
+    },
+    "check_unresolved_dependencies": {
+      "type": "boolean"
+    }
+  }
+}

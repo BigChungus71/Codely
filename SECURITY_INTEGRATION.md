@@ -118,3 +118,16 @@ IMPACT_INTEGRATION.md for frontend highlighting, privacy and interpretation.
 Actual full regression: 342 passing tests, including 22 native-backed integration
 tests. Actual native demo: one mapped finding, zero unmapped, one direct and
 three transitive dependents. Original CodeRAG provenance remains unchanged.
+
+## Phase 7 architecture rules worker seam
+
+Reuse existing `RepositoryStructure` and `ArchitectureGraph` objects with
+`backend.app.analyzers.architecture_rules.evaluate_architecture(structure, architecture, policy=None)`.
+From `backend/`, use `app.analyzers.architecture_rules`. No re-parsing, scanner
+execution, code execution, or LLM call occurs inside the evaluator.
+
+The separate `architecture-evaluation-v1` schema keeps structural observations and
+advisory recommendations distinct from security findings. Use
+`observations.gemini_evidence_package()` for nontext Gemini context; see
+ARCHITECTURE_RULES_INTEGRATION.md for policy configuration, frontend separation,
+rule limits, and interpretation guidance.

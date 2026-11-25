@@ -1,4 +1,4 @@
-"""Deterministic, evidence-based checklist; never invokes a scanner or target code."""
+"""Deterministic, evidence-based multi-language checklist; never invokes a scanner or target code."""
 import ast
 from dataclasses import asdict, dataclass
 import fnmatch
@@ -6,17 +6,20 @@ import json
 from pathlib import Path
 import re
 import tomllib
+import xml.etree.ElementTree as ET
 
 import jsonschema
 from packaging.requirements import InvalidRequirement, Requirement
 
 from ..analyzers.finding_normalizer import repository_relative_path
 from ..analyzers.semgrep_adapter import EXCLUDED, ROOT, ScanResult
+from ..analyzers.structure_languages import SPRING_CONFIG_FILENAMES, parse_json_relaxed
 from .inventory import evidence, inspect_repository, profile_repository, qualified, sensitive
 
 
 CATALOG = Path(__file__).with_name('catalog-v1.json')
 STATUSES = ('PASS', 'FAIL', 'NEEDS_REVIEW', 'NOT_APPLICABLE')
+KNOWN_PACKS = {'python-security-v2', 'java-security-v1', 'web-security-v1'}
 
 
 @dataclass
@@ -33,7 +36,7 @@ class ChecklistResult:
 
 def _scan_input(scan_result, inventory):
     if scan_result is None:
-        return 'not_provided', [], False
+        return 'not_provided', [], False, set()
     payload = scan_result.to_dict() if isinstance(scan_result, ScanResult) else scan_result
     try:
         schema = json.loads((ROOT / 'contracts/security-scan.schema.json').read_text())
@@ -41,26 +44,29 @@ def _scan_input(scan_result, inventory):
         findings = []
         for raw in payload['findings']:
             file = repository_relative_path(raw['file'], inventory.root)
-            if raw['rule_id'].startswith(('codely.java.', 'codely.web.')) and Path(file).suffix.lower() != '.py':
-                continue
-            if file not in inventory.trees or raw['end_line'] < raw['start_line']:
+            if file not in inventory.texts or raw['end_line'] < raw['start_line']:
                 raise ValueError('Invalid finding location')
             if raw['end_line'] > len(inventory.texts[file].splitlines()):
                 raise ValueError('Finding outside source')
             findings.append({'id': raw['id'], 'rule_id': raw['rule_id'], 'file': file,
                              'start_line': raw['start_line'], 'end_line': raw['end_line']})
         diagnostics = payload['diagnostics']
-        known_pack = any(d.get('code') == 'coverage' and d.get('rule_set') == 'python-security-v2'
-                         for d in diagnostics)
+        rule_sets = set()
+        for d in diagnostics:
+            if d.get('code') == 'coverage' and d.get('rule_set') in KNOWN_PACKS:
+                rule_sets.add(d['rule_set'])
+        cov = payload.get('coverage') or {}
+        if isinstance(cov.get('rule_sets'), list):
+            rule_sets.update(rs for rs in cov['rule_sets'] if rs in KNOWN_PACKS)
         process_ok = any(d.get('code') == 'scanner_exit' and d.get('exit_code') == 0
                          for d in diagnostics)
-        complete = (payload['status'] == 'complete' and known_pack and process_ok
+        complete = (payload['status'] == 'complete' and bool(rule_sets) and process_ok
                     and not payload.get('errors')
                     and not any(d.get('code') in {'scanner_error', 'scanner_skipped_file',
                         'scanner_timeout', 'invalid_scanner_output'} for d in diagnostics))
-        return payload['status'] if complete or payload['status'] != 'complete' else 'unverified', findings, complete
+        return payload['status'] if complete or payload['status'] != 'complete' else 'unverified', findings, complete, rule_sets
     except (jsonschema.ValidationError, ValueError, TypeError, KeyError, AttributeError):
-        return 'invalid', [], False
+        return 'invalid', [], False, set()
 
 
 def _literal(node):
@@ -74,7 +80,7 @@ def _literal(node):
 def _signals(inventory, aliases_by_file, profile):
     signals = {key: [] for key in ('environment', 'debug_true', 'debug_dynamic',
         'cors_open', 'cors_credentials', 'cors_allowlist', 'cors_dynamic', 'auth',
-        'sql', 'command', 'dynamic_code')}
+        'sql', 'command', 'dynamic_code', 'cookie_insecure', 'password_hash')}
     for file, tree in sorted(inventory.trees.items()):
         aliases = aliases_by_file[file]
         for node in ast.walk(tree):
@@ -96,7 +102,6 @@ def _signals(inventory, aliases_by_file, profile):
                 middleware_names = {'fastapi.middleware.cors.CORSMiddleware',
                                     'starlette.middleware.cors.CORSMiddleware'}
                 cors = name in middleware_names | {'flask_cors.CORS', 'flask_cors.cross_origin'}
-                # add_middleware(CORSMiddleware, ...) has the middleware as its first argument.
                 if name.endswith('.add_middleware') and node.args:
                     cors |= qualified(node.args[0], aliases) in middleware_names
                 if cors:
@@ -138,6 +143,59 @@ def _signals(inventory, aliases_by_file, profile):
             if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith(
                     ('fastapi.security', 'django.contrib.auth', 'flask_login')):
                 signals['auth'].append(evidence(file, 'authentication_import_indicator', node))
+
+    # Multi-language static text indicators (Java, JS/TS/JSX/TSX, Spring/Next.js configs)
+    for file, text in sorted(inventory.texts.items()):
+        lang = inventory.languages.get(file)
+        name_lower = Path(file).name.lower()
+        if lang == 'java':
+            for idx, line in enumerate(text.splitlines(), 1):
+                if 'System.getenv' in line or '@Value(' in line and '${' in line:
+                    signals['environment'].append(evidence(file, 'environment_access', line=idx))
+                if '.executeQuery(' in line or '.executeUpdate(' in line or '.execute(' in line:
+                    signals['sql'].append(evidence(file, 'sql_api_indicator', line=idx))
+                if 'Runtime.getRuntime().exec' in line or 'ProcessBuilder' in line:
+                    signals['command'].append(evidence(file, 'execution_api_indicator', line=idx))
+                if 'MessageDigest.getInstance' in line:
+                    signals['password_hash'].append(evidence(file, 'digest_api_indicator', line=idx))
+                if '@CrossOrigin' in line:
+                    if '*' in line or '(' not in line:
+                        signals['cors_open'].append(evidence(file, 'spring_cors_open', line=idx))
+                    else:
+                        signals['cors_allowlist'].append(evidence(file, 'spring_cors_allowlist', line=idx))
+                if '@PreAuthorize' in line or '@Secured' in line or 'org.springframework.security' in line:
+                    signals['auth'].append(evidence(file, 'spring_security_indicator', line=idx))
+        elif lang in {'javascript', 'jsx', 'typescript', 'tsx'}:
+            for idx, line in enumerate(text.splitlines(), 1):
+                if 'process.env.' in line or 'dotenv' in line:
+                    signals['environment'].append(evidence(file, 'environment_access', line=idx))
+                if '.query(' in line or '.execute(' in line:
+                    signals['sql'].append(evidence(file, 'sql_api_indicator', line=idx))
+                if 'exec(' in line or 'execSync(' in line or 'eval(' in line or 'new Function(' in line:
+                    signals['command'].append(evidence(file, 'execution_api_indicator', line=idx))
+                if 'cors(' in line or 'enableCors(' in line:
+                    if '*' in line or 'cors()' in line:
+                        signals['cors_open'].append(evidence(file, 'web_cors_open', line=idx))
+                    elif 'origin:' in line:
+                        signals['cors_allowlist'].append(evidence(file, 'web_cors_allowlist', line=idx))
+                    else:
+                        signals['cors_dynamic'].append(evidence(file, 'web_cors_dynamic', line=idx))
+                if any(tok in line for tok in ('passport.', 'jsonwebtoken', '@UseGuards', 'next-auth')):
+                    signals['auth'].append(evidence(file, 'web_auth_indicator', line=idx))
+        elif name_lower in SPRING_CONFIG_FILENAMES:
+            for idx, line in enumerate(text.splitlines(), 1):
+                low = line.strip().lower()
+                if '${' in line:
+                    signals['environment'].append(evidence(file, 'spring_env_placeholder', line=idx))
+                if re.match(r'^debug\s*[:=]\s*true\b', low) or ('management.endpoints.web.exposure.include' in low and '*' in low):
+                    signals['debug_true'].append(evidence(file, 'spring_debug_or_actuator_open', line=idx))
+                if ('cookie.http-only' in low or 'cookie.secure' in low) and 'false' in low:
+                    signals['cookie_insecure'].append(evidence(file, 'spring_insecure_cookie', line=idx))
+        elif name_lower.startswith('next.config.'):
+            for idx, line in enumerate(text.splitlines(), 1):
+                if re.search(r'productionBrowserSourceMaps\s*:\s*true', line):
+                    signals['debug_true'].append(evidence(file, 'nextjs_production_sourcemaps', line=idx))
+
     for key in signals:
         signals[key] = sorted({json.dumps(item, sort_keys=True): item for item in signals[key]}.values(),
                               key=lambda item: (item['file'], item.get('start_line', 0), item['kind']))
@@ -167,12 +225,15 @@ def _constraints(inventory, manifests):
     entries = []
     locations = []
     uncertain = False
+    has_js_lock = any(Path(m).name.lower() in {'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml'} for m in manifests)
+
     for file in manifests:
         text = inventory.texts.get(file)
         if text is None:
             uncertain = True
             continue
-        if Path(file).name.lower().startswith('requirements'):
+        name_lower = Path(file).name.lower()
+        if name_lower.startswith('requirements'):
             for line_number, line in enumerate(text.splitlines(), 1):
                 line = line.strip()
                 if not line or line.startswith('#'):
@@ -183,7 +244,7 @@ def _constraints(inventory, manifests):
                     uncertain = True
                     continue
                 entries.append(line.split(' #', 1)[0].split(' --hash=', 1)[0])
-        elif Path(file).name == 'pyproject.toml':
+        elif name_lower == 'pyproject.toml':
             locations.append(evidence(file, 'dependency_manifest'))
             try:
                 data = tomllib.loads(text)
@@ -202,9 +263,47 @@ def _constraints(inventory, manifests):
                     uncertain = True
             except (ValueError, TypeError, AttributeError):
                 uncertain = True
+        elif name_lower == 'package.json':
+            locations.append(evidence(file, 'dependency_manifest'))
+            data = parse_json_relaxed(text)
+            if not data:
+                uncertain = True
+                continue
+            pkg_specs = []
+            for sec in ('dependencies', 'devDependencies'):
+                block = data.get(sec)
+                if isinstance(block, dict):
+                    pkg_specs.extend(str(v).strip() for v in block.values())
+            if not pkg_specs or not has_js_lock:
+                uncertain = True
+            for spec in pkg_specs:
+                if not spec or spec in {'*', 'latest'} or spec.startswith(('git+', 'http://', 'https://', 'file:')):
+                    uncertain = True
+            if not uncertain and pkg_specs:
+                entries.append('__npm_verified__==1.0.0')
+        elif name_lower in {'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml'}:
+            locations.append(evidence(file, 'dependency_lockfile'))
+        elif name_lower == 'pom.xml':
+            locations.append(evidence(file, 'dependency_manifest'))
+            try:
+                root = ET.fromstring(text)
+                deps = [el for el in root.iter() if el.tag.endswith('dependency')]
+                if not deps:
+                    uncertain = True
+                for dep in deps:
+                    ver = next((c.text.strip() for c in dep if c.tag.endswith('version') and c.text), None)
+                    if not ver or ver.upper() in {'LATEST', 'RELEASE'} or 'SNAPSHOT' in ver.upper():
+                        uncertain = True
+                if not uncertain and deps:
+                    entries.append('__maven_verified__==1.0.0')
+            except ET.ParseError:
+                uncertain = True
         else:
             uncertain = True
+
     for entry in entries:
+        if entry.startswith('__') and entry.endswith('__==1.0.0'):
+            continue
         try:
             requirement = Requirement(entry)
             specs = list(requirement.specifier)
@@ -241,7 +340,6 @@ def _docker(inventory):
                 current = None
             elif op.upper() == 'USER':
                 current = (value.split('#', 1)[0].strip(), number)
-                # Inheritance is conservative: only explicit final-stage USER is PASS.
         if text is None or current is None or unresolved:
             state = 'NEEDS_REVIEW'
             locations.append(evidence(file, 'docker_user_unresolved'))
@@ -266,10 +364,13 @@ def evaluate_repository(project_path: str, scan_result=None) -> ChecklistResult:
     catalog = json.loads(CATALOG.read_text(encoding='utf-8'))
     inventory = inspect_repository(project_path)
     profile, aliases = profile_repository(inventory)
-    scanner_status, findings, scanner_complete = _scan_input(scan_result, inventory) if inventory.valid else ('invalid', [], False)
+    scanner_status, findings, scanner_complete, rule_sets = (
+        _scan_input(scan_result, inventory) if inventory.valid else ('invalid', [], False, set())
+    )
     signals = _signals(inventory, aliases, profile)
     technologies = set(profile['technologies'])
-    python = 'python' in profile['languages']
+    langs = set(profile['languages'])
+    has_code = bool(langs)
     results = {}
 
     def record(key, status, locations=None, reason='', related=None):
@@ -280,14 +381,14 @@ def evaluate_repository(project_path: str, scan_result=None) -> ChecklistResult:
             'evidence': sorted(unique.values(), key=lambda item: (item['file'], item.get('start_line', 0), item['kind'])),
             'related_finding_ids': sorted(set(related or []))}
 
-    def rule_check(key, suffixes, relevant):
-        matched = [finding for finding in findings if finding['rule_id'] in {
-            'codely.python.' + suffix for suffix in suffixes}]
+    def rule_check(key, rule_ids, relevant, required_packs=None):
+        matched = [finding for finding in findings if finding['rule_id'] in set(rule_ids)]
         locations = [{**{k: finding[k] for k in ('file', 'start_line', 'end_line')},
                       'kind': 'semgrep_finding'} for finding in matched]
+        pack_ready = scanner_complete and (required_packs is None or bool(rule_sets & set(required_packs)))
         if matched:
             state, reason = 'FAIL', 'supported_security_finding'
-        elif not scanner_complete:
+        elif not pack_ready:
             state, reason = 'NEEDS_REVIEW', 'scanner_unavailable_or_incomplete'
         elif not relevant:
             state, reason = 'NOT_APPLICABLE', 'no_supported_technology_indicator'
@@ -295,9 +396,13 @@ def evaluate_repository(project_path: str, scan_result=None) -> ChecklistResult:
             state, reason = 'PASS', 'no_supported_pattern_in_complete_scan'
         record(key, state, locations, reason, [finding['id'] for finding in matched])
 
-    rule_check('hardcoded-credentials', ['hardcoded-credential'], python)
+    rule_check(
+        'hardcoded-credentials',
+        ['codely.python.hardcoded-credential', 'codely.java.credential-literal', 'codely.web.credential-literal'],
+        has_code,
+    )
     env = signals['environment']
-    record('environment-configuration', 'PASS' if env else ('NEEDS_REVIEW' if python else 'NOT_APPLICABLE'),
+    record('environment-configuration', 'PASS' if env else ('NEEDS_REVIEW' if has_code else 'NOT_APPLICABLE'),
            env, 'environment_access_observed' if env else 'environment_configuration_not_observed')
 
     secret_paths = [file for file in inventory.paths if sensitive(Path(file))]
@@ -322,19 +427,43 @@ def evaluate_repository(project_path: str, scan_result=None) -> ChecklistResult:
         record('sensitive-files-gitignore', status, [evidence('.gitignore', 'root_ignore_configuration')],
                'bounded_root_ignore_policy')
 
-    rule_check('production-debug', ['flask-debug'], bool(profile['frameworks']))
+    rule_check('production-debug', ['codely.python.flask-debug'], bool(profile['frameworks']))
     if signals['debug_true']:
         previous = results['production-debug']
         record('production-debug', 'FAIL', previous['evidence'] + signals['debug_true'],
                'explicit_debug_enabled', previous['related_finding_ids'])
     elif signals['debug_dynamic'] and results['production-debug']['status'] != 'FAIL':
         record('production-debug', 'NEEDS_REVIEW', signals['debug_dynamic'], 'dynamic_debug_configuration')
-    rule_check('tls-verification', ['tls-verification-disabled'], bool(technologies & {'requests', 'httpx', 'ssl'}))
-    rule_check('unsafe-sql', ['sql-injection'], bool(signals['sql']))
-    rule_check('unsafe-command', ['command-injection', 'dynamic-eval', 'dynamic-exec'],
-               bool(signals['command'] or signals['dynamic_code']))
-    rule_check('password-hashing', ['weak-password-hash'], 'hashlib' in technologies)
-    rule_check('unsafe-deserialization', ['unsafe-pickle', 'unsafe-yaml'], bool(technologies & {'pickle', 'yaml'}))
+
+    rule_check(
+        'tls-verification',
+        ['codely.python.tls-verification-disabled', 'codely.java.permissive-hostname-verifier', 'codely.web.tls-disabled'],
+        bool(technologies & {'requests', 'httpx', 'ssl', 'java_tls', 'node_tls'}),
+    )
+    rule_check(
+        'unsafe-sql',
+        ['codely.python.sql-injection', 'codely.java.sql-concatenation', 'codely.web.sql-concatenation'],
+        bool(signals['sql']),
+    )
+    rule_check(
+        'unsafe-command',
+        [
+            'codely.python.command-injection', 'codely.python.dynamic-eval', 'codely.python.dynamic-exec',
+            'codely.java.command-concatenation',
+            'codely.web.command-concatenation', 'codely.web.dynamic-eval', 'codely.web.function-constructor',
+        ],
+        bool(signals['command'] or signals['dynamic_code']),
+    )
+    rule_check(
+        'password-hashing',
+        ['codely.python.weak-password-hash', 'codely.java.weak-digest'],
+        bool(technologies & {'hashlib', 'java_digest'}),
+    )
+    rule_check(
+        'unsafe-deserialization',
+        ['codely.python.unsafe-pickle', 'codely.python.unsafe-yaml', 'codely.java.object-stream'],
+        bool(technologies & {'pickle', 'yaml', 'java_serialization'}),
+    )
 
     if signals['cors_credentials']:
         record('permissive-cors', 'FAIL', signals['cors_credentials'], 'wildcard_origin_with_credentials')
@@ -345,17 +474,48 @@ def evaluate_repository(project_path: str, scan_result=None) -> ChecklistResult:
     else:
         record('permissive-cors', 'NEEDS_REVIEW' if profile['frameworks'] else 'NOT_APPLICABLE',
                reason='cors_policy_not_observed')
-    record('authentication-indicators', 'NEEDS_REVIEW' if profile['frameworks'] else 'NOT_APPLICABLE',
-           signals['auth'], 'authentication_coverage_cannot_be_proven_statically')
+
+    auth_fail_findings = [
+        f for f in findings
+        if f['rule_id'] in {'codely.java.csrf-disabled', 'codely.java.insecure-cookie', 'codely.web.insecure-cookie'}
+    ]
+    if auth_fail_findings or signals['cookie_insecure']:
+        auth_ev = signals['auth'] + signals['cookie_insecure'] + [
+            {**{k: f[k] for k in ('file', 'start_line', 'end_line')}, 'kind': 'semgrep_finding'}
+            for f in auth_fail_findings
+        ]
+        record(
+            'authentication-indicators',
+            'FAIL',
+            auth_ev,
+            'insecure_session_cookie_or_csrf_disabled',
+            [f['id'] for f in auth_fail_findings],
+        )
+    else:
+        record(
+            'authentication-indicators',
+            'NEEDS_REVIEW' if profile['frameworks'] else 'NOT_APPLICABLE',
+            signals['auth'],
+            'authentication_coverage_cannot_be_proven_statically',
+        )
+
     manifests = profile['dependency_manifests']
-    record('dependency-manifest', 'PASS' if manifests else ('NEEDS_REVIEW' if python else 'NOT_APPLICABLE'),
+    record('dependency-manifest', 'PASS' if manifests else ('NEEDS_REVIEW' if has_code else 'NOT_APPLICABLE'),
            [evidence(file, 'dependency_manifest') for file in manifests], 'manifest_presence_indicator')
     constraints, locations = _constraints(inventory, manifests)
-    record('dependency-constraints', constraints if manifests else ('NEEDS_REVIEW' if python else 'NOT_APPLICABLE'),
+    record('dependency-constraints', constraints if manifests else ('NEEDS_REVIEW' if has_code else 'NOT_APPLICABLE'),
            locations, 'bounded_version_declarations_only')
-    tests = [file for file in inventory.paths if Path(file).suffix.lower() == '.py' and (
-        Path(file).name.startswith('test_') or Path(file).stem.endswith('_test'))]
-    record('test-presence', 'PASS' if tests else ('NEEDS_REVIEW' if python else 'NOT_APPLICABLE'),
+    tests = [
+        file for file in inventory.paths
+        if (
+            (Path(file).suffix.lower() == '.py' and (Path(file).name.startswith('test_') or Path(file).stem.endswith('_test')))
+            or (Path(file).suffix.lower() == '.java' and (Path(file).stem.endswith(('Test', 'Tests')) or '/test/' in f'/{file}'))
+            or (Path(file).suffix.lower() in {'.js', '.jsx', '.ts', '.tsx'} and (
+                '.test.' in Path(file).name.lower() or '.spec.' in Path(file).name.lower() or '/__tests__/' in f'/{file}'
+            ))
+        )
+    ]
+    record('test-presence', 'PASS' if tests else ('NEEDS_REVIEW' if has_code else 'NOT_APPLICABLE'),
            [evidence(file, 'test_filename_indicator') for file in tests], 'presence_does_not_prove_test_quality')
     state, locations, reason = _docker(inventory)
     record('docker-user', state, locations, reason)

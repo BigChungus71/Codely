@@ -265,7 +265,25 @@ def analyze_security_impact(scan, structure: RepositoryStructure, architecture: 
                 record['source_references'].append({'file':meta['file'],
                     'start_line':symbol['extent_start_line'],'end_line':symbol['end_line'],'kind':kind})
         if node['id'] not in analyses and len(analyses) < options.max_modules:
-            analyses[node['id']] = dependency_analysis(architecture,node['id'],options,edge_index)
+            analysis = dependency_analysis(architecture,node['id'],options,edge_index)
+            sem_edges = [
+                edge for edge in architecture.edges
+                if edge.get('relationship') != 'imports'
+                and edge.get('target') in ({node['id']} | set(analysis['direct_dependent_node_ids']) | set(analysis['transitive_dependent_node_ids']))
+                and edge.get('source') != node['id']
+            ]
+            if sem_edges:
+                analysis['inferred_relationships'] = [
+                    {
+                        'node_id': edge['source'],
+                        'target_node_id': edge['target'],
+                        'relationship': edge['relationship'],
+                        'confidence': edge.get('confidence', 'inferred'),
+                        'edge_id': edge['id'],
+                    }
+                    for edge in sorted(sem_edges, key=lambda e: (e['relationship'], e['source'], e['target']))
+                ]
+            analyses[node['id']] = analysis
         analysis = analyses.get(node['id'])
         if analysis:
             record.update(module_impact_id=analysis['id'],
@@ -313,7 +331,8 @@ def analyze_security_impact(scan, structure: RepositoryStructure, architecture: 
         diagnostics.append({'code':'scanner_incomplete','source':'scanner'})
     node_ids = {row['vulnerable_node_id'] for row in records if row['vulnerable_node_id']}
     node_ids.update(node for analysis in analyses.values() for node in (
-        analysis['direct_dependent_node_ids']+analysis['transitive_dependent_node_ids']))
+        analysis['direct_dependent_node_ids']+analysis['transitive_dependent_node_ids']
+        +[rel['node_id'] for rel in analysis.get('inferred_relationships',[])]))
     node_contexts = [{key:deepcopy(architecture._graph.nodes[identifier][key]) for key in (
         'id','label','type','file','parsed','classification_confidence','classifications')}
         for identifier in sorted(node_ids)]

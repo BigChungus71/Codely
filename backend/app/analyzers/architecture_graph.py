@@ -12,10 +12,11 @@ from .structure_extractor import stable_id
 
 ROLES = {'api_application': 'application_entry_point', 'router': 'router', 'controller': 'controller',
          'service': 'service', 'data_access': 'data_access', 'database_model': 'database_model',
+         'frontend_component': 'frontend_component',
          'authentication': 'authentication', 'configuration': 'configuration', 'utility': 'utility',
          'test': 'test'}
 PRIORITY = ['application_entry_point', 'router', 'controller', 'service', 'data_access',
-            'database_model', 'authentication', 'configuration', 'utility', 'test', 'unclassified']
+            'database_model', 'frontend_component', 'authentication', 'configuration', 'utility', 'test', 'unclassified']
 LIMITATIONS = [
     'Edges represent resolved file-backed static imports: importer -> imported module, not runtime calls.',
     'Unknown, ambiguous, namespace-only, external and stdlib imports do not create internal edges.',
@@ -214,8 +215,11 @@ def build_architecture_graph(structure: RepositoryStructure, *, options: GraphOp
         if len(modules) >= options.max_nodes:
             diagnostics.append({'code': 'graph_node_limit'})
             break
-        modules[identifier] = {'id': identifier, 'file': file, 'parsed': bool(module.get('parsed')),
-                               'module_names': names}
+        mod_entry = {'id': identifier, 'file': file, 'parsed': bool(module.get('parsed')),
+                     'module_names': names}
+        if isinstance(module.get('language'), str):
+            mod_entry['language'] = module['language']
+        modules[identifier] = mod_entry
         files.add(file)
     roles = _roles(structure, modules)
     graph = nx.DiGraph()
@@ -304,6 +308,46 @@ def build_architecture_graph(structure: RepositoryStructure, *, options: GraphOp
         'limitations': LIMITATIONS}
     nodes = [deepcopy(data) for _, data in graph.nodes(data=True)]
     edges = [deepcopy(data) for _, _, data in graph.edges(data=True)]
+    sem_grouped = {}
+    for sem in structure.coverage.get('semantic_relationships', []) if isinstance(structure.coverage, dict) else []:
+        try:
+            src = sem['source_module_id']
+            tgt = sem['target_module_id']
+            rel = sem['relationship']
+            if src not in modules or tgt not in modules or src == tgt:
+                continue
+            if rel not in {'inherits', 'implements', 'references_component', 'potential_api_call', 'uses_framework'}:
+                continue
+            conf = sem.get('confidence', 'inferred' if rel == 'potential_api_call' else 'confirmed')
+            ev = {
+                'import_id': sem['reference_id'],
+                'file': relative_file(sem['file']),
+                'start_line': sem['start_line'],
+                'end_line': sem['end_line'],
+                'resolution': 'inferred_api' if rel == 'potential_api_call' else 'semantic',
+                'conditional': False,
+                'target_parsed': modules[tgt]['parsed'],
+            }
+            bucket = sem_grouped.setdefault((src, tgt, rel, conf), [])
+            if ev not in bucket:
+                bucket.append(ev)
+        except (KeyError, TypeError, ValueError):
+            continue
+    semantic_edges = []
+    for (src, tgt, rel, conf), ev_list in sorted(sem_grouped.items()):
+        ev_sorted = sorted(ev_list, key=lambda item: (item['file'], item['start_line'], item['import_id']))
+        semantic_edges.append({
+            'id': stable_id('edge', src, tgt, rel),
+            'source': src,
+            'target': tgt,
+            'relationship': rel,
+            'confidence': conf,
+            'evidence': ev_sorted,
+            'evidence_count': len(ev_sorted),
+        })
+    if semantic_edges:
+        edges.extend(semantic_edges)
+        statistics['semantic_edge_count'] = len(semantic_edges)
     return ArchitectureGraph('1.0.0', status, nodes, edges, statistics,
         sorted(diagnostics + source_diagnostics, key=lambda item: (item['code'], item.get('file', ''))),
         coverage, nx.freeze(graph))

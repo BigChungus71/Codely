@@ -1,16 +1,21 @@
-"""Bounded read-only inventory for configuration indicators, not a code graph."""
+"""Bounded read-only multi-language inventory for configuration indicators, not a code graph."""
 import ast
 from dataclasses import dataclass, field
+import json
 import os
 from pathlib import Path
+import re
 
 from ..analyzers.semgrep_adapter import EXCLUDED, MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES, _linked
+from ..analyzers.structure_languages import CODE_EXTENSIONS, SPRING_CONFIG_FILENAMES, parse_json_relaxed
 
 
-def evidence(file, kind, node=None):
+def evidence(file, kind, node=None, line=None):
     item = {'file': file, 'kind': kind}
     if node is not None:
         item.update(start_line=node.lineno, end_line=getattr(node, 'end_lineno', node.lineno))
+    elif line is not None:
+        item.update(start_line=line, end_line=line)
     return item
 
 
@@ -25,7 +30,26 @@ def sensitive(path):
 def manifest(path):
     name = path.name.lower()
     return (name.startswith('requirements') and path.suffix.lower() == '.txt') or name in {
-        'pyproject.toml', 'pipfile', 'setup.py', 'setup.cfg'}
+        'pyproject.toml', 'pipfile', 'setup.py', 'setup.cfg',
+        'package.json', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml',
+        'pom.xml', 'build.gradle', 'build.gradle.kts',
+    }
+
+
+def _relevant_text_file(path: Path) -> bool:
+    name = path.name.lower()
+    suffix = path.suffix.lower()
+    if name.endswith(('.min.js', '.bundle.js', '.d.ts')):
+        return False
+    return (
+        suffix in CODE_EXTENSIONS
+        or manifest(path)
+        or name == '.gitignore'
+        or name.startswith('dockerfile')
+        or name in SPRING_CONFIG_FILENAMES
+        or name.startswith('next.config.')
+        or name == 'tsconfig.json'
+    )
 
 
 @dataclass
@@ -34,6 +58,7 @@ class Inventory:
     paths: list[str] = field(default_factory=list)
     texts: dict[str, str] = field(default_factory=dict)
     trees: dict[str, ast.Module] = field(default_factory=dict)
+    languages: dict[str, str] = field(default_factory=dict)
     diagnostics: list[dict] = field(default_factory=list)
     valid: bool = True
 
@@ -81,12 +106,13 @@ def inspect_repository(project_path):
                     result.diagnostics.append({'code': 'linked_file_skipped', 'file': relative})
                     continue
                 result.paths.append(relative)
+                suffix = path.suffix.lower()
+                if suffix in CODE_EXTENSIONS and not name.lower().endswith(('.min.js', '.bundle.js', '.d.ts')):
+                    result.languages[relative] = CODE_EXTENSIONS[suffix]
                 # Secret-named files are presence indicators only: never read values.
                 if sensitive(path):
                     continue
-                relevant = (path.suffix.lower() == '.py' or manifest(path)
-                            or name == '.gitignore' or name.lower().startswith('dockerfile'))
-                if not relevant:
+                if not _relevant_text_file(path):
                     continue
                 try:
                     with path.open('rb') as source:
@@ -97,7 +123,7 @@ def inspect_repository(project_path):
                     byte_count += len(content)
                     text = content.decode('utf-8-sig')
                     result.texts[relative] = text
-                    if path.suffix.lower() == '.py':
+                    if suffix == '.py':
                         try:
                             result.trees[relative] = ast.parse(text)
                         except (SyntaxError, ValueError, RecursionError):
@@ -147,9 +173,81 @@ def profile_repository(inventory):
                     imports.add(name)
                     locations.append({**evidence(file, 'static_import', node), 'technology': name})
         aliases_by_file[file] = aliases
+
+    detected_langs = set(inventory.languages.values())
+    extra_frameworks = set()
+    for file, text in sorted(inventory.texts.items()):
+        lang = inventory.languages.get(file)
+        name_lower = Path(file).name.lower()
+        if lang == 'java':
+            if 'org.springframework.boot' in text or '@SpringBootApplication' in text:
+                extra_frameworks.add('spring_boot')
+                imports.add('spring_boot')
+                locations.append({**evidence(file, 'framework_indicator', line=1), 'technology': 'spring_boot'})
+            if 'org.springframework.web' in text or '@RestController' in text or '@Controller' in text:
+                extra_frameworks.add('spring_mvc')
+                imports.add('spring_mvc')
+                locations.append({**evidence(file, 'framework_indicator', line=1), 'technology': 'spring_mvc'})
+            if 'org.springframework.security' in text or '@PreAuthorize' in text:
+                imports.add('spring_security')
+            if 'MessageDigest.getInstance' in text:
+                imports.add('java_digest')
+            if 'ObjectInputStream' in text:
+                imports.add('java_serialization')
+            if 'HostnameVerifier' in text or 'HttpsURLConnection' in text or 'SSLContext' in text:
+                imports.add('java_tls')
+        elif lang in {'javascript', 'jsx', 'typescript', 'tsx'}:
+            if re.search(r'from\s+["\']react["\']|require\(["\']react["\']\)', text):
+                extra_frameworks.add('react')
+                imports.add('react')
+                locations.append({**evidence(file, 'static_import', line=1), 'technology': 'react'})
+            if re.search(r'from\s+["\']next[/\'"]|require\(["\']next', text):
+                extra_frameworks.add('nextjs')
+                imports.add('nextjs')
+                locations.append({**evidence(file, 'static_import', line=1), 'technology': 'nextjs'})
+            if re.search(r'from\s+["\']express["\']|require\(["\']express["\']\)', text):
+                extra_frameworks.add('express')
+                imports.add('express')
+                locations.append({**evidence(file, 'static_import', line=1), 'technology': 'express'})
+            if '@nestjs/' in text:
+                extra_frameworks.add('nestjs')
+                imports.add('nestjs')
+                locations.append({**evidence(file, 'static_import', line=1), 'technology': 'nestjs'})
+            if 'child_process' in text:
+                imports.add('child_process')
+            if 'rejectUnauthorized' in text or 'NODE_TLS_REJECT_UNAUTHORIZED' in text:
+                imports.add('node_tls')
+        elif name_lower == 'package.json':
+            data = parse_json_relaxed(text)
+            if data:
+                deps = set()
+                for sec in ('dependencies', 'devDependencies', 'peerDependencies'):
+                    if isinstance(data.get(sec), dict):
+                        deps.update(data[sec].keys())
+                for fw, pkg in (('react', 'react'), ('nextjs', 'next'), ('express', 'express'), ('nestjs', '@nestjs/core')):
+                    if pkg in deps:
+                        extra_frameworks.add(fw)
+                        imports.add(fw)
+                imports.add('nodejs')
+        elif name_lower == 'pom.xml' and 'spring-boot' in text:
+            extra_frameworks.add('spring_boot')
+            imports.add('spring_boot')
+        elif name_lower in {'build.gradle', 'build.gradle.kts'} and 'spring-boot' in text:
+            extra_frameworks.add('spring_boot')
+            imports.add('spring_boot')
+        elif name_lower in SPRING_CONFIG_FILENAMES:
+            extra_frameworks.add('spring_boot')
+            imports.add('spring_boot')
+
     manifests = sorted(path for path in inventory.paths if manifest(Path(path)))
-    languages = ['python'] if inventory.trees or manifests else []
-    frameworks = sorted(imports & {'flask', 'fastapi', 'django'})
+    if not detected_langs and any(
+        Path(m).name.lower().startswith('requirements') or Path(m).name.lower() in {'pyproject.toml', 'pipfile', 'setup.py', 'setup.cfg'}
+        for m in manifests
+    ):
+        detected_langs.add('python')
+    # Normalize jsx/tsx into javascript/typescript for compact language list while preserving raw values if needed
+    languages = sorted(detected_langs)
+    frameworks = sorted((imports & {'flask', 'fastapi', 'django'}) | extra_frameworks)
     profile = {'languages': languages, 'frameworks': frameworks,
                'technologies': sorted(imports), 'dependency_manifests': manifests,
                'evidence': sorted(locations, key=lambda e: (e['file'], e['start_line'], e['technology']))}

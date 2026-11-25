@@ -31,6 +31,7 @@ RESPONSIBILITY_GROUPS = {
     'application_entry_point': 'transport_interface',
     'router': 'transport_interface',
     'controller': 'transport_interface',
+    'frontend_component': 'frontend_ui',
     'service': 'service_domain',
     'data_access': 'persistence',
     'database_model': 'persistence',
@@ -381,6 +382,8 @@ def _build_inheritance_index(
         cyclic = False
 
         for base in bases:
+            if base.get('relation') == 'implements':
+                continue
             base_name = base.get('name') or '<dynamic>'
             base_qual = base.get('import_qualified_name') or base_name
             if base_name in EXTERNAL_BASE_ROOTS or base_qual in EXTERNAL_BASE_ROOTS:

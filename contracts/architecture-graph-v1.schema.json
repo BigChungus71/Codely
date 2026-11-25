@@ -116,6 +116,12 @@
           "relationship": {
             "type": "string"
           },
+          "confidence": {
+            "enum": [
+              "confirmed",
+              "inferred"
+            ]
+          },
           "evidence": {
             "type": "array",
             "minItems": 1,
@@ -146,7 +152,11 @@
                   "minimum": 1
                 },
                 "resolution": {
-                  "const": "internal"
+                  "enum": [
+                    "internal",
+                    "semantic",
+                    "inferred_api"
+                  ]
                 },
                 "conditional": {
                   "type": "boolean"

@@ -22,6 +22,7 @@ KNOWN_ROLES = {
     'service',
     'data_access',
     'database_model',
+    'frontend_component',
     'authentication',
     'configuration',
     'utility',

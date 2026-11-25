@@ -5,7 +5,6 @@ import { useTemplateCopy } from "@/components/foundations/template-copy/template
 import {
   RiArrowUpLine,
   RiAttachment2,
-  RiInfinityLine,
   RiSparklingLine,
   RiStopFill,
 } from "@remixicon/react";
@@ -153,35 +152,7 @@ export function AgentComposer({
           </div>
         </form>
       </ComposerLoader>
-
-      <div className="flex h-[26px] w-full items-center justify-between">
-        <div className="flex items-center gap-3">
-          <StatusItem icon={RiInfinityLine} label={provider ?? "Codely"} />
-        </div>
-        <div className="flex items-center gap-3">
-          <StatusItem
-            icon={RiSparklingLine}
-            label={messageCount === 0 ? "New chat" : `${messageCount} messages`}
-          />
-        </div>
-      </div>
     </div>
-  ));
-}
-
-function StatusItem({
-  icon: Icon,
-  label,
-}: {
-  icon: typeof RiInfinityLine;
-  label: string;
-}) {
-  const localize = useTemplateCopy();
-  return localize((
-    <span className="flex items-center gap-1">
-      <Icon className="size-4 shrink-0 text-foreground-icon-secondary" aria-hidden />
-      <span className="whitespace-nowrap text-body-2-medium text-text-secondary">{label}</span>
-    </span>
   ));
 }
 

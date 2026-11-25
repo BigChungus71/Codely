@@ -3,7 +3,7 @@
 import { useTemplateCopy } from "@/components/foundations/template-copy/template-copy";
 
 import { useChat } from "@ai-sdk/react";
-import { RiAddLine, RiCloseLine, RiMenuLine, RiScanLine, RiShieldCheckLine } from "@remixicon/react";
+import { RiAddLine, RiCloseLine, RiMenuLine } from "@remixicon/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 
 import { DemoTransport, SwitchingTransport } from "@/components/application/agent-chat/demo-transport";
@@ -17,7 +17,6 @@ import {
 import { AgentMessage } from "@/components/application/agent-chat/agent-chat-message";
 import { AgentComposer } from "@/components/application/agent-chat/agent-composer";
 import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
-import { CODELY_SUGGESTIONS, pickSuggestions } from "@/components/application/agent-chat/codely-suggestions";
 import { starterNav, useStarterBase } from "@/components/application/app-shell/app-shell";
 import { DashboardSidebar } from "@/components/application/dashboard/dashboard-sidebar";
 import { IconButton } from "@/components/base/buttons/icon-button";
@@ -326,21 +325,13 @@ export function AgentChat({
               onClick={() => setNavOpen((open) => !open)}
               className="lg:hidden"
             />
-            {/* Codely bot identity */}
-            <div className="flex min-w-0 items-center gap-2">
-              <Logo size={28} className="rounded-lg" />
-              <span
-                ref={titleRef}
-                className="min-w-0 shrink truncate text-headline-medium text-text-primary"
-              >
-                {messages.length > 0 ? headerTitle(allThreads, activeId) : "Codely Assistant"}
-              </span>
-              <span className="hidden items-center gap-1 rounded-full bg-background-primary-default px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-xs sm:inline-flex">
-                <span className="size-1.5 rounded-full bg-lime-500" aria-hidden />
-                Online
-              </span>
-            </div>
-            {/* Slogan — hidden when header is narrow */}
+            {/* Title */}
+            <span
+              ref={titleRef}
+              className="min-w-0 shrink truncate text-headline-medium text-text-primary"
+            >
+              {messages.length > 0 ? headerTitle(allThreads, activeId) : "Codely"}
+            </span>
             <span className="hidden shrink-0 text-caption-1-regular text-text-tertiary md:block">
               crush every bug like a pro
             </span>
@@ -369,50 +360,13 @@ export function AgentChat({
           </header>
 
           {/* Transcript + composer */}
-          <>
-            <div
-              ref={scrollRef}
-              onScroll={(event) => setScrolledUnder(event.currentTarget.scrollTop > 0)}
-              className="min-h-0 flex-1 overflow-y-auto scroll-smooth"
-            >
-              <div
-                ref={columnRef}
-                className={cx(
-                  "mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 pt-[72px] pb-6",
-                  messages.length === 0 && "min-h-full justify-center",
-                )}
-              >
-                {messages.length === 0 ? (
-                  <EmptyState onPick={submit} base={starterBase} />
-                ) : (
-                  messages.map((message, index) => (
-                    <AgentMessage
-                      key={message.id}
-                      role={message.role}
-                      text={messageText(message)}
-                      streaming={busy && index === messages.length - 1}
-                      at={messageAt[message.id]}
-                    />
-                  ))
-                )}
+          {messages.length === 0 ? (
+            <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4">
+              <div className="flex w-full max-w-2xl flex-col items-center gap-6">
+                <h2 className="text-center text-title-2-medium text-text-primary">
+                  What’s on the agenda today?
+                </h2>
 
-                {showThinking && (
-                  <div className="flex items-center gap-2.5 px-1">
-                    <Logo size={28} className="rounded-lg" />
-                    <AgentThinking variant="wave" label="Codely is thinking…" />
-                  </div>
-                )}
-
-                {error && (
-                  <p role="alert" className="px-1 text-body-regular text-text-tertiary">
-                    Something went wrong. Check the server logs, then try again.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="shrink-0 px-3 pb-3">
-              <div className="mx-auto w-full max-w-3xl">
                 <AgentComposer
                   value={input}
                   onValueChange={setInput}
@@ -420,58 +374,88 @@ export function AgentChat({
                   onStop={stop}
                   busy={busy}
                   model={null}
-                  provider="Codely AI • Online"
+                  provider={null}
                   messageCount={messages.length}
                 />
+
+                <div className="flex w-full flex-col gap-1 px-2">
+                  {PRESET_QUESTIONS.map((question) => (
+                    <button
+                      key={question}
+                      type="button"
+                      onClick={() => submit(question)}
+                      className="flex w-full cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-start text-body-regular text-text-secondary transition-colors hover:bg-background-primary-hover hover:text-text-primary"
+                    >
+                      <span aria-hidden className="shrink-0 text-text-tertiary">→</span>
+                      <span>{question}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </>
+          ) : (
+            <>
+              <div
+                ref={scrollRef}
+                onScroll={(event) => setScrolledUnder(event.currentTarget.scrollTop > 0)}
+                className="min-h-0 flex-1 overflow-y-auto scroll-smooth"
+              >
+                <div
+                  ref={columnRef}
+                  className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 pt-[72px] pb-6"
+                >
+                  {messages.map((message, index) => (
+                    <AgentMessage
+                      key={message.id}
+                      role={message.role}
+                      text={messageText(message)}
+                      streaming={busy && index === messages.length - 1}
+                      at={messageAt[message.id]}
+                    />
+                  ))}
+
+                  {showThinking && (
+                    <div className="flex items-center gap-2.5 px-1">
+                      <Logo size={28} className="rounded-lg" />
+                      <AgentThinking variant="wave" label="Codely is thinking…" />
+                    </div>
+                  )}
+
+                  {error && (
+                    <p role="alert" className="px-1 text-body-regular text-text-tertiary">
+                      Something went wrong. Check the server logs, then try again.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="shrink-0 px-3 pb-3">
+                <div className="mx-auto w-full max-w-3xl">
+                  <AgentComposer
+                    value={input}
+                    onValueChange={setInput}
+                    onSubmit={() => submit(input)}
+                    onStop={stop}
+                    busy={busy}
+                    model={null}
+                    provider={null}
+                    messageCount={messages.length}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   ));
 }
 
-/** Codely chatbot empty state — bot greeting, slogan, scanner shortcut, and shuffled starter pills. */
-function EmptyState({ onPick, base = "" }: { onPick: (text: string) => void; base?: string }) {
-  const localize = useTemplateCopy();
-  // Shuffle once per mount so each new thread shows a fresh set.
-  const [suggestions] = useState(() => pickSuggestions(5));
-
-  return localize((
-    <div className="flex flex-col items-center gap-5 text-center">
-      <Logo size={56} className="rounded-2xl shadow-xs" />
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-center gap-2">
-          <RiShieldCheckLine className="size-5 text-accent-500" aria-hidden />
-          <h2 className="text-title-2-medium text-text-primary">Hey! I&apos;m Codely — crush every bug like a pro.</h2>
-        </div>
-        <p className="text-body-regular text-text-secondary">
-          Ask me to review code, find vulnerabilities, compare architectures, or run a live scan.
-        </p>
-      </div>
-      <div className="flex flex-wrap justify-center gap-2">
-        <a
-          href={`${base}/scanner`}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent-500 px-4 py-2 text-body-medium text-white shadow-xs transition-opacity hover:opacity-90"
-        >
-          <RiScanLine className="size-4 shrink-0" aria-hidden />
-          Open Code Scanner
-        </a>
-        {suggestions.map((suggestion) => (
-          <button
-            key={suggestion}
-            type="button"
-            onClick={() => onPick(suggestion)}
-            className="cursor-pointer rounded-full bg-background-primary-default px-3.5 py-2 text-body-regular text-text-secondary shadow-xs transition-colors hover:bg-background-primary-hover"
-          >
-            {suggestion}
-          </button>
-        ))}
-      </div>
-    </div>
-  ));
-}
+const PRESET_QUESTIONS = [
+  "How does Codely show structured thinking while a scan is running?",
+  "How does Codely present multi-step security audits and architectural comparisons?",
+  "How can developers showcase their Codely usage and security impact on the dashboard?",
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

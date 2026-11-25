@@ -1,0 +1,6 @@
+rules:
+  - id: codely.compatibility.python-eval
+    languages: [python]
+    severity: WARNING
+    message: Dynamic eval detected by the local compatibility smoke rule.
+    pattern: eval($EXPRESSION)

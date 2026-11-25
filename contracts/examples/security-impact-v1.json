@@ -1,0 +1,480 @@
+{
+  "schema_version": "1.0.0",
+  "status": "complete",
+  "scope": {
+    "type": "repository",
+    "finding_id": null
+  },
+  "summary": {
+    "findings_received": 1,
+    "findings_selected": 1,
+    "mapped_findings": 1,
+    "unmapped_findings": 0,
+    "vulnerable_modules": 1,
+    "analyzed_modules": 1,
+    "unique_direct_dependents": 1,
+    "unique_transitive_dependents": 3
+  },
+  "finding_impacts": [
+    {
+      "id": "impact_f5cc9908da7603e4ecc0",
+      "finding_id": "finding_f22a4a8dc2ef78bd",
+      "finding": {
+        "id": "finding_f22a4a8dc2ef78bd",
+        "rule_id": "codely.python.sql-injection",
+        "source": "semgrep",
+        "severity": "HIGH",
+        "cwe": [
+          "CWE-89"
+        ],
+        "file": "database.py",
+        "start_line": 11,
+        "end_line": 11
+      },
+      "mapping_status": "mapped",
+      "mapping_reason": "parsed_file_and_graph_node",
+      "vulnerable_node_id": "module_334448fc697601b5fabc",
+      "enclosing_symbol": {
+        "id": "function_569e3f725b8fae00c646",
+        "module_id": "module_334448fc697601b5fabc",
+        "parent_id": "class_605ec04bdaff806fba05",
+        "name": "lookup",
+        "qualified_name": "Repository.lookup",
+        "kind": "method",
+        "is_async": false,
+        "file": "database.py",
+        "start_line": 7,
+        "end_line": 11,
+        "extent_start_line": 7
+      },
+      "enclosing_function": {
+        "id": "function_569e3f725b8fae00c646",
+        "module_id": "module_334448fc697601b5fabc",
+        "parent_id": "class_605ec04bdaff806fba05",
+        "name": "lookup",
+        "qualified_name": "Repository.lookup",
+        "kind": "method",
+        "is_async": false,
+        "file": "database.py",
+        "start_line": 7,
+        "end_line": 11,
+        "extent_start_line": 7
+      },
+      "enclosing_class": {
+        "id": "class_605ec04bdaff806fba05",
+        "module_id": "module_334448fc697601b5fabc",
+        "parent_id": "module_334448fc697601b5fabc",
+        "name": "Repository",
+        "qualified_name": "Repository",
+        "file": "database.py",
+        "start_line": 6,
+        "end_line": 11,
+        "extent_start_line": 6,
+        "kind": "class"
+      },
+      "module_impact_id": "module_impact_3b4a835fb09a42516b2e",
+      "direct_dependent_node_ids": [
+        "module_3ecba6be31877a5a2347"
+      ],
+      "transitive_dependent_node_ids": [
+        "module_1ed02c3495a2cbdfb731",
+        "module_730ce1aa1c24ac11908c",
+        "module_568470d013cd12e4f388"
+      ],
+      "relevant_edge_ids": [
+        "edge_141411ca94271b05ac44",
+        "edge_151570f277599983ffa1",
+        "edge_7d69e29d4f31ad2cdad9",
+        "edge_9849908c50116c3999aa"
+      ],
+      "evidence_path_ids": [
+        "impact_path_90ab64e79d0c22440b8a",
+        "impact_path_66515e872727f9b1ac67",
+        "impact_path_a4978f1e08e7e9041582",
+        "impact_path_42feebabe025914fd007"
+      ],
+      "source_references": [
+        {
+          "file": "database.py",
+          "start_line": 11,
+          "end_line": 11,
+          "kind": "original_finding_location"
+        },
+        {
+          "file": "database.py",
+          "start_line": 7,
+          "end_line": 11,
+          "kind": "enclosing_function"
+        },
+        {
+          "file": "database.py",
+          "start_line": 6,
+          "end_line": 11,
+          "kind": "enclosing_class"
+        }
+      ],
+      "coverage": {
+        "truncated": false,
+        "diagnostics": []
+      }
+    }
+  ],
+  "module_impacts": [
+    {
+      "id": "module_impact_3b4a835fb09a42516b2e",
+      "vulnerable_node_id": "module_334448fc697601b5fabc",
+      "direct_dependent_node_ids": [
+        "module_3ecba6be31877a5a2347"
+      ],
+      "transitive_dependent_node_ids": [
+        "module_1ed02c3495a2cbdfb731",
+        "module_730ce1aa1c24ac11908c",
+        "module_568470d013cd12e4f388"
+      ],
+      "dependency_distances": [
+        {
+          "node_id": "module_3ecba6be31877a5a2347",
+          "distance": 1,
+          "exposure": "direct_dependent"
+        },
+        {
+          "node_id": "module_1ed02c3495a2cbdfb731",
+          "distance": 2,
+          "exposure": "transitive_dependent"
+        },
+        {
+          "node_id": "module_730ce1aa1c24ac11908c",
+          "distance": 2,
+          "exposure": "transitive_dependent"
+        },
+        {
+          "node_id": "module_568470d013cd12e4f388",
+          "distance": 3,
+          "exposure": "transitive_dependent"
+        }
+      ],
+      "paths": [
+        {
+          "id": "impact_path_90ab64e79d0c22440b8a",
+          "target_id": "module_3ecba6be31877a5a2347",
+          "distance": 1,
+          "node_ids": [
+            "module_3ecba6be31877a5a2347",
+            "module_334448fc697601b5fabc"
+          ],
+          "edge_ids": [
+            "edge_9849908c50116c3999aa"
+          ]
+        },
+        {
+          "id": "impact_path_66515e872727f9b1ac67",
+          "target_id": "module_1ed02c3495a2cbdfb731",
+          "distance": 2,
+          "node_ids": [
+            "module_1ed02c3495a2cbdfb731",
+            "module_3ecba6be31877a5a2347",
+            "module_334448fc697601b5fabc"
+          ],
+          "edge_ids": [
+            "edge_141411ca94271b05ac44",
+            "edge_9849908c50116c3999aa"
+          ]
+        },
+        {
+          "id": "impact_path_a4978f1e08e7e9041582",
+          "target_id": "module_730ce1aa1c24ac11908c",
+          "distance": 2,
+          "node_ids": [
+            "module_730ce1aa1c24ac11908c",
+            "module_3ecba6be31877a5a2347",
+            "module_334448fc697601b5fabc"
+          ],
+          "edge_ids": [
+            "edge_151570f277599983ffa1",
+            "edge_9849908c50116c3999aa"
+          ]
+        },
+        {
+          "id": "impact_path_42feebabe025914fd007",
+          "target_id": "module_568470d013cd12e4f388",
+          "distance": 3,
+          "node_ids": [
+            "module_568470d013cd12e4f388",
+            "module_1ed02c3495a2cbdfb731",
+            "module_3ecba6be31877a5a2347",
+            "module_334448fc697601b5fabc"
+          ],
+          "edge_ids": [
+            "edge_7d69e29d4f31ad2cdad9",
+            "edge_141411ca94271b05ac44",
+            "edge_9849908c50116c3999aa"
+          ]
+        }
+      ],
+      "relevant_edge_ids": [
+        "edge_141411ca94271b05ac44",
+        "edge_151570f277599983ffa1",
+        "edge_7d69e29d4f31ad2cdad9",
+        "edge_9849908c50116c3999aa"
+      ],
+      "summary": {
+        "direct_dependents": 1,
+        "transitive_dependents": 3,
+        "observed_direct_dependents": 1,
+        "returned_paths": 4
+      },
+      "coverage": {
+        "graph_status": "complete",
+        "truncated": false,
+        "limit_reasons": [],
+        "visited_nodes": 5,
+        "examined_edges": 5,
+        "path_search_edges": 6,
+        "path_expansions": 12,
+        "path_policy": "bounded_shortest_import_paths_only"
+      }
+    }
+  ],
+  "node_contexts": [
+    {
+      "id": "module_1ed02c3495a2cbdfb731",
+      "label": "api",
+      "type": "router",
+      "file": "api.py",
+      "parsed": true,
+      "classification_confidence": "confirmed",
+      "classifications": [
+        {
+          "type": "router",
+          "confidence": "confirmed",
+          "reason": "explicit_framework_constructor",
+          "evidence": {
+            "file": "api.py",
+            "start_line": 6,
+            "end_line": 6
+          }
+        },
+        {
+          "type": "controller",
+          "confidence": "confirmed",
+          "reason": "framework_route_decorator",
+          "evidence": {
+            "file": "api.py",
+            "start_line": 9,
+            "end_line": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "module_334448fc697601b5fabc",
+      "label": "database",
+      "type": "data_access",
+      "file": "database.py",
+      "parsed": true,
+      "classification_confidence": "confirmed",
+      "classifications": [
+        {
+          "type": "data_access",
+          "confidence": "confirmed",
+          "reason": "explicit_database_api",
+          "evidence": {
+            "file": "database.py",
+            "start_line": 10,
+            "end_line": 10
+          }
+        }
+      ]
+    },
+    {
+      "id": "module_3ecba6be31877a5a2347",
+      "label": "services",
+      "type": "service",
+      "file": "services.py",
+      "parsed": true,
+      "classification_confidence": "inferred",
+      "classifications": [
+        {
+          "type": "service",
+          "confidence": "inferred",
+          "reason": "filename_heuristic",
+          "evidence": {
+            "file": "services.py"
+          }
+        }
+      ]
+    },
+    {
+      "id": "module_568470d013cd12e4f388",
+      "label": "app",
+      "type": "application_entry_point",
+      "file": "app.py",
+      "parsed": true,
+      "classification_confidence": "confirmed",
+      "classifications": [
+        {
+          "type": "application_entry_point",
+          "confidence": "confirmed",
+          "reason": "explicit_framework_constructor",
+          "evidence": {
+            "file": "app.py",
+            "start_line": 5,
+            "end_line": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "module_730ce1aa1c24ac11908c",
+      "label": "cycle",
+      "type": "unclassified",
+      "file": "cycle.py",
+      "parsed": true,
+      "classification_confidence": "unclassified",
+      "classifications": []
+    }
+  ],
+  "evidence_edges": [
+    {
+      "id": "edge_141411ca94271b05ac44",
+      "source": "module_1ed02c3495a2cbdfb731",
+      "target": "module_3ecba6be31877a5a2347",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_e34a3ad2558fe631699b",
+          "file": "api.py",
+          "start_line": 3,
+          "end_line": 3,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_1ed02c3495a2cbdfb731"
+        }
+      ],
+      "evidence_count": 1,
+      "provided_evidence_count": 1,
+      "evidence_truncated": false
+    },
+    {
+      "id": "edge_151570f277599983ffa1",
+      "source": "module_730ce1aa1c24ac11908c",
+      "target": "module_3ecba6be31877a5a2347",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_1ae24f63a3016446669f",
+          "file": "cycle.py",
+          "start_line": 2,
+          "end_line": 2,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_730ce1aa1c24ac11908c"
+        }
+      ],
+      "evidence_count": 1,
+      "provided_evidence_count": 1,
+      "evidence_truncated": false
+    },
+    {
+      "id": "edge_7d69e29d4f31ad2cdad9",
+      "source": "module_568470d013cd12e4f388",
+      "target": "module_1ed02c3495a2cbdfb731",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_8e5f8b36a3b7b5ad7e27",
+          "file": "app.py",
+          "start_line": 3,
+          "end_line": 3,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_568470d013cd12e4f388"
+        }
+      ],
+      "evidence_count": 1,
+      "provided_evidence_count": 1,
+      "evidence_truncated": false
+    },
+    {
+      "id": "edge_9849908c50116c3999aa",
+      "source": "module_3ecba6be31877a5a2347",
+      "target": "module_334448fc697601b5fabc",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_eb866c5b809f2def80a2",
+          "file": "services.py",
+          "start_line": 2,
+          "end_line": 2,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_3ecba6be31877a5a2347"
+        }
+      ],
+      "evidence_count": 1,
+      "provided_evidence_count": 1,
+      "evidence_truncated": false
+    }
+  ],
+  "diagnostics": [
+    {
+      "source": "scanner",
+      "code": "coverage"
+    },
+    {
+      "source": "scanner",
+      "code": "scanner_coverage"
+    },
+    {
+      "source": "scanner",
+      "code": "scanner_exit",
+      "exit_code": 0
+    }
+  ],
+  "coverage": {
+    "scanner_status": "complete",
+    "scanner_complete": true,
+    "structure_status": "complete",
+    "graph_status": "complete",
+    "graph_structure_consistent": true,
+    "snapshot_identity": "caller_required",
+    "dependency_scope": "resolved_internal_imports_only",
+    "dependency_gaps": {
+      "unresolved_imports": 0,
+      "ambiguous_imports": 0,
+      "namespace_imports_without_file": 0,
+      "unparsed_modules": 0
+    },
+    "diagnostics_truncated": false,
+    "truncated": false,
+    "limits": {
+      "traversal": {
+        "max_depth": 32,
+        "max_nodes": 1000,
+        "max_edges": 10000,
+        "max_paths": 128
+      },
+      "max_findings": 1000,
+      "max_modules": 128,
+      "max_path_search_edges": 10000,
+      "max_path_expansions": 10000,
+      "max_evidence_per_edge": 32,
+      "max_evidence_records": 10000,
+      "max_diagnostics": 100
+    },
+    "limitations": [
+      "Static import reachability indicates potential relevance, not confirmed exploit propagation or runtime calls.",
+      "Severity and CWE belong only to the original finding; dependent modules are not assigned that vulnerability.",
+      "The caller must supply scan, structure and graph from the same immutable repository version.",
+      "Cross-input references are checked, but these existing contracts do not prove repository snapshot identity.",
+      "Unknown, ambiguous, conditional, dynamic and omitted external dependencies limit coverage.",
+      "Only bounded shortest observed import paths are returned; longer alternate paths are not enumerated.",
+      "Unparsed source cannot be mapped to a trusted symbol; unmapped findings remain explicit.",
+      "Source text, finding title/message, literal values and raw diagnostics are omitted from this evidence package."
+    ]
+  }
+}

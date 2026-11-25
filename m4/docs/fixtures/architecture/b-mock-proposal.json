@@ -1,0 +1,233 @@
+{
+  "project_id": "synthetic-cycle",
+  "revision": "synthetic-cycle-v1",
+  "structure_status": "complete",
+  "coverage": {
+    "supported_language": "python",
+    "parser_python_version": "3.12",
+    "column_units": "zero_based_utf8_bytes",
+    "discovered_files": 2,
+    "unresolved_imports": 0,
+    "ambiguous_imports": 0,
+    "dynamic_call_sites": 0,
+    "parsed_files": 2,
+    "skipped_files": 0,
+    "unsupported_files": 0,
+    "bytes_read": 144,
+    "source_roots": [
+      "."
+    ],
+    "excluded_paths": [],
+    "limits": {
+      "max_files": 5000,
+      "max_file_bytes": 1048576,
+      "max_repository_bytes": 52428800,
+      "max_entries": 50000,
+      "max_ast_nodes": 200000,
+      "max_repository_ast_nodes": 1000000
+    },
+    "limitations": [
+      "Static source evidence only; never a complete runtime import or call graph.",
+      "No target code, dependency installation, LLM, import hooks, or external API is executed.",
+      "Host Python grammar/stdlib and configured file, byte, entry and AST limits bound coverage.",
+      "Source-root candidates are conservative; runtime sys.path and packaging hooks are not evaluated.",
+      "Unknown external modules, dynamic imports/attributes, re-exports and wildcard symbols can remain unresolved.",
+      "Filename classifications are inferred; framework declarations do not prove runtime use or authentication coverage.",
+      "Literal defaults, annotation strings, route paths, arguments, assignment values and docstrings are omitted.",
+      "The caller must own a stable repository and prevent concurrent filesystem replacement."
+    ]
+  },
+  "diagnostics": [],
+  "unresolved_references": [],
+  "omitted_nodes": [],
+  "omitted_edges": [],
+  "observed_graph": {
+    "nodes": [
+      {
+        "id": "module_fb38d0df85c48da6e2c1",
+        "label": "orders",
+        "location": {
+          "path": "orders.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      {
+        "id": "module_2497954a77d52c456ace",
+        "label": "payments",
+        "location": {
+          "path": "payments.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "dependency_38139cc1e83117fb2162",
+        "source": "module_fb38d0df85c48da6e2c1",
+        "target": "module_2497954a77d52c456ace",
+        "label": "imports",
+        "location": {
+          "path": "orders.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      {
+        "id": "dependency_3c120632771dc0af0a0d",
+        "source": "module_2497954a77d52c456ace",
+        "target": "module_fb38d0df85c48da6e2c1",
+        "label": "imports",
+        "location": {
+          "path": "payments.py",
+          "start_line": 1,
+          "end_line": 1
+        }
+      }
+    ]
+  },
+  "source_evidence": [
+    {
+      "path": "orders.py",
+      "start_line": 1,
+      "end_line": 1,
+      "id": "orders.py:1-1",
+      "text": "from payments import charge",
+      "reason": "affected",
+      "similarity": null,
+      "redacted": false
+    },
+    {
+      "path": "payments.py",
+      "start_line": 1,
+      "end_line": 1,
+      "id": "payments.py:1-1",
+      "text": "from orders import place_order",
+      "reason": "affected",
+      "similarity": null,
+      "redacted": false
+    }
+  ],
+  "selected_guidelines": [
+    {
+      "guideline": {
+        "id": "arch.avoid-circular-dependencies",
+        "title": "Avoid circular dependencies",
+        "description": "Review observed directed cycles and consider a clearer dependency direction.",
+        "applicability": "A directed cycle exists in the observed dependency edges.",
+        "limitations": "Static relationships may be conditional. The reference describes Spring Modulith rules, which are advisory here unless explicitly configured as policy.",
+        "source": {
+          "title": "Spring Modulith · Verifying application module structure",
+          "url": "https://docs.spring.io/spring-modulith/reference/verification.html"
+        },
+        "benefits": [
+          "Clarifies initialization and change ownership."
+        ],
+        "trade_offs": [
+          "Breaking a legitimate cycle can require moving responsibilities or introducing a boundary."
+        ],
+        "registry_version": "1.0.0",
+        "signals": [
+          "dependency_cycle"
+        ],
+        "requirement_terms": [],
+        "checklist_references": []
+      },
+      "policy": "advisory",
+      "matched_by": [
+        "dependency_cycle"
+      ]
+    },
+    {
+      "guideline": {
+        "id": "arch.keep-it-simple",
+        "title": "Keep architecture simple",
+        "description": "Use the smallest design that addresses the demonstrated needs.",
+        "applicability": "The selected graph is small or simplicity is an explicit requirement.",
+        "limitations": "A bounded graph does not establish repository size. Separate boundaries can still be justified by ownership, risk, or deployment needs.",
+        "source": {
+          "title": "Microsoft Learn · Common web application architectures",
+          "url": "https://learn.microsoft.com/en-us/dotnet/standard/modern-web-apps-azure-architecture/common-web-application-architectures"
+        },
+        "benefits": [
+          "Reduces indirection and deployment work."
+        ],
+        "trade_offs": [
+          "A simple structure may need adjustment when requirements change."
+        ],
+        "registry_version": "1.0.0",
+        "signals": [
+          "small_scope"
+        ],
+        "requirement_terms": [
+          "simple",
+          "simplicity",
+          "avoid overengineering"
+        ],
+        "checklist_references": []
+      },
+      "policy": "advisory",
+      "matched_by": [
+        "small_scope"
+      ]
+    }
+  ],
+  "registry_version": "1.0.0",
+  "advice": {
+    "recommendations": [
+      {
+        "concern": "The observed order and payment modules import each other.",
+        "evidence_ids": [
+          "orders.py:1-1",
+          "payments.py:1-1"
+        ],
+        "principle": "Avoid circular dependencies",
+        "proposed_modification": "Remove the unused reverse import. Add a shared contract only if both modules later need it.",
+        "expected_benefits": [
+          "Clearer dependency direction and simpler module initialization."
+        ],
+        "trade_offs": [
+          "A shared contract would introduce another module to maintain."
+        ],
+        "complexity": "low",
+        "affected_components": [
+          "module_fb38d0df85c48da6e2c1",
+          "module_2497954a77d52c456ace"
+        ],
+        "validation_requirements": [
+          "Verify import order and existing checkout behavior."
+        ],
+        "guideline_ids": [
+          "arch.avoid-circular-dependencies"
+        ],
+        "assumptions_and_limitations": [
+          "The proposed shared contract is an optional overlay example."
+        ]
+      }
+    ],
+    "proposed_nodes": [
+      {
+        "id": "proposal:payment-contract",
+        "label": "Optional payment contract"
+      }
+    ],
+    "proposed_edges": [
+      {
+        "id": "proposal:orders-contract",
+        "source": "module_fb38d0df85c48da6e2c1",
+        "target": "proposal:payment-contract",
+        "label": "may use"
+      }
+    ],
+    "limitations": [
+      "Offline mock. No provider API was called."
+    ]
+  },
+  "requires_developer_review": true,
+  "provider": {
+    "status": "ready",
+    "mode": "mock",
+    "code": null
+  }
+}

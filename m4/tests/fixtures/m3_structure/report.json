@@ -1,0 +1,1801 @@
+{
+  "schema_version": "1.0.0",
+  "status": "partial",
+  "summary": {
+    "files": 13,
+    "parsed_files": 12,
+    "modules": 13,
+    "classes": 4,
+    "functions": 8,
+    "imports": 16,
+    "external_dependencies": 4,
+    "stdlib_dependencies": 3,
+    "internal_dependencies": 7,
+    "unresolved_references": 3
+  },
+  "files": [
+    {
+      "file": "src/demo/__init__.py",
+      "status": "parsed",
+      "size_bytes": 73,
+      "encoding": "utf-8",
+      "line_count": 2,
+      "module_id": "module_c402ef748e0a48ba5e8a"
+    },
+    {
+      "file": "src/demo/api.py",
+      "status": "parsed",
+      "size_bytes": 368,
+      "encoding": "utf-8",
+      "line_count": 13,
+      "module_id": "module_7c70a93678711fc536f1"
+    },
+    {
+      "file": "src/demo/auth.py",
+      "status": "parsed",
+      "size_bytes": 165,
+      "encoding": "utf-8",
+      "line_count": 8,
+      "module_id": "module_6fdcf9f6c38d563bc0fe"
+    },
+    {
+      "file": "src/demo/broken.py",
+      "status": "syntax_error",
+      "size_bytes": 68,
+      "encoding": "utf-8",
+      "line_count": 2,
+      "module_id": "module_0b0b0e115a64fb92b181"
+    },
+    {
+      "file": "src/demo/config.py",
+      "status": "parsed",
+      "size_bytes": 107,
+      "encoding": "utf-8",
+      "line_count": 4,
+      "module_id": "module_87169ea8cab56282c449"
+    },
+    {
+      "file": "src/demo/database.py",
+      "status": "parsed",
+      "size_bytes": 190,
+      "encoding": "utf-8",
+      "line_count": 11,
+      "module_id": "module_7ce24b5c0209cf537a70"
+    },
+    {
+      "file": "src/demo/flask_routes.py",
+      "status": "parsed",
+      "size_bytes": 210,
+      "encoding": "utf-8",
+      "line_count": 9,
+      "module_id": "module_7d7c20605a239d5a9c15"
+    },
+    {
+      "file": "src/demo/models.py",
+      "status": "parsed",
+      "size_bytes": 111,
+      "encoding": "utf-8",
+      "line_count": 6,
+      "module_id": "module_ee4470284ef46aab076d"
+    },
+    {
+      "file": "src/demo/nested/__init__.py",
+      "status": "parsed",
+      "size_bytes": 43,
+      "encoding": "utf-8",
+      "line_count": 1,
+      "module_id": "module_b9bc1c4a282c82d6391c"
+    },
+    {
+      "file": "src/demo/nested/helpers.py",
+      "status": "parsed",
+      "size_bytes": 126,
+      "encoding": "utf-8",
+      "line_count": 6,
+      "module_id": "module_239e83a7d2da78a80e16"
+    },
+    {
+      "file": "src/demo/services.py",
+      "status": "parsed",
+      "size_bytes": 448,
+      "encoding": "utf-8",
+      "line_count": 19,
+      "module_id": "module_0fa82d8499bec567ad09"
+    },
+    {
+      "file": "src/demo/unresolved.py",
+      "status": "parsed",
+      "size_bytes": 191,
+      "encoding": "utf-8",
+      "line_count": 6,
+      "module_id": "module_175ddf48c1e72a8bb5d3"
+    },
+    {
+      "file": "tests/test_presence.py",
+      "status": "parsed",
+      "size_bytes": 91,
+      "encoding": "utf-8",
+      "line_count": 2,
+      "module_id": "module_e5c4a25841020048cfad"
+    }
+  ],
+  "modules": [
+    {
+      "id": "module_c402ef748e0a48ba5e8a",
+      "file": "src/demo/__init__.py",
+      "is_package": true,
+      "parsed": true,
+      "names": [
+        "demo",
+        "src.demo"
+      ],
+      "start_line": 1,
+      "end_line": 2
+    },
+    {
+      "id": "module_7c70a93678711fc536f1",
+      "file": "src/demo/api.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.api",
+        "src.demo.api"
+      ],
+      "start_line": 1,
+      "end_line": 13
+    },
+    {
+      "id": "module_6fdcf9f6c38d563bc0fe",
+      "file": "src/demo/auth.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.auth",
+        "src.demo.auth"
+      ],
+      "start_line": 1,
+      "end_line": 8
+    },
+    {
+      "id": "module_0b0b0e115a64fb92b181",
+      "file": "src/demo/broken.py",
+      "is_package": false,
+      "parsed": false,
+      "names": [
+        "demo.broken",
+        "src.demo.broken"
+      ],
+      "start_line": 1,
+      "end_line": 2
+    },
+    {
+      "id": "module_87169ea8cab56282c449",
+      "file": "src/demo/config.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.config",
+        "src.demo.config"
+      ],
+      "start_line": 1,
+      "end_line": 4
+    },
+    {
+      "id": "module_7ce24b5c0209cf537a70",
+      "file": "src/demo/database.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.database",
+        "src.demo.database"
+      ],
+      "start_line": 1,
+      "end_line": 11
+    },
+    {
+      "id": "module_7d7c20605a239d5a9c15",
+      "file": "src/demo/flask_routes.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.flask_routes",
+        "src.demo.flask_routes"
+      ],
+      "start_line": 1,
+      "end_line": 9
+    },
+    {
+      "id": "module_ee4470284ef46aab076d",
+      "file": "src/demo/models.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.models",
+        "src.demo.models"
+      ],
+      "start_line": 1,
+      "end_line": 6
+    },
+    {
+      "id": "module_b9bc1c4a282c82d6391c",
+      "file": "src/demo/nested/__init__.py",
+      "is_package": true,
+      "parsed": true,
+      "names": [
+        "demo.nested",
+        "src.demo.nested"
+      ],
+      "start_line": 1,
+      "end_line": 1
+    },
+    {
+      "id": "module_239e83a7d2da78a80e16",
+      "file": "src/demo/nested/helpers.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.nested.helpers",
+        "src.demo.nested.helpers"
+      ],
+      "start_line": 1,
+      "end_line": 6
+    },
+    {
+      "id": "module_0fa82d8499bec567ad09",
+      "file": "src/demo/services.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.services",
+        "src.demo.services"
+      ],
+      "start_line": 1,
+      "end_line": 19
+    },
+    {
+      "id": "module_175ddf48c1e72a8bb5d3",
+      "file": "src/demo/unresolved.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "demo.unresolved",
+        "src.demo.unresolved"
+      ],
+      "start_line": 1,
+      "end_line": 6
+    },
+    {
+      "id": "module_e5c4a25841020048cfad",
+      "file": "tests/test_presence.py",
+      "is_package": false,
+      "parsed": true,
+      "names": [
+        "tests.test_presence"
+      ],
+      "start_line": 1,
+      "end_line": 2
+    }
+  ],
+  "classes": [
+    {
+      "id": "class_65554e078280dfcc47dd",
+      "module_id": "module_7ce24b5c0209cf537a70",
+      "parent_id": "module_7ce24b5c0209cf537a70",
+      "name": "Repository",
+      "qualified_name": "Repository",
+      "bases": [],
+      "decorators": [],
+      "extent_start_line": 5,
+      "file": "src/demo/database.py",
+      "start_line": 5,
+      "end_line": 7,
+      "start_column": 0,
+      "end_column": 22
+    },
+    {
+      "id": "class_da9784e26d64b37dd1c4",
+      "module_id": "module_ee4470284ef46aab076d",
+      "parent_id": "module_ee4470284ef46aab076d",
+      "name": "Record",
+      "qualified_name": "Record",
+      "bases": [
+        {
+          "name": "models.Model",
+          "import_qualified_name": "django.db.models.Model",
+          "is_dynamic": false,
+          "target_symbol_id": null
+        }
+      ],
+      "decorators": [],
+      "extent_start_line": 5,
+      "file": "src/demo/models.py",
+      "start_line": 5,
+      "end_line": 6,
+      "start_column": 0,
+      "end_column": 8
+    },
+    {
+      "id": "class_da0e0e5e602b57f07c95",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "parent_id": "module_0fa82d8499bec567ad09",
+      "name": "BaseService",
+      "qualified_name": "BaseService",
+      "bases": [],
+      "decorators": [],
+      "extent_start_line": 8,
+      "file": "src/demo/services.py",
+      "start_line": 8,
+      "end_line": 9,
+      "start_column": 0,
+      "end_column": 8
+    },
+    {
+      "id": "class_2d651b7e4e7085c3e4f4",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "parent_id": "module_0fa82d8499bec567ad09",
+      "name": "Service",
+      "qualified_name": "Service",
+      "bases": [
+        {
+          "name": "BaseService",
+          "import_qualified_name": null,
+          "is_dynamic": false,
+          "target_symbol_id": "class_da0e0e5e602b57f07c95"
+        }
+      ],
+      "decorators": [],
+      "extent_start_line": 12,
+      "file": "src/demo/services.py",
+      "start_line": 12,
+      "end_line": 19,
+      "start_column": 0,
+      "end_column": 51
+    }
+  ],
+  "functions": [
+    {
+      "id": "function_36815b8933358cf91702",
+      "module_id": "module_7c70a93678711fc536f1",
+      "parent_id": "module_7c70a93678711fc536f1",
+      "name": "read_item",
+      "qualified_name": "read_item",
+      "kind": "function",
+      "is_async": true,
+      "parameters": [
+        {
+          "name": "item_id",
+          "kind": "positional_only",
+          "has_default": false,
+          "annotation": "int",
+          "file": "src/demo/api.py",
+          "start_line": 11,
+          "end_line": 11,
+          "start_column": 20,
+          "end_column": 32
+        },
+        {
+          "name": "limit",
+          "kind": "positional",
+          "has_default": true,
+          "annotation": "int",
+          "file": "src/demo/api.py",
+          "start_line": 11,
+          "end_line": 11,
+          "start_column": 37,
+          "end_column": 47
+        },
+        {
+          "name": "optional",
+          "kind": "keyword_only",
+          "has_default": true,
+          "annotation": null,
+          "file": "src/demo/api.py",
+          "start_line": 11,
+          "end_line": 11,
+          "start_column": 57,
+          "end_column": 65
+        },
+        {
+          "name": "kwargs",
+          "kind": "var_keyword",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/api.py",
+          "start_line": 11,
+          "end_line": 11,
+          "start_column": 74,
+          "end_column": 80
+        }
+      ],
+      "decorators": [
+        {
+          "name": "router.get",
+          "is_factory": true,
+          "file": "src/demo/api.py",
+          "start_line": 9,
+          "end_line": 9,
+          "start_column": 1,
+          "end_column": 32
+        },
+        {
+          "name": "authenticated",
+          "is_factory": false,
+          "file": "src/demo/api.py",
+          "start_line": 10,
+          "end_line": 10,
+          "start_column": 1,
+          "end_column": 14
+        }
+      ],
+      "return_annotation": null,
+      "extent_start_line": 9,
+      "file": "src/demo/api.py",
+      "start_line": 11,
+      "end_line": 13,
+      "start_column": 0,
+      "end_column": 38
+    },
+    {
+      "id": "function_8e4d742fd6b936638a70",
+      "module_id": "module_6fdcf9f6c38d563bc0fe",
+      "parent_id": "module_6fdcf9f6c38d563bc0fe",
+      "name": "authenticated",
+      "qualified_name": "authenticated",
+      "kind": "function",
+      "is_async": false,
+      "parameters": [
+        {
+          "name": "function",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/auth.py",
+          "start_line": 7,
+          "end_line": 7,
+          "start_column": 18,
+          "end_column": 26
+        }
+      ],
+      "decorators": [],
+      "return_annotation": null,
+      "extent_start_line": 7,
+      "file": "src/demo/auth.py",
+      "start_line": 7,
+      "end_line": 8,
+      "start_column": 0,
+      "end_column": 19
+    },
+    {
+      "id": "function_4e946ff2570f21e318f0",
+      "module_id": "module_7ce24b5c0209cf537a70",
+      "parent_id": "class_65554e078280dfcc47dd",
+      "name": "fetch",
+      "qualified_name": "Repository.fetch",
+      "kind": "method",
+      "is_async": false,
+      "parameters": [
+        {
+          "name": "self",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/database.py",
+          "start_line": 6,
+          "end_line": 6,
+          "start_column": 14,
+          "end_column": 18
+        },
+        {
+          "name": "item_id",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/database.py",
+          "start_line": 6,
+          "end_line": 6,
+          "start_column": 20,
+          "end_column": 27
+        }
+      ],
+      "decorators": [],
+      "return_annotation": null,
+      "extent_start_line": 6,
+      "file": "src/demo/database.py",
+      "start_line": 6,
+      "end_line": 7,
+      "start_column": 4,
+      "end_column": 22
+    },
+    {
+      "id": "function_f33750ae0de81466936f",
+      "module_id": "module_7ce24b5c0209cf537a70",
+      "parent_id": "module_7ce24b5c0209cf537a70",
+      "name": "connect",
+      "qualified_name": "connect",
+      "kind": "function",
+      "is_async": false,
+      "parameters": [],
+      "decorators": [],
+      "return_annotation": null,
+      "extent_start_line": 10,
+      "file": "src/demo/database.py",
+      "start_line": 10,
+      "end_line": 11,
+      "start_column": 0,
+      "end_column": 34
+    },
+    {
+      "id": "function_c31443f64a523fbd7fa5",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "parent_id": "module_7d7c20605a239d5a9c15",
+      "name": "submit",
+      "qualified_name": "submit",
+      "kind": "function",
+      "is_async": false,
+      "parameters": [],
+      "decorators": [
+        {
+          "name": "blueprint.route",
+          "is_factory": true,
+          "file": "src/demo/flask_routes.py",
+          "start_line": 7,
+          "end_line": 7,
+          "start_column": 1,
+          "end_column": 52
+        }
+      ],
+      "return_annotation": null,
+      "extent_start_line": 7,
+      "file": "src/demo/flask_routes.py",
+      "start_line": 8,
+      "end_line": 9,
+      "start_column": 0,
+      "end_column": 15
+    },
+    {
+      "id": "function_df65696e1848f259d05f",
+      "module_id": "module_239e83a7d2da78a80e16",
+      "parent_id": "module_239e83a7d2da78a80e16",
+      "name": "normalize",
+      "qualified_name": "normalize",
+      "kind": "function",
+      "is_async": false,
+      "parameters": [
+        {
+          "name": "value",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/nested/helpers.py",
+          "start_line": 5,
+          "end_line": 5,
+          "start_column": 14,
+          "end_column": 19
+        }
+      ],
+      "decorators": [],
+      "return_annotation": null,
+      "extent_start_line": 5,
+      "file": "src/demo/nested/helpers.py",
+      "start_line": 5,
+      "end_line": 6,
+      "start_column": 0,
+      "end_column": 16
+    },
+    {
+      "id": "function_425b721811597d6d461c",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "parent_id": "class_2d651b7e4e7085c3e4f4",
+      "name": "create",
+      "qualified_name": "Service.create",
+      "kind": "method",
+      "is_async": false,
+      "parameters": [
+        {
+          "name": "cls",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/services.py",
+          "start_line": 14,
+          "end_line": 14,
+          "start_column": 15,
+          "end_column": 18
+        },
+        {
+          "name": "args",
+          "kind": "var_positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/services.py",
+          "start_line": 14,
+          "end_line": 14,
+          "start_column": 21,
+          "end_column": 25
+        },
+        {
+          "name": "kwargs",
+          "kind": "var_keyword",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/services.py",
+          "start_line": 14,
+          "end_line": 14,
+          "start_column": 29,
+          "end_column": 35
+        }
+      ],
+      "decorators": [
+        {
+          "name": "classmethod",
+          "is_factory": false,
+          "file": "src/demo/services.py",
+          "start_line": 13,
+          "end_line": 13,
+          "start_column": 5,
+          "end_column": 16
+        }
+      ],
+      "return_annotation": null,
+      "extent_start_line": 13,
+      "file": "src/demo/services.py",
+      "start_line": 14,
+      "end_line": 15,
+      "start_column": 4,
+      "end_column": 35
+    },
+    {
+      "id": "function_ccbdf967b37ed7b44ef3",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "parent_id": "class_2d651b7e4e7085c3e4f4",
+      "name": "fetch",
+      "qualified_name": "Service.fetch",
+      "kind": "method",
+      "is_async": true,
+      "parameters": [
+        {
+          "name": "self",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/services.py",
+          "start_line": 17,
+          "end_line": 17,
+          "start_column": 20,
+          "end_column": 24
+        },
+        {
+          "name": "item_id",
+          "kind": "positional",
+          "has_default": false,
+          "annotation": null,
+          "file": "src/demo/services.py",
+          "start_line": 17,
+          "end_line": 17,
+          "start_column": 26,
+          "end_column": 33
+        }
+      ],
+      "decorators": [],
+      "return_annotation": null,
+      "extent_start_line": 17,
+      "file": "src/demo/services.py",
+      "start_line": 17,
+      "end_line": 19,
+      "start_column": 4,
+      "end_column": 51
+    }
+  ],
+  "module_symbols": [
+    {
+      "id": "symbol_e089878633521860ff0e",
+      "module_id": "module_7c70a93678711fc536f1",
+      "name": "router",
+      "kind": "assignment",
+      "has_annotation": false,
+      "conditional": false,
+      "file": "src/demo/api.py",
+      "start_line": 6,
+      "end_line": 6,
+      "start_column": 0,
+      "end_column": 17
+    },
+    {
+      "id": "symbol_5641858768fb98282b24",
+      "module_id": "module_6fdcf9f6c38d563bc0fe",
+      "name": "authentication",
+      "kind": "assignment",
+      "has_annotation": false,
+      "conditional": false,
+      "file": "src/demo/auth.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 0,
+      "end_column": 29
+    },
+    {
+      "id": "symbol_a2ab6d2b2314c9d7f938",
+      "module_id": "module_87169ea8cab56282c449",
+      "name": "configuration",
+      "kind": "assignment",
+      "has_annotation": false,
+      "conditional": false,
+      "file": "src/demo/config.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 0,
+      "end_column": 52
+    },
+    {
+      "id": "symbol_2ed176fbd720a878e8c2",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "name": "blueprint",
+      "kind": "assignment",
+      "has_annotation": false,
+      "conditional": false,
+      "file": "src/demo/flask_routes.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 0,
+      "end_column": 43
+    },
+    {
+      "id": "symbol_36bcdedd33cff7601962",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "name": "DEFAULT_TOKEN",
+      "kind": "assignment",
+      "has_annotation": false,
+      "conditional": false,
+      "file": "src/demo/services.py",
+      "start_line": 5,
+      "end_line": 5,
+      "start_column": 0,
+      "end_column": 58
+    },
+    {
+      "id": "symbol_f7078b12fed12db116e0",
+      "module_id": "module_175ddf48c1e72a8bb5d3",
+      "name": "loaded",
+      "kind": "assignment",
+      "has_annotation": false,
+      "conditional": false,
+      "file": "src/demo/unresolved.py",
+      "start_line": 6,
+      "end_line": 6,
+      "start_column": 0,
+      "end_column": 60
+    }
+  ],
+  "imports": [
+    {
+      "id": "import_b86912c547cfa13bce74",
+      "module_id": "module_c402ef748e0a48ba5e8a",
+      "scope_id": "module_c402ef748e0a48ba5e8a",
+      "module": "services",
+      "name": "Service",
+      "alias": null,
+      "binding": "Service",
+      "level": 1,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/__init__.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 29,
+      "resolution": "internal",
+      "resolved_name": "demo.services",
+      "candidate_module_ids": [
+        "module_0fa82d8499bec567ad09"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "observed_declaration",
+      "reason": null
+    },
+    {
+      "id": "import_c784881691e6cb6579bc",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "module_7c70a93678711fc536f1",
+      "module": "fastapi",
+      "name": "APIRouter",
+      "alias": "Router",
+      "binding": "Router",
+      "level": 0,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/api.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 39,
+      "resolution": "external",
+      "resolved_name": "fastapi",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": null,
+      "reason": "known_or_caller_declared_external_module"
+    },
+    {
+      "id": "import_29768881cf9d6550b4f9",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "module_7c70a93678711fc536f1",
+      "module": "services",
+      "name": "Service",
+      "alias": "Worker",
+      "binding": "Worker",
+      "level": 1,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/api.py",
+      "start_line": 3,
+      "end_line": 3,
+      "start_column": 0,
+      "end_column": 39,
+      "resolution": "internal",
+      "resolved_name": "demo.services",
+      "candidate_module_ids": [
+        "module_0fa82d8499bec567ad09"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "observed_declaration",
+      "reason": null
+    },
+    {
+      "id": "import_fcfa1ec6eb7d5131e98f",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "module_7c70a93678711fc536f1",
+      "module": "auth",
+      "name": "authenticated",
+      "alias": null,
+      "binding": "authenticated",
+      "level": 1,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/api.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 0,
+      "end_column": 31,
+      "resolution": "internal",
+      "resolved_name": "demo.auth",
+      "candidate_module_ids": [
+        "module_6fdcf9f6c38d563bc0fe"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "observed_declaration",
+      "reason": null
+    },
+    {
+      "id": "import_b37a021a04261f7d9b53",
+      "module_id": "module_6fdcf9f6c38d563bc0fe",
+      "scope_id": "module_6fdcf9f6c38d563bc0fe",
+      "module": "fastapi.security",
+      "name": "HTTPBearer",
+      "alias": null,
+      "binding": "HTTPBearer",
+      "level": 0,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/auth.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 39,
+      "resolution": "external",
+      "resolved_name": "fastapi.security",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": null,
+      "reason": "known_or_caller_declared_external_module"
+    },
+    {
+      "id": "import_5782a4d1c0b28d5e743b",
+      "module_id": "module_87169ea8cab56282c449",
+      "scope_id": "module_87169ea8cab56282c449",
+      "module": "os",
+      "name": null,
+      "alias": null,
+      "binding": "os",
+      "level": 0,
+      "kind": "import",
+      "conditional": false,
+      "file": "src/demo/config.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 9,
+      "resolution": "stdlib",
+      "resolved_name": "os",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": "module",
+      "reason": "host_stdlib_module_name"
+    },
+    {
+      "id": "import_f5fc16a0ee80dd9cb252",
+      "module_id": "module_7ce24b5c0209cf537a70",
+      "scope_id": "module_7ce24b5c0209cf537a70",
+      "module": "sqlite3",
+      "name": null,
+      "alias": "sql",
+      "binding": "sql",
+      "level": 0,
+      "kind": "import",
+      "conditional": false,
+      "file": "src/demo/database.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 21,
+      "resolution": "stdlib",
+      "resolved_name": "sqlite3",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": "module",
+      "reason": "host_stdlib_module_name"
+    },
+    {
+      "id": "import_2650d4fe42e61447467d",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "scope_id": "module_7d7c20605a239d5a9c15",
+      "module": "flask",
+      "name": "Blueprint",
+      "alias": "Group",
+      "binding": "Group",
+      "level": 0,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/flask_routes.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 36,
+      "resolution": "external",
+      "resolved_name": "flask",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": null,
+      "reason": "known_or_caller_declared_external_module"
+    },
+    {
+      "id": "import_5bcdd3335b81fe6f3e96",
+      "module_id": "module_ee4470284ef46aab076d",
+      "scope_id": "module_ee4470284ef46aab076d",
+      "module": "django.db",
+      "name": "models",
+      "alias": null,
+      "binding": "models",
+      "level": 0,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/models.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 28,
+      "resolution": "external",
+      "resolved_name": "django.db",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": null,
+      "reason": "known_or_caller_declared_external_module"
+    },
+    {
+      "id": "import_b411308953029961d20a",
+      "module_id": "module_239e83a7d2da78a80e16",
+      "scope_id": "module_239e83a7d2da78a80e16",
+      "module": "",
+      "name": "services",
+      "alias": "implementation",
+      "binding": "implementation",
+      "level": 2,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/nested/helpers.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 41,
+      "resolution": "internal",
+      "resolved_name": "demo",
+      "candidate_module_ids": [
+        "module_0fa82d8499bec567ad09"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "submodule",
+      "reason": null
+    },
+    {
+      "id": "import_1366b6219c6163c83423",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "scope_id": "module_0fa82d8499bec567ad09",
+      "module": "database",
+      "name": "Repository",
+      "alias": null,
+      "binding": "Repository",
+      "level": 1,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/services.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 32,
+      "resolution": "internal",
+      "resolved_name": "demo.database",
+      "candidate_module_ids": [
+        "module_7ce24b5c0209cf537a70"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "observed_declaration",
+      "reason": null
+    },
+    {
+      "id": "import_3a2da2bf2ecfaff41d0f",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "scope_id": "module_0fa82d8499bec567ad09",
+      "module": "nested.helpers",
+      "name": "normalize",
+      "alias": null,
+      "binding": "normalize",
+      "level": 1,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/services.py",
+      "start_line": 3,
+      "end_line": 3,
+      "start_column": 0,
+      "end_column": 37,
+      "resolution": "internal",
+      "resolved_name": "demo.nested.helpers",
+      "candidate_module_ids": [
+        "module_239e83a7d2da78a80e16"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "observed_declaration",
+      "reason": null
+    },
+    {
+      "id": "import_b311c7c30ce378523bfc",
+      "module_id": "module_175ddf48c1e72a8bb5d3",
+      "scope_id": "module_175ddf48c1e72a8bb5d3",
+      "module": "missing_demo_dependency",
+      "name": null,
+      "alias": null,
+      "binding": "missing_demo_dependency",
+      "level": 0,
+      "kind": "import",
+      "conditional": false,
+      "file": "src/demo/unresolved.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 30,
+      "resolution": "unresolved",
+      "resolved_name": "missing_demo_dependency",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": "module",
+      "reason": "not_local_stdlib_or_known_external"
+    },
+    {
+      "id": "import_e5a8f6e0ac00e7b87277",
+      "module_id": "module_175ddf48c1e72a8bb5d3",
+      "scope_id": "module_175ddf48c1e72a8bb5d3",
+      "module": "missing",
+      "name": "Absent",
+      "alias": null,
+      "binding": "Absent",
+      "level": 1,
+      "kind": "from",
+      "conditional": false,
+      "file": "src/demo/unresolved.py",
+      "start_line": 3,
+      "end_line": 3,
+      "start_column": 0,
+      "end_column": 27,
+      "resolution": "unresolved",
+      "resolved_name": "demo.missing",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": null,
+      "reason": "local_module_not_found"
+    },
+    {
+      "id": "import_059fe33ce2b717ed0c36",
+      "module_id": "module_175ddf48c1e72a8bb5d3",
+      "scope_id": "module_175ddf48c1e72a8bb5d3",
+      "module": "importlib",
+      "name": null,
+      "alias": "loader",
+      "binding": "loader",
+      "level": 0,
+      "kind": "import",
+      "conditional": false,
+      "file": "src/demo/unresolved.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 0,
+      "end_column": 26,
+      "resolution": "stdlib",
+      "resolved_name": "importlib",
+      "candidate_module_ids": [],
+      "namespace_paths": [],
+      "symbol_status": "module",
+      "reason": "host_stdlib_module_name"
+    },
+    {
+      "id": "import_44b8f331a42e9ecba85c",
+      "module_id": "module_e5c4a25841020048cfad",
+      "scope_id": "module_e5c4a25841020048cfad",
+      "module": "demo.services",
+      "name": "Service",
+      "alias": null,
+      "binding": "Service",
+      "level": 0,
+      "kind": "from",
+      "conditional": false,
+      "file": "tests/test_presence.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 33,
+      "resolution": "internal",
+      "resolved_name": "demo.services",
+      "candidate_module_ids": [
+        "module_0fa82d8499bec567ad09"
+      ],
+      "namespace_paths": [],
+      "symbol_status": "observed_declaration",
+      "reason": null
+    }
+  ],
+  "calls": [
+    {
+      "id": "call_f2afdbd571bec5b178ee",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "module_7c70a93678711fc536f1",
+      "callee": "Router",
+      "import_qualified_name": "fastapi.APIRouter",
+      "resolution": "syntactic_only",
+      "file": "src/demo/api.py",
+      "start_line": 6,
+      "end_line": 6,
+      "start_column": 9,
+      "end_column": 17
+    },
+    {
+      "id": "call_6a7c9693ea52246ccf53",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "module_7c70a93678711fc536f1",
+      "callee": "router.get",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/api.py",
+      "start_line": 9,
+      "end_line": 9,
+      "start_column": 1,
+      "end_column": 32
+    },
+    {
+      "id": "call_2452d7482fbfd638a33e",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "function_36815b8933358cf91702",
+      "callee": "Worker",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/api.py",
+      "start_line": 12,
+      "end_line": 12,
+      "start_column": 13,
+      "end_column": 21
+    },
+    {
+      "id": "call_701091f5ef02fb718b5c",
+      "module_id": "module_7c70a93678711fc536f1",
+      "scope_id": "function_36815b8933358cf91702",
+      "callee": "worker.fetch",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/api.py",
+      "start_line": 13,
+      "end_line": 13,
+      "start_column": 17,
+      "end_column": 38
+    },
+    {
+      "id": "call_0f2fe8a38addf2adbb85",
+      "module_id": "module_6fdcf9f6c38d563bc0fe",
+      "scope_id": "module_6fdcf9f6c38d563bc0fe",
+      "callee": "HTTPBearer",
+      "import_qualified_name": "fastapi.security.HTTPBearer",
+      "resolution": "syntactic_only",
+      "file": "src/demo/auth.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 17,
+      "end_column": 29
+    },
+    {
+      "id": "call_5d4e639ad99da642c0d6",
+      "module_id": "module_87169ea8cab56282c449",
+      "scope_id": "module_87169ea8cab56282c449",
+      "callee": "os.getenv",
+      "import_qualified_name": "os.getenv",
+      "resolution": "syntactic_only",
+      "file": "src/demo/config.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 16,
+      "end_column": 52
+    },
+    {
+      "id": "call_aae6884a1db7f144bdf2",
+      "module_id": "module_7ce24b5c0209cf537a70",
+      "scope_id": "function_f33750ae0de81466936f",
+      "callee": "sql.connect",
+      "import_qualified_name": "sqlite3.connect",
+      "resolution": "syntactic_only",
+      "file": "src/demo/database.py",
+      "start_line": 11,
+      "end_line": 11,
+      "start_column": 11,
+      "end_column": 34
+    },
+    {
+      "id": "call_379c1241badfbc9f1d45",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "scope_id": "module_7d7c20605a239d5a9c15",
+      "callee": "Group",
+      "import_qualified_name": "flask.Blueprint",
+      "resolution": "syntactic_only",
+      "file": "src/demo/flask_routes.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 12,
+      "end_column": 43
+    },
+    {
+      "id": "call_25b69c7ab1f9778cf6a9",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "scope_id": "module_7d7c20605a239d5a9c15",
+      "callee": "blueprint.route",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/flask_routes.py",
+      "start_line": 7,
+      "end_line": 7,
+      "start_column": 1,
+      "end_column": 52
+    },
+    {
+      "id": "call_0186f06bb2de5cb2a335",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "scope_id": "function_425b721811597d6d461c",
+      "callee": "cls",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/services.py",
+      "start_line": 15,
+      "end_line": 15,
+      "start_column": 15,
+      "end_column": 35
+    },
+    {
+      "id": "call_e28f9126bb5d037f8361",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "scope_id": "function_ccbdf967b37ed7b44ef3",
+      "callee": "Repository",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/services.py",
+      "start_line": 18,
+      "end_line": 18,
+      "start_column": 21,
+      "end_column": 33
+    },
+    {
+      "id": "call_d6d6c96978d8653e865b",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "scope_id": "function_ccbdf967b37ed7b44ef3",
+      "callee": "normalize",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/services.py",
+      "start_line": 19,
+      "end_line": 19,
+      "start_column": 15,
+      "end_column": 51
+    },
+    {
+      "id": "call_e8ac2fd6e3d5ae932816",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "scope_id": "function_ccbdf967b37ed7b44ef3",
+      "callee": "repository.fetch",
+      "import_qualified_name": null,
+      "resolution": "syntactic_only",
+      "file": "src/demo/services.py",
+      "start_line": 19,
+      "end_line": 19,
+      "start_column": 25,
+      "end_column": 50
+    },
+    {
+      "id": "call_093c2fd2ad90565648c6",
+      "module_id": "module_175ddf48c1e72a8bb5d3",
+      "scope_id": "module_175ddf48c1e72a8bb5d3",
+      "callee": "loader.import_module",
+      "import_qualified_name": "importlib.import_module",
+      "resolution": "syntactic_only",
+      "file": "src/demo/unresolved.py",
+      "start_line": 6,
+      "end_line": 6,
+      "start_column": 9,
+      "end_column": 60
+    }
+  ],
+  "internal_dependencies": [
+    {
+      "id": "dependency_b86912c547cfa13bce74",
+      "source_module_id": "module_c402ef748e0a48ba5e8a",
+      "target_module_id": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "import_id": "import_b86912c547cfa13bce74",
+      "target_parsed": true,
+      "file": "src/demo/__init__.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "id": "dependency_29768881cf9d6550b4f9",
+      "source_module_id": "module_7c70a93678711fc536f1",
+      "target_module_id": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "import_id": "import_29768881cf9d6550b4f9",
+      "target_parsed": true,
+      "file": "src/demo/api.py",
+      "start_line": 3,
+      "end_line": 3
+    },
+    {
+      "id": "dependency_fcfa1ec6eb7d5131e98f",
+      "source_module_id": "module_7c70a93678711fc536f1",
+      "target_module_id": "module_6fdcf9f6c38d563bc0fe",
+      "relationship": "imports",
+      "import_id": "import_fcfa1ec6eb7d5131e98f",
+      "target_parsed": true,
+      "file": "src/demo/api.py",
+      "start_line": 4,
+      "end_line": 4
+    },
+    {
+      "id": "dependency_b411308953029961d20a",
+      "source_module_id": "module_239e83a7d2da78a80e16",
+      "target_module_id": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "import_id": "import_b411308953029961d20a",
+      "target_parsed": true,
+      "file": "src/demo/nested/helpers.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "id": "dependency_1366b6219c6163c83423",
+      "source_module_id": "module_0fa82d8499bec567ad09",
+      "target_module_id": "module_7ce24b5c0209cf537a70",
+      "relationship": "imports",
+      "import_id": "import_1366b6219c6163c83423",
+      "target_parsed": true,
+      "file": "src/demo/services.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "id": "dependency_3a2da2bf2ecfaff41d0f",
+      "source_module_id": "module_0fa82d8499bec567ad09",
+      "target_module_id": "module_239e83a7d2da78a80e16",
+      "relationship": "imports",
+      "import_id": "import_3a2da2bf2ecfaff41d0f",
+      "target_parsed": true,
+      "file": "src/demo/services.py",
+      "start_line": 3,
+      "end_line": 3
+    },
+    {
+      "id": "dependency_44b8f331a42e9ecba85c",
+      "source_module_id": "module_e5c4a25841020048cfad",
+      "target_module_id": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "import_id": "import_44b8f331a42e9ecba85c",
+      "target_parsed": true,
+      "file": "tests/test_presence.py",
+      "start_line": 2,
+      "end_line": 2
+    }
+  ],
+  "external_dependencies": [
+    {
+      "import_id": "import_c784881691e6cb6579bc",
+      "module": "fastapi",
+      "kind": "external",
+      "file": "src/demo/api.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "import_id": "import_b37a021a04261f7d9b53",
+      "module": "fastapi.security",
+      "kind": "external",
+      "file": "src/demo/auth.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "import_id": "import_5782a4d1c0b28d5e743b",
+      "module": "os",
+      "kind": "stdlib",
+      "file": "src/demo/config.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "import_id": "import_f5fc16a0ee80dd9cb252",
+      "module": "sqlite3",
+      "kind": "stdlib",
+      "file": "src/demo/database.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "import_id": "import_2650d4fe42e61447467d",
+      "module": "flask",
+      "kind": "external",
+      "file": "src/demo/flask_routes.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "import_id": "import_5bcdd3335b81fe6f3e96",
+      "module": "django.db",
+      "kind": "external",
+      "file": "src/demo/models.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "import_id": "import_059fe33ce2b717ed0c36",
+      "module": "importlib",
+      "kind": "stdlib",
+      "file": "src/demo/unresolved.py",
+      "start_line": 4,
+      "end_line": 4
+    }
+  ],
+  "framework_indicators": [
+    {
+      "id": "framework_import_2961a5d094042f2b8da9",
+      "framework": "fastapi",
+      "kind": "import",
+      "binding": "Router",
+      "symbol_id": "module_7c70a93678711fc536f1",
+      "file": "src/demo/api.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 39
+    },
+    {
+      "id": "framework_8966f202acc106b0a8b0",
+      "framework": "fastapi",
+      "kind": "router",
+      "binding": "router",
+      "symbol_id": "module_7c70a93678711fc536f1",
+      "file": "src/demo/api.py",
+      "start_line": 6,
+      "end_line": 6,
+      "start_column": 0,
+      "end_column": 17
+    },
+    {
+      "id": "route_53cafeddd27b360dbbcd",
+      "framework": "fastapi",
+      "kind": "route",
+      "receiver": "router",
+      "receiver_kind": "router",
+      "symbol_id": "function_36815b8933358cf91702",
+      "methods": [
+        "GET"
+      ],
+      "path_is_literal": true,
+      "path": "<redacted>",
+      "file": "src/demo/api.py",
+      "start_line": 9,
+      "end_line": 9,
+      "start_column": 1,
+      "end_column": 32
+    },
+    {
+      "id": "framework_import_1630f8158acf0f365ede",
+      "framework": "fastapi",
+      "kind": "import",
+      "binding": "HTTPBearer",
+      "symbol_id": "module_6fdcf9f6c38d563bc0fe",
+      "file": "src/demo/auth.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 39
+    },
+    {
+      "id": "framework_import_80bac1195f4f9db17fec",
+      "framework": "flask",
+      "kind": "import",
+      "binding": "Group",
+      "symbol_id": "module_7d7c20605a239d5a9c15",
+      "file": "src/demo/flask_routes.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 36
+    },
+    {
+      "id": "framework_6bc750b6dc8eedfddb46",
+      "framework": "flask",
+      "kind": "blueprint",
+      "binding": "blueprint",
+      "symbol_id": "module_7d7c20605a239d5a9c15",
+      "file": "src/demo/flask_routes.py",
+      "start_line": 4,
+      "end_line": 4,
+      "start_column": 0,
+      "end_column": 43
+    },
+    {
+      "id": "route_f134ab8bf75aa69cba0b",
+      "framework": "flask",
+      "kind": "route",
+      "receiver": "blueprint",
+      "receiver_kind": "blueprint",
+      "symbol_id": "function_c31443f64a523fbd7fa5",
+      "methods": [
+        "POST"
+      ],
+      "path_is_literal": true,
+      "path": "<redacted>",
+      "file": "src/demo/flask_routes.py",
+      "start_line": 7,
+      "end_line": 7,
+      "start_column": 1,
+      "end_column": 52
+    },
+    {
+      "id": "framework_import_9b095b6f1beae76722cf",
+      "framework": "django",
+      "kind": "import",
+      "binding": "models",
+      "symbol_id": "module_ee4470284ef46aab076d",
+      "file": "src/demo/models.py",
+      "start_line": 2,
+      "end_line": 2,
+      "start_column": 0,
+      "end_column": 28
+    }
+  ],
+  "classifications": [
+    {
+      "component": "router",
+      "confidence": "confirmed",
+      "reason": "explicit_framework_constructor",
+      "module_id": "module_7c70a93678711fc536f1",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/api.py",
+        "start_line": 6,
+        "end_line": 6,
+        "start_column": 0,
+        "end_column": 17
+      }
+    },
+    {
+      "component": "controller",
+      "confidence": "confirmed",
+      "reason": "framework_route_decorator",
+      "module_id": "module_7c70a93678711fc536f1",
+      "symbol_id": "function_36815b8933358cf91702",
+      "evidence": {
+        "file": "src/demo/api.py",
+        "start_line": 9,
+        "end_line": 9,
+        "start_column": 1,
+        "end_column": 32
+      }
+    },
+    {
+      "component": "authentication",
+      "confidence": "confirmed",
+      "reason": "authentication_framework_import",
+      "module_id": "module_6fdcf9f6c38d563bc0fe",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/auth.py",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 39
+      }
+    },
+    {
+      "component": "configuration",
+      "confidence": "confirmed",
+      "reason": "environment_api_indicator",
+      "module_id": "module_87169ea8cab56282c449",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/config.py",
+        "start_line": 4,
+        "end_line": 4,
+        "start_column": 16,
+        "end_column": 52
+      }
+    },
+    {
+      "component": "data_access",
+      "confidence": "confirmed",
+      "reason": "explicit_database_api",
+      "module_id": "module_7ce24b5c0209cf537a70",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/database.py",
+        "start_line": 11,
+        "end_line": 11,
+        "start_column": 11,
+        "end_column": 34
+      }
+    },
+    {
+      "component": "router",
+      "confidence": "confirmed",
+      "reason": "explicit_framework_constructor",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/flask_routes.py",
+        "start_line": 4,
+        "end_line": 4,
+        "start_column": 0,
+        "end_column": 43
+      }
+    },
+    {
+      "component": "controller",
+      "confidence": "confirmed",
+      "reason": "framework_route_decorator",
+      "module_id": "module_7d7c20605a239d5a9c15",
+      "symbol_id": "function_c31443f64a523fbd7fa5",
+      "evidence": {
+        "file": "src/demo/flask_routes.py",
+        "start_line": 7,
+        "end_line": 7,
+        "start_column": 1,
+        "end_column": 52
+      }
+    },
+    {
+      "component": "database_model",
+      "confidence": "confirmed",
+      "reason": "explicit_framework_model_base",
+      "module_id": "module_ee4470284ef46aab076d",
+      "symbol_id": "class_da9784e26d64b37dd1c4",
+      "evidence": {
+        "file": "src/demo/models.py",
+        "start_line": 5,
+        "end_line": 6,
+        "start_column": 0,
+        "end_column": 8
+      }
+    },
+    {
+      "component": "utility",
+      "confidence": "inferred",
+      "reason": "filename_heuristic",
+      "module_id": "module_239e83a7d2da78a80e16",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/nested/helpers.py"
+      }
+    },
+    {
+      "component": "service",
+      "confidence": "inferred",
+      "reason": "filename_heuristic",
+      "module_id": "module_0fa82d8499bec567ad09",
+      "symbol_id": null,
+      "evidence": {
+        "file": "src/demo/services.py"
+      }
+    },
+    {
+      "component": "test",
+      "confidence": "inferred",
+      "reason": "filename_heuristic",
+      "module_id": "module_e5c4a25841020048cfad",
+      "symbol_id": null,
+      "evidence": {
+        "file": "tests/test_presence.py"
+      }
+    }
+  ],
+  "unresolved_references": [
+    {
+      "kind": "import",
+      "reference_id": "import_b311c7c30ce378523bfc",
+      "name": "missing_demo_dependency",
+      "reason": "not_local_stdlib_or_known_external",
+      "candidate_module_ids": [],
+      "file": "src/demo/unresolved.py",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "kind": "import",
+      "reference_id": "import_e5a8f6e0ac00e7b87277",
+      "name": "demo.missing",
+      "reason": "local_module_not_found",
+      "candidate_module_ids": [],
+      "file": "src/demo/unresolved.py",
+      "start_line": 3,
+      "end_line": 3
+    },
+    {
+      "kind": "call",
+      "reference_id": "call_093c2fd2ad90565648c6",
+      "reason": "dynamic_callable_or_import",
+      "file": "src/demo/unresolved.py",
+      "start_line": 6,
+      "end_line": 6
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "syntax_error",
+      "file": "src/demo/broken.py",
+      "start_line": 2
+    }
+  ],
+  "coverage": {
+    "supported_language": "python",
+    "parser_python_version": "3.11",
+    "column_units": "zero_based_utf8_bytes",
+    "discovered_files": 13,
+    "unresolved_imports": 2,
+    "ambiguous_imports": 0,
+    "dynamic_call_sites": 0,
+    "parsed_files": 12,
+    "skipped_files": 1,
+    "unsupported_files": 0,
+    "bytes_read": 2191,
+    "source_roots": [
+      ".",
+      "src"
+    ],
+    "excluded_paths": [],
+    "limits": {
+      "max_files": 5000,
+      "max_file_bytes": 1048576,
+      "max_repository_bytes": 52428800,
+      "max_entries": 50000,
+      "max_ast_nodes": 200000,
+      "max_repository_ast_nodes": 1000000
+    },
+    "limitations": [
+      "Static source evidence only; never a complete runtime import or call graph.",
+      "No target code, dependency installation, LLM, import hooks, or external API is executed.",
+      "Host Python grammar/stdlib and configured file, byte, entry and AST limits bound coverage.",
+      "Source-root candidates are conservative; runtime sys.path and packaging hooks are not evaluated.",
+      "Unknown external modules, dynamic imports/attributes, re-exports and wildcard symbols can remain unresolved.",
+      "Filename classifications are inferred; framework declarations do not prove runtime use or authentication coverage.",
+      "Literal defaults, annotation strings, route paths, arguments, assignment values and docstrings are omitted.",
+      "The caller must own a stable repository and prevent concurrent filesystem replacement."
+    ]
+  }
+}

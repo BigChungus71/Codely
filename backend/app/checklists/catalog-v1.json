@@ -1,0 +1,273 @@
+{
+  "version": "1.0.0",
+  "checks": [
+    {
+      "id": "CODELY-CHK-001",
+      "key": "hardcoded-credentials",
+      "title": "Hardcoded credential patterns",
+      "description": "No supported hardcoded credential pattern in the supplied complete scan.",
+      "cwe": [
+        "CWE-798"
+      ],
+      "reference_categories": [
+        "A07:2021 - Identification and Authentication Failures"
+      ],
+      "reference_urls": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+      ],
+      "remediation": "Load secrets from a managed secret store or environment and rotate exposed credentials.",
+      "limitations": [
+        "Only credential-like names and literal patterns supported by the local rule pack are covered."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-002",
+      "key": "environment-configuration",
+      "title": "Environment configuration indicator",
+      "description": "Observe static environment-based configuration access; this is not proof that all config is externalized.",
+      "cwe": [],
+      "reference_categories": [
+        "Twelve-Factor App: III. Config"
+      ],
+      "reference_urls": [
+        "https://12factor.net/config"
+      ],
+      "remediation": "Use deploy-time environment configuration instead of hardcoding deploy-specific values.",
+      "limitations": [
+        "An environment read is an indicator only; runtime settings and secret-store access are not verified."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-003",
+      "key": "sensitive-files-gitignore",
+      "title": "Sensitive filenames and ignore policy",
+      "description": "Inspect sensitive-named files and a bounded subset of root gitignore patterns.",
+      "cwe": [],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://git-scm.com/docs/gitignore"
+      ],
+      "remediation": "Exclude local secrets/private keys from version control; inspect tracking history and rotate any exposed values.",
+      "limitations": [
+        "No Git index/history inspection. Ignored sensitive files still require review; public certificate files may match names."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-004",
+      "key": "production-debug",
+      "title": "Explicit production debug settings",
+      "description": "Check supported Flask scan findings and explicit FastAPI/Django debug indicators.",
+      "cwe": [
+        "CWE-489"
+      ],
+      "reference_categories": [
+        "A05:2021 - Security Misconfiguration"
+      ],
+      "reference_urls": [
+        "https://flask.palletsprojects.com/en/stable/debugging/"
+      ],
+      "remediation": "Disable development debug mode in deployed applications and verify effective environment settings.",
+      "limitations": [
+        "No runtime or deployment environment is inferred; dynamic settings require review."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-005",
+      "key": "tls-verification",
+      "title": "Explicit TLS verification flags",
+      "description": "Check supported disabled certificate-verification patterns.",
+      "cwe": [
+        "CWE-295"
+      ],
+      "reference_categories": [
+        "A02:2021 - Cryptographic Failures"
+      ],
+      "reference_urls": [
+        "https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification"
+      ],
+      "remediation": "Enable certificate verification and use a trusted CA bundle.",
+      "limitations": [
+        "Only requests/httpx/ssl patterns in the local pack are covered; custom transports are not modeled."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-006",
+      "key": "unsafe-sql",
+      "title": "Modeled SQL injection flows",
+      "description": "Check supported input-to-query flows, preserving existing Semgrep evidence.",
+      "cwe": [
+        "CWE-89"
+      ],
+      "reference_categories": [
+        "A03:2021 - Injection"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/library/sqlite3.html#sqlite3-placeholders"
+      ],
+      "remediation": "Bind values separately from constant SQL using the database driver parameter API.",
+      "limitations": [
+        "OSS taint scope and modeled input sources only; no database runtime or universal query analysis."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-007",
+      "key": "unsafe-command",
+      "title": "Modeled shell and dynamic execution risks",
+      "description": "Check supported shell input flows and dynamic eval/exec findings.",
+      "cwe": [
+        "CWE-78",
+        "CWE-95"
+      ],
+      "reference_categories": [
+        "A03:2021 - Injection"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/library/subprocess.html#security-considerations"
+      ],
+      "remediation": "Use fixed executables and argument arrays without shell interpretation; avoid dynamic Python execution.",
+      "limitations": [
+        "No general shell=False argument-injection proof; supported taint sources and API names only."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-008",
+      "key": "password-hashing",
+      "title": "Supported password hash patterns",
+      "description": "Check fast hashing of password-named input in supported hashlib constructors.",
+      "cwe": [
+        "CWE-916"
+      ],
+      "reference_categories": [
+        "A07:2021 - Identification and Authentication Failures"
+      ],
+      "reference_urls": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "remediation": "Use a salted password KDF with an appropriate work factor.",
+      "limitations": [
+        "Naming-based indicators do not establish complete authentication or password-storage coverage."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-009",
+      "key": "unsafe-deserialization",
+      "title": "Modeled unsafe deserialization",
+      "description": "Check supported untrusted pickle flows and unsafe PyYAML loader patterns.",
+      "cwe": [
+        "CWE-502"
+      ],
+      "reference_categories": [
+        "A08:2021 - Software and Data Integrity Failures"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/library/pickle.html"
+      ],
+      "remediation": "Use data-only formats and safe YAML loaders for untrusted input.",
+      "limitations": [
+        "Unmodeled inputs and custom serializers remain unassessed even with zero findings."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-010",
+      "key": "permissive-cors",
+      "title": "Static CORS configuration",
+      "description": "Inspect explicit origins and credentials on recognized FastAPI/Starlette and Flask-CORS APIs.",
+      "cwe": [
+        "CWE-942"
+      ],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://fastapi.tiangolo.com/tutorial/cors/"
+      ],
+      "remediation": "Use a reviewed explicit origin allowlist; do not combine wildcard origins and credentials.",
+      "limitations": [
+        "Wildcard public APIs need policy review; explicit allowlists are configuration indicators, not an authorization proof."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-011",
+      "key": "authentication-indicators",
+      "title": "Authentication coverage indicators",
+      "description": "Locate authentication imports/decorators without claiming route protection.",
+      "cwe": [],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://fastapi.tiangolo.com/tutorial/security/"
+      ],
+      "remediation": "Review access policy and verify protected routes and object-level authorization with dedicated tests.",
+      "limitations": [
+        "Authentication decorators/imports never prove coverage. This check cannot return PASS from static indicators."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-012",
+      "key": "dependency-manifest",
+      "title": "Python dependency manifest presence",
+      "description": "Check for requirements files, pyproject.toml, Pipfile, setup.py or setup.cfg.",
+      "cwe": [],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/"
+      ],
+      "remediation": "Declare dependencies in a supported version-controlled manifest.",
+      "limitations": [
+        "Presence only; setup.py is never executed, and dependencies are never installed."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-013",
+      "key": "dependency-constraints",
+      "title": "Dependency version declaration bounds",
+      "description": "Inspect requirements and PEP 621/build-system dependency specifiers.",
+      "cwe": [],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://packaging.python.org/en/latest/specifications/dependency-specifiers/"
+      ],
+      "remediation": "Pin application dependencies or use reviewed bounded compatible ranges and a maintained lock strategy.",
+      "limitations": [
+        "No vulnerability, resolution, compatibility or supply-chain audit. Includes, direct URLs and unparsed formats require review."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-014",
+      "key": "test-presence",
+      "title": "Python test filename indicator",
+      "description": "Check for test_*.py or *_test.py filenames without executing them.",
+      "cwe": [],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://docs.pytest.org/en/stable/explanation/goodpractices.html#test-discovery"
+      ],
+      "remediation": "Maintain and run security-relevant tests in a trusted development pipeline.",
+      "limitations": [
+        "Names indicate presence only, not test quality, passing status or exercised security coverage."
+      ]
+    },
+    {
+      "id": "CODELY-CHK-015",
+      "key": "docker-user",
+      "title": "Docker final-stage user declaration",
+      "description": "Inspect an explicit USER declaration in the final Dockerfile stage.",
+      "cwe": [
+        "CWE-250"
+      ],
+      "reference_categories": [],
+      "reference_urls": [
+        "https://docs.docker.com/reference/dockerfile/#user"
+      ],
+      "remediation": "Declare an appropriate non-root runtime user in the final image and verify its effective UID.",
+      "limitations": [
+        "No image is built or inspected. Base-image defaults, named UID mappings and inherited stage users are not resolved."
+      ]
+    }
+  ],
+  "limitations": [
+    "Static Python/configuration indicators only; no exploitability or comprehensive compliance claim.",
+    "The caller must supply a trusted scanner result for the same stable repository version; no cross-run identity is inferred.",
+    "No uploaded code, dependencies, image build, network call, LLM, or additional security scan runs inside the checklist evaluator.",
+    "PASS is limited to the described indicator or local rule scope; zero findings does not establish security.",
+    "UTF-8, host Python grammar, bounded inventory, and generated-directory exclusions limit coverage.",
+    "Source values, environment values, raw scanner messages and raw dependency URLs are never copied to checklist output."
+  ]
+}

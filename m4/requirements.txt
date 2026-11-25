@@ -1,0 +1,4 @@
+pydantic>=2.8,<3
+python-dotenv>=1.0,<2
+groq>=1.7,<2
+defusedxml>=0.7.1,<1

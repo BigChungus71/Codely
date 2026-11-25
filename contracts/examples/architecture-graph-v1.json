@@ -1,0 +1,685 @@
+{
+  "schema_version": "1.0.0",
+  "status": "partial",
+  "nodes": [
+    {
+      "id": "module_0b0b0e115a64fb92b181",
+      "file": "src/demo/broken.py",
+      "parsed": false,
+      "module_names": [
+        "demo.broken",
+        "src.demo.broken"
+      ],
+      "label": "demo.broken",
+      "type": "unclassified",
+      "classifications": [],
+      "classification_confidence": "unclassified",
+      "fan_in": 0,
+      "fan_out": 0
+    },
+    {
+      "id": "module_0fa82d8499bec567ad09",
+      "file": "src/demo/services.py",
+      "parsed": true,
+      "module_names": [
+        "demo.services",
+        "src.demo.services"
+      ],
+      "label": "demo.services",
+      "type": "service",
+      "classifications": [
+        {
+          "type": "service",
+          "confidence": "inferred",
+          "reason": "filename_heuristic",
+          "evidence": {
+            "file": "src/demo/services.py"
+          }
+        }
+      ],
+      "classification_confidence": "inferred",
+      "fan_in": 4,
+      "fan_out": 2
+    },
+    {
+      "id": "module_175ddf48c1e72a8bb5d3",
+      "file": "src/demo/unresolved.py",
+      "parsed": true,
+      "module_names": [
+        "demo.unresolved",
+        "src.demo.unresolved"
+      ],
+      "label": "demo.unresolved",
+      "type": "unclassified",
+      "classifications": [],
+      "classification_confidence": "unclassified",
+      "fan_in": 0,
+      "fan_out": 0
+    },
+    {
+      "id": "module_239e83a7d2da78a80e16",
+      "file": "src/demo/nested/helpers.py",
+      "parsed": true,
+      "module_names": [
+        "demo.nested.helpers",
+        "src.demo.nested.helpers"
+      ],
+      "label": "demo.nested.helpers",
+      "type": "utility",
+      "classifications": [
+        {
+          "type": "utility",
+          "confidence": "inferred",
+          "reason": "filename_heuristic",
+          "evidence": {
+            "file": "src/demo/nested/helpers.py"
+          }
+        }
+      ],
+      "classification_confidence": "inferred",
+      "fan_in": 1,
+      "fan_out": 1
+    },
+    {
+      "id": "module_6fdcf9f6c38d563bc0fe",
+      "file": "src/demo/auth.py",
+      "parsed": true,
+      "module_names": [
+        "demo.auth",
+        "src.demo.auth"
+      ],
+      "label": "demo.auth",
+      "type": "authentication",
+      "classifications": [
+        {
+          "type": "authentication",
+          "confidence": "confirmed",
+          "reason": "authentication_framework_import",
+          "evidence": {
+            "file": "src/demo/auth.py",
+            "start_line": 2,
+            "end_line": 2
+          }
+        }
+      ],
+      "classification_confidence": "confirmed",
+      "fan_in": 1,
+      "fan_out": 0
+    },
+    {
+      "id": "module_7c70a93678711fc536f1",
+      "file": "src/demo/api.py",
+      "parsed": true,
+      "module_names": [
+        "demo.api",
+        "src.demo.api"
+      ],
+      "label": "demo.api",
+      "type": "router",
+      "classifications": [
+        {
+          "type": "router",
+          "confidence": "confirmed",
+          "reason": "explicit_framework_constructor",
+          "evidence": {
+            "file": "src/demo/api.py",
+            "start_line": 6,
+            "end_line": 6
+          }
+        },
+        {
+          "type": "controller",
+          "confidence": "confirmed",
+          "reason": "framework_route_decorator",
+          "evidence": {
+            "file": "src/demo/api.py",
+            "start_line": 9,
+            "end_line": 9
+          }
+        }
+      ],
+      "classification_confidence": "confirmed",
+      "fan_in": 0,
+      "fan_out": 2
+    },
+    {
+      "id": "module_7ce24b5c0209cf537a70",
+      "file": "src/demo/database.py",
+      "parsed": true,
+      "module_names": [
+        "demo.database",
+        "src.demo.database"
+      ],
+      "label": "demo.database",
+      "type": "data_access",
+      "classifications": [
+        {
+          "type": "data_access",
+          "confidence": "confirmed",
+          "reason": "explicit_database_api",
+          "evidence": {
+            "file": "src/demo/database.py",
+            "start_line": 11,
+            "end_line": 11
+          }
+        }
+      ],
+      "classification_confidence": "confirmed",
+      "fan_in": 1,
+      "fan_out": 0
+    },
+    {
+      "id": "module_7d7c20605a239d5a9c15",
+      "file": "src/demo/flask_routes.py",
+      "parsed": true,
+      "module_names": [
+        "demo.flask_routes",
+        "src.demo.flask_routes"
+      ],
+      "label": "demo.flask_routes",
+      "type": "router",
+      "classifications": [
+        {
+          "type": "router",
+          "confidence": "confirmed",
+          "reason": "explicit_framework_constructor",
+          "evidence": {
+            "file": "src/demo/flask_routes.py",
+            "start_line": 4,
+            "end_line": 4
+          }
+        },
+        {
+          "type": "controller",
+          "confidence": "confirmed",
+          "reason": "framework_route_decorator",
+          "evidence": {
+            "file": "src/demo/flask_routes.py",
+            "start_line": 7,
+            "end_line": 7
+          }
+        }
+      ],
+      "classification_confidence": "confirmed",
+      "fan_in": 0,
+      "fan_out": 0
+    },
+    {
+      "id": "module_87169ea8cab56282c449",
+      "file": "src/demo/config.py",
+      "parsed": true,
+      "module_names": [
+        "demo.config",
+        "src.demo.config"
+      ],
+      "label": "demo.config",
+      "type": "configuration",
+      "classifications": [
+        {
+          "type": "configuration",
+          "confidence": "confirmed",
+          "reason": "environment_api_indicator",
+          "evidence": {
+            "file": "src/demo/config.py",
+            "start_line": 4,
+            "end_line": 4
+          }
+        }
+      ],
+      "classification_confidence": "confirmed",
+      "fan_in": 0,
+      "fan_out": 0
+    },
+    {
+      "id": "module_b9bc1c4a282c82d6391c",
+      "file": "src/demo/nested/__init__.py",
+      "parsed": true,
+      "module_names": [
+        "demo.nested",
+        "src.demo.nested"
+      ],
+      "label": "demo.nested",
+      "type": "unclassified",
+      "classifications": [],
+      "classification_confidence": "unclassified",
+      "fan_in": 0,
+      "fan_out": 0
+    },
+    {
+      "id": "module_c402ef748e0a48ba5e8a",
+      "file": "src/demo/__init__.py",
+      "parsed": true,
+      "module_names": [
+        "demo",
+        "src.demo"
+      ],
+      "label": "demo",
+      "type": "unclassified",
+      "classifications": [],
+      "classification_confidence": "unclassified",
+      "fan_in": 0,
+      "fan_out": 1
+    },
+    {
+      "id": "module_e5c4a25841020048cfad",
+      "file": "tests/test_presence.py",
+      "parsed": true,
+      "module_names": [
+        "tests.test_presence"
+      ],
+      "label": "tests.test_presence",
+      "type": "test",
+      "classifications": [
+        {
+          "type": "test",
+          "confidence": "inferred",
+          "reason": "filename_heuristic",
+          "evidence": {
+            "file": "tests/test_presence.py"
+          }
+        }
+      ],
+      "classification_confidence": "inferred",
+      "fan_in": 0,
+      "fan_out": 1
+    },
+    {
+      "id": "module_ee4470284ef46aab076d",
+      "file": "src/demo/models.py",
+      "parsed": true,
+      "module_names": [
+        "demo.models",
+        "src.demo.models"
+      ],
+      "label": "demo.models",
+      "type": "database_model",
+      "classifications": [
+        {
+          "type": "database_model",
+          "confidence": "confirmed",
+          "reason": "explicit_framework_model_base",
+          "evidence": {
+            "file": "src/demo/models.py",
+            "start_line": 5,
+            "end_line": 6
+          }
+        }
+      ],
+      "classification_confidence": "confirmed",
+      "fan_in": 0,
+      "fan_out": 0
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_ebd76ab2e451449a539e",
+      "source": "module_0fa82d8499bec567ad09",
+      "target": "module_239e83a7d2da78a80e16",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_3a2da2bf2ecfaff41d0f",
+          "file": "src/demo/services.py",
+          "start_line": 3,
+          "end_line": 3,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_0fa82d8499bec567ad09"
+        }
+      ],
+      "evidence_count": 1
+    },
+    {
+      "id": "edge_8679dd1946998e887b93",
+      "source": "module_0fa82d8499bec567ad09",
+      "target": "module_7ce24b5c0209cf537a70",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_1366b6219c6163c83423",
+          "file": "src/demo/services.py",
+          "start_line": 2,
+          "end_line": 2,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_0fa82d8499bec567ad09"
+        }
+      ],
+      "evidence_count": 1
+    },
+    {
+      "id": "edge_aa50c620ea68ff9250f0",
+      "source": "module_239e83a7d2da78a80e16",
+      "target": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_b411308953029961d20a",
+          "file": "src/demo/nested/helpers.py",
+          "start_line": 2,
+          "end_line": 2,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_239e83a7d2da78a80e16"
+        }
+      ],
+      "evidence_count": 1
+    },
+    {
+      "id": "edge_71928d55d768afbe50dc",
+      "source": "module_7c70a93678711fc536f1",
+      "target": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_29768881cf9d6550b4f9",
+          "file": "src/demo/api.py",
+          "start_line": 3,
+          "end_line": 3,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_7c70a93678711fc536f1"
+        }
+      ],
+      "evidence_count": 1
+    },
+    {
+      "id": "edge_459dc0e3221a46355792",
+      "source": "module_7c70a93678711fc536f1",
+      "target": "module_6fdcf9f6c38d563bc0fe",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_fcfa1ec6eb7d5131e98f",
+          "file": "src/demo/api.py",
+          "start_line": 4,
+          "end_line": 4,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_7c70a93678711fc536f1"
+        }
+      ],
+      "evidence_count": 1
+    },
+    {
+      "id": "edge_5251d0da1e28a61e4002",
+      "source": "module_c402ef748e0a48ba5e8a",
+      "target": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_b86912c547cfa13bce74",
+          "file": "src/demo/__init__.py",
+          "start_line": 2,
+          "end_line": 2,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_c402ef748e0a48ba5e8a"
+        }
+      ],
+      "evidence_count": 1
+    },
+    {
+      "id": "edge_c14c34c2752e41aeb21c",
+      "source": "module_e5c4a25841020048cfad",
+      "target": "module_0fa82d8499bec567ad09",
+      "relationship": "imports",
+      "evidence": [
+        {
+          "import_id": "import_44b8f331a42e9ecba85c",
+          "file": "tests/test_presence.py",
+          "start_line": 2,
+          "end_line": 2,
+          "resolution": "internal",
+          "conditional": false,
+          "target_parsed": true,
+          "scope_id": "module_e5c4a25841020048cfad"
+        }
+      ],
+      "evidence_count": 1
+    }
+  ],
+  "statistics": {
+    "node_count": 13,
+    "edge_count": 7,
+    "import_evidence_count": 7,
+    "is_acyclic": false,
+    "self_import_count": 0,
+    "isolated_modules": [
+      "module_0b0b0e115a64fb92b181",
+      "module_175ddf48c1e72a8bb5d3",
+      "module_7d7c20605a239d5a9c15",
+      "module_87169ea8cab56282c449",
+      "module_b9bc1c4a282c82d6391c",
+      "module_ee4470284ef46aab076d"
+    ],
+    "isolated_module_count": 6,
+    "max_fan_in": 4,
+    "max_fan_out": 2,
+    "strong_component_count": 12,
+    "strong_components": [
+      {
+        "id": "scc_e23c537d32ea1366fd31",
+        "node_ids": [
+          "module_0b0b0e115a64fb92b181"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_80bf24da96ddf91b3f35",
+        "node_ids": [
+          "module_0fa82d8499bec567ad09",
+          "module_239e83a7d2da78a80e16"
+        ],
+        "size": 2,
+        "cyclic": true
+      },
+      {
+        "id": "scc_6031daceb6679ad8a253",
+        "node_ids": [
+          "module_175ddf48c1e72a8bb5d3"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_3e41a4e75867f354524a",
+        "node_ids": [
+          "module_6fdcf9f6c38d563bc0fe"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_24b5b385fcc1fc3790b4",
+        "node_ids": [
+          "module_7c70a93678711fc536f1"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_ccf6fb64db178ca9b46c",
+        "node_ids": [
+          "module_7ce24b5c0209cf537a70"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_33a5c9e8bb37b5179280",
+        "node_ids": [
+          "module_7d7c20605a239d5a9c15"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_e1f1dddf1dafd03a1c04",
+        "node_ids": [
+          "module_87169ea8cab56282c449"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_25c4adb24a286723ce93",
+        "node_ids": [
+          "module_b9bc1c4a282c82d6391c"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_e81aa95c48ec44216706",
+        "node_ids": [
+          "module_c402ef748e0a48ba5e8a"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_6b72073e4a9d29250aac",
+        "node_ids": [
+          "module_e5c4a25841020048cfad"
+        ],
+        "size": 1,
+        "cyclic": false
+      },
+      {
+        "id": "scc_119457ef2518b35903b6",
+        "node_ids": [
+          "module_ee4470284ef46aab076d"
+        ],
+        "size": 1,
+        "cyclic": false
+      }
+    ],
+    "cyclic_component_count": 1,
+    "cyclic_components": [
+      {
+        "component_id": "scc_80bf24da96ddf91b3f35",
+        "node_ids": [
+          "module_0fa82d8499bec567ad09",
+          "module_239e83a7d2da78a80e16"
+        ],
+        "witness": {
+          "node_ids": [
+            "module_0fa82d8499bec567ad09",
+            "module_239e83a7d2da78a80e16",
+            "module_0fa82d8499bec567ad09"
+          ],
+          "edge_ids": [
+            "edge_ebd76ab2e451449a539e",
+            "edge_aa50c620ea68ff9250f0"
+          ]
+        }
+      }
+    ],
+    "weak_component_count": 7,
+    "weak_components": [
+      {
+        "id": "wcc_e23c537d32ea1366fd31",
+        "node_ids": [
+          "module_0b0b0e115a64fb92b181"
+        ],
+        "size": 1,
+        "edge_count": 0
+      },
+      {
+        "id": "wcc_21cc86e000d909aeb1ca",
+        "node_ids": [
+          "module_0fa82d8499bec567ad09",
+          "module_239e83a7d2da78a80e16",
+          "module_6fdcf9f6c38d563bc0fe",
+          "module_7c70a93678711fc536f1",
+          "module_7ce24b5c0209cf537a70",
+          "module_c402ef748e0a48ba5e8a",
+          "module_e5c4a25841020048cfad"
+        ],
+        "size": 7,
+        "edge_count": 7
+      },
+      {
+        "id": "wcc_6031daceb6679ad8a253",
+        "node_ids": [
+          "module_175ddf48c1e72a8bb5d3"
+        ],
+        "size": 1,
+        "edge_count": 0
+      },
+      {
+        "id": "wcc_33a5c9e8bb37b5179280",
+        "node_ids": [
+          "module_7d7c20605a239d5a9c15"
+        ],
+        "size": 1,
+        "edge_count": 0
+      },
+      {
+        "id": "wcc_e1f1dddf1dafd03a1c04",
+        "node_ids": [
+          "module_87169ea8cab56282c449"
+        ],
+        "size": 1,
+        "edge_count": 0
+      },
+      {
+        "id": "wcc_25c4adb24a286723ce93",
+        "node_ids": [
+          "module_b9bc1c4a282c82d6391c"
+        ],
+        "size": 1,
+        "edge_count": 0
+      },
+      {
+        "id": "wcc_119457ef2518b35903b6",
+        "node_ids": [
+          "module_ee4470284ef46aab076d"
+        ],
+        "size": 1,
+        "edge_count": 0
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "syntax_error",
+      "source": "structure",
+      "file": "src/demo/broken.py"
+    }
+  ],
+  "coverage": {
+    "structure_status": "partial",
+    "relationship_scope": "resolved_internal_imports_only",
+    "structure_modules": 13,
+    "graph_modules": 13,
+    "parsed_modules": 12,
+    "unparsed_modules": 1,
+    "unresolved_imports": 2,
+    "ambiguous_imports": 0,
+    "namespace_imports_without_file": 0,
+    "duplicate_dependency_records_removed": 0,
+    "duplicate_module_records_removed": 0,
+    "limits": {
+      "max_nodes": 10000,
+      "max_edges": 100000,
+      "max_evidence_records": 200000
+    },
+    "limitations": [
+      "Edges represent resolved file-backed static imports: importer -> imported module, not runtime calls.",
+      "Unknown, ambiguous, namespace-only, external and stdlib imports do not create internal edges.",
+      "Unparsed modules and unresolved imports can hide dependencies; isolation and metrics concern only observed edges.",
+      "Confirmed roles mean explicit static evidence; inferred roles are naming heuristics, not enforced layers.",
+      "Cycles are detected by strongly connected components with one witness each; not every simple cycle is enumerated.",
+      "Graph metrics alone do not establish architecture quality, exploitability or vulnerability impact."
+    ]
+  }
+}

@@ -1,0 +1,655 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "scope",
+    "summary",
+    "finding_impacts",
+    "module_impacts",
+    "node_contexts",
+    "evidence_edges",
+    "diagnostics",
+    "coverage"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "error"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "type",
+        "finding_id"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "repository",
+            "finding"
+          ]
+        },
+        "finding_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "finding_impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "finding_id",
+          "finding",
+          "mapping_status",
+          "mapping_reason",
+          "vulnerable_node_id",
+          "enclosing_symbol",
+          "enclosing_function",
+          "enclosing_class",
+          "module_impact_id",
+          "direct_dependent_node_ids",
+          "transitive_dependent_node_ids",
+          "relevant_edge_ids",
+          "evidence_path_ids",
+          "source_references",
+          "coverage"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "finding_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "finding": {
+            "type": "object",
+            "required": [
+              "id",
+              "rule_id",
+              "source",
+              "severity",
+              "cwe",
+              "file",
+              "start_line",
+              "end_line"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rule_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "severity": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "file": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "cwe": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "start_line": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "end_line": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "mapping_status": {
+            "enum": [
+              "mapped",
+              "unmapped"
+            ]
+          },
+          "mapping_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vulnerable_node_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "module_impact_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "coverage": {
+            "type": "object",
+            "required": [
+              "truncated",
+              "diagnostics"
+            ],
+            "properties": {
+              "truncated": {
+                "type": "boolean"
+              },
+              "diagnostics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "code"
+                  ]
+                }
+              }
+            }
+          },
+          "source_references": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "file",
+                "start_line",
+                "end_line",
+                "kind"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "start_line": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end_line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "direct_dependent_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transitive_dependent_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "relevant_edge_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_path_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enclosing_symbol": {
+            "anyOf": [
+              {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind",
+                  "file",
+                  "start_line",
+                  "end_line"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "module_id": {
+                    "type": "string"
+                  },
+                  "parent_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "qualified_name": {
+                    "type": "string"
+                  },
+                  "start_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "end_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "extent_start_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "is_async": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enclosing_function": {
+            "anyOf": [
+              {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind",
+                  "file",
+                  "start_line",
+                  "end_line"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "module_id": {
+                    "type": "string"
+                  },
+                  "parent_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "qualified_name": {
+                    "type": "string"
+                  },
+                  "start_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "end_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "extent_start_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "is_async": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enclosing_class": {
+            "anyOf": [
+              {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind",
+                  "file",
+                  "start_line",
+                  "end_line"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  },
+                  "module_id": {
+                    "type": "string"
+                  },
+                  "parent_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "qualified_name": {
+                    "type": "string"
+                  },
+                  "start_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "end_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "extent_start_line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "is_async": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "module_impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "vulnerable_node_id",
+          "direct_dependent_node_ids",
+          "transitive_dependent_node_ids",
+          "dependency_distances",
+          "paths",
+          "relevant_edge_ids",
+          "summary",
+          "coverage"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "vulnerable_node_id": {
+            "type": "string"
+          },
+          "direct_dependent_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transitive_dependent_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dependency_distances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "node_id",
+                "distance",
+                "exposure"
+              ],
+              "properties": {
+                "node_id": {
+                  "type": "string"
+                },
+                "distance": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "exposure": {
+                  "enum": [
+                    "direct_dependent",
+                    "transitive_dependent"
+                  ]
+                }
+              }
+            }
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "target_id",
+                "distance",
+                "node_ids",
+                "edge_ids"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "target_id": {
+                  "type": "string"
+                },
+                "distance": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "node_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "edge_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "relevant_edge_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "type": "object"
+          },
+          "coverage": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "node_contexts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "type",
+          "file",
+          "parsed",
+          "classification_confidence",
+          "classifications"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "classification_confidence": {
+            "type": "string"
+          },
+          "parsed": {
+            "type": "boolean"
+          },
+          "classifications": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "target",
+          "relationship",
+          "evidence",
+          "evidence_count",
+          "provided_evidence_count",
+          "evidence_truncated"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "import_id",
+                "file",
+                "start_line",
+                "end_line"
+              ]
+            }
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "provided_evidence_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "evidence_truncated": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code"
+        ]
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "scanner_status",
+        "scanner_complete",
+        "structure_status",
+        "graph_status",
+        "graph_structure_consistent",
+        "snapshot_identity",
+        "truncated",
+        "limits",
+        "limitations"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely Architectural Security Impact v1"
+}

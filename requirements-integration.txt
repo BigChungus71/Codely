@@ -1,0 +1,6 @@
+-r backend/requirements-demo.txt
+networkx==3.6.1
+-r m4/requirements-semantic.txt
+-r m4/requirements-parsers.txt
+jsonschema>=4,<5
+ruamel.yaml>=0.18.15,<0.20

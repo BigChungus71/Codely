@@ -1,0 +1,4 @@
+# Static fixture declarations; never install these as part of analysis.
+Flask>=3,<4
+requests>=2,<3
+Flask-Cors>=4,<6

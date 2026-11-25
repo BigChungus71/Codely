@@ -1,0 +1,10 @@
+.venv
+.git
+__pycache__
+data
+tests
+.env
+*.pyc
+.azure
+Procfile
+runtime.txt

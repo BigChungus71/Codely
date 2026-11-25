@@ -1,0 +1,747 @@
+{
+  "schema_version": "1.0.0",
+  "status": "partial",
+  "policy": {
+    "schema_version": "1.0.0",
+    "architecture_style": "layered",
+    "layers": {
+      "allowed_dependencies": {
+        "application_entry_point": [
+          "router",
+          "controller",
+          "service",
+          "authentication",
+          "configuration",
+          "utility"
+        ],
+        "controller": [
+          "service",
+          "authentication",
+          "configuration",
+          "utility"
+        ],
+        "data_access": [
+          "database_model",
+          "configuration",
+          "utility"
+        ],
+        "router": [
+          "service",
+          "authentication",
+          "configuration",
+          "utility"
+        ],
+        "service": [
+          "data_access",
+          "database_model",
+          "authentication",
+          "configuration",
+          "utility"
+        ]
+      },
+      "prohibited_dependencies": [
+        {
+          "source": "data_access",
+          "target": "controller",
+          "reason": "Data-access modules must not depend on HTTP controller modules."
+        }
+      ],
+      "prohibit_controller_to_data_access": true,
+      "allow_same_layer": true,
+      "include_inferred_roles": true
+    },
+    "thresholds": {
+      "max_module_lines": 400,
+      "max_module_functions": 15,
+      "max_module_classes": 8,
+      "max_class_methods": 15,
+      "max_function_lines": 60,
+      "max_function_parameters": 6,
+      "max_fan_in": 8,
+      "max_fan_out": 8,
+      "max_total_coupling": 12,
+      "max_inheritance_depth": 3,
+      "max_responsibility_groups_per_module": 3,
+      "include_tests_in_heuristics": false
+    },
+    "disabled_rules": [],
+    "check_circular_dependencies": true,
+    "check_unresolved_dependencies": true,
+    "policy_configured": true,
+    "layer_rules_active": true
+  },
+  "summary": {
+    "total_observations": 5,
+    "by_priority": {
+      "HIGH": 3,
+      "MEDIUM": 1,
+      "LOW": 1
+    },
+    "by_category": {
+      "dependency_cycle": 1,
+      "dependency_integrity": 1,
+      "inheritance": 1,
+      "layer_boundary": 1,
+      "size_complexity": 1
+    },
+    "by_evidence_classification": {
+      "confirmed_structural": 4,
+      "heuristic_maintainability": 1
+    },
+    "evaluated_modules": 8,
+    "evaluated_edges": 5,
+    "evaluated_classes": 6,
+    "evaluated_functions": 8
+  },
+  "observations": [
+    {
+      "id": "arch_obs_78467cf1c840c217a8ac",
+      "rule_id": "CODELY-ARCH-001",
+      "category": "dependency_cycle",
+      "priority": "HIGH",
+      "title": "Circular module dependency detected",
+      "explanation": "Strongly connected component scc_ba5872177a21b269b75a involves 2 module(s) with a static import cycle (billing_service.py -> order_service.py -> billing_service.py).",
+      "affected_modules": [
+        {
+          "module_id": "module_799fc8ed9e6fad30dd63",
+          "file": "billing_service.py",
+          "label": "billing_service",
+          "role": "service",
+          "classification_confidence": "inferred"
+        },
+        {
+          "module_id": "module_a31f7f9d7362ea346052",
+          "file": "order_service.py",
+          "label": "order_service",
+          "role": "service",
+          "classification_confidence": "inferred"
+        }
+      ],
+      "affected_symbols": [],
+      "source_locations": [
+        {
+          "file": "billing_service.py",
+          "start_line": 2,
+          "end_line": 2,
+          "kind": "cycle_import_edge"
+        },
+        {
+          "file": "order_service.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "cycle_import_edge"
+        }
+      ],
+      "supporting_graph_evidence": {
+        "node_ids": [
+          "module_799fc8ed9e6fad30dd63",
+          "module_a31f7f9d7362ea346052"
+        ],
+        "edge_ids": [
+          "edge_5cc0438cd88c731ad9f3",
+          "edge_ff54537818789145d3e7"
+        ],
+        "dependency_paths": [
+          {
+            "id": "arch_path_8f2729c3195cf35ea294",
+            "kind": "cycle_witness",
+            "node_ids": [
+              "module_799fc8ed9e6fad30dd63",
+              "module_a31f7f9d7362ea346052",
+              "module_799fc8ed9e6fad30dd63"
+            ],
+            "edge_ids": [
+              "edge_5cc0438cd88c731ad9f3",
+              "edge_ff54537818789145d3e7"
+            ]
+          }
+        ],
+        "component_ids": [
+          "scc_ba5872177a21b269b75a"
+        ],
+        "import_evidence": [
+          {
+            "edge_id": "edge_5cc0438cd88c731ad9f3",
+            "import_id": "import_8e00de7a625e9b123d63",
+            "file": "billing_service.py",
+            "start_line": 2,
+            "end_line": 2,
+            "conditional": false
+          },
+          {
+            "edge_id": "edge_ff54537818789145d3e7",
+            "import_id": "import_cf85baf11bae0ec64da0",
+            "file": "order_service.py",
+            "start_line": 3,
+            "end_line": 3,
+            "conditional": false
+          }
+        ]
+      },
+      "observed_metric": {
+        "name": "cycle_component_size",
+        "value": 2,
+        "unit": "modules",
+        "details": {
+          "is_self_import": false,
+          "all_witness_imports_conditional": false
+        }
+      },
+      "configured_threshold": {
+        "name": "max_cycle_size",
+        "value": 1,
+        "unit": "modules",
+        "source": "default"
+      },
+      "suggested_improvement": "Extract shared abstractions, types or contracts into an acyclic module, reconsider dependency direction using dependency inversion/protocols, or merge artificially split modules.",
+      "trade_offs": [
+        "Extracting an abstraction module adds indirection and small files.",
+        "Merging cyclic modules reduces file separation.",
+        "Deferring imports into functions avoids import-time failure but preserves architectural coupling."
+      ],
+      "validation_method": "Re-run AST structure and architecture graph analysis to verify cyclic_component_count decreases and execute the project test suite.",
+      "confidence": "confirmed",
+      "evidence_classification": "confirmed_structural",
+      "known_limitations": [
+        "Reflects static import syntax only; conditional or function-local imports may not fail at import time.",
+        "Each strongly connected component reports one deterministic witness cycle rather than enumerating all simple cycles."
+      ],
+      "advisory_only": true
+    },
+    {
+      "id": "arch_obs_552a24b600cd3dc720fc",
+      "rule_id": "CODELY-ARCH-003",
+      "category": "layer_boundary",
+      "priority": "HIGH",
+      "title": "Direct controller dependency on data-access module",
+      "explanation": "direct_controller.py (role: controller, confirmed) directly imports order_repo.py (role: data_access, confirmed). Configured policy prohibits direct controller -> data_access dependencies.",
+      "affected_modules": [
+        {
+          "module_id": "module_ec32a392ec7460fdb15c",
+          "file": "direct_controller.py",
+          "label": "direct_controller",
+          "role": "router",
+          "classification_confidence": "confirmed"
+        },
+        {
+          "module_id": "module_81bba1bc6842ee1fe900",
+          "file": "order_repo.py",
+          "label": "order_repo",
+          "role": "data_access",
+          "classification_confidence": "confirmed"
+        }
+      ],
+      "affected_symbols": [],
+      "source_locations": [
+        {
+          "file": "direct_controller.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "policy_dependency_edge"
+        }
+      ],
+      "supporting_graph_evidence": {
+        "node_ids": [
+          "module_ec32a392ec7460fdb15c",
+          "module_81bba1bc6842ee1fe900"
+        ],
+        "edge_ids": [
+          "edge_fb2a9806cd13df1955ca"
+        ],
+        "dependency_paths": [
+          {
+            "id": "arch_path_9ad73a45810a4fb74637",
+            "kind": "layer_edge",
+            "node_ids": [
+              "module_ec32a392ec7460fdb15c",
+              "module_81bba1bc6842ee1fe900"
+            ],
+            "edge_ids": [
+              "edge_fb2a9806cd13df1955ca"
+            ]
+          }
+        ],
+        "component_ids": [],
+        "import_evidence": [
+          {
+            "edge_id": "edge_fb2a9806cd13df1955ca",
+            "import_id": "import_104f19b84a4a7276196c",
+            "file": "direct_controller.py",
+            "start_line": 3,
+            "end_line": 3,
+            "conditional": false
+          }
+        ]
+      },
+      "observed_metric": {
+        "name": "direct_layer_violation_edges",
+        "value": 1,
+        "unit": "edges",
+        "details": {
+          "source_role": "controller",
+          "target_role": "data_access",
+          "source_confidence": "confirmed",
+          "target_confidence": "confirmed"
+        }
+      },
+      "configured_threshold": null,
+      "suggested_improvement": "Route persistence calls through a service or domain abstraction so HTTP handlers remain decoupled from data-access details.",
+      "trade_offs": [
+        "Adding a service or facade introduces extra boilerplate for simple CRUD operations.",
+        "If direct access is intentional for this endpoint, record an explicit policy exception."
+      ],
+      "validation_method": "Re-run architecture evaluation to confirm the direct edge is removed while preserving route integration tests.",
+      "confidence": "confirmed",
+      "evidence_classification": "confirmed_structural",
+      "known_limitations": [
+        "Role classification relies on confirmed framework/DB indicators or filename heuristics as recorded per module.",
+        "Direct import evidence does not confirm which functions are executed at runtime."
+      ],
+      "advisory_only": true
+    },
+    {
+      "id": "arch_obs_0a6d1d05b32a69137bee",
+      "rule_id": "CODELY-ARCH-012",
+      "category": "dependency_integrity",
+      "priority": "HIGH",
+      "title": "Unresolved or ambiguous internal dependency reference",
+      "explanation": "broken_imports.py has 1 unresolved or ambiguous internal import(s): missing_module (relative_import_beyond_source_root).",
+      "affected_modules": [
+        {
+          "module_id": "module_84dcd6e702f3380425ae",
+          "file": "broken_imports.py",
+          "label": "broken_imports",
+          "role": "unclassified",
+          "classification_confidence": "unclassified"
+        }
+      ],
+      "affected_symbols": [],
+      "source_locations": [
+        {
+          "file": "broken_imports.py",
+          "start_line": 2,
+          "end_line": 2,
+          "kind": "import_unresolved"
+        }
+      ],
+      "supporting_graph_evidence": {
+        "node_ids": [
+          "module_84dcd6e702f3380425ae"
+        ],
+        "edge_ids": [],
+        "dependency_paths": [],
+        "component_ids": [],
+        "import_evidence": []
+      },
+      "observed_metric": {
+        "name": "unresolved_internal_imports",
+        "value": 1,
+        "unit": "imports",
+        "details": {
+          "targets": [
+            "missing_module"
+          ],
+          "reasons": [
+            "relative_import_beyond_source_root"
+          ]
+        }
+      },
+      "configured_threshold": {
+        "name": "max_unresolved_internal_imports",
+        "value": 0,
+        "unit": "imports",
+        "source": "default"
+      },
+      "suggested_improvement": "Verify internal module/symbol paths, package __init__.py files, or configure StructureOptions.source_roots if the project uses nonstandard Python source roots; disambiguate colliding module/attribute names.",
+      "trade_offs": [
+        "If imports depend on runtime sys.path mutation or code generation, adjusting analyzer source_roots may be preferable to changing application imports."
+      ],
+      "validation_method": "Re-run AST structure analysis and confirm unresolved internal import counts drop to zero.",
+      "confidence": "confirmed",
+      "evidence_classification": "confirmed_structural",
+      "known_limitations": [
+        "Static import resolution does not execute import hooks, dynamic sys.path changes or wildcard re-exports."
+      ],
+      "advisory_only": true
+    },
+    {
+      "id": "arch_obs_5e9b54082e8a56b038d2",
+      "rule_id": "CODELY-ARCH-010",
+      "category": "inheritance",
+      "priority": "MEDIUM",
+      "title": "Deep inheritance hierarchy: PremiumAccountEntity",
+      "explanation": "Class PremiumAccountEntity in domain_hierarchy.py has inheritance depth 4 (PremiumAccountEntity -> AccountEntity -> AuditedEntity -> BaseEntity), exceeding threshold 3.",
+      "affected_modules": [
+        {
+          "module_id": "module_44523b7680f5f5505adc",
+          "file": "domain_hierarchy.py",
+          "label": "domain_hierarchy",
+          "role": "unclassified",
+          "classification_confidence": "unclassified"
+        }
+      ],
+      "affected_symbols": [
+        {
+          "id": "class_41a4bf2ba6509c23c313",
+          "module_id": "module_44523b7680f5f5505adc",
+          "name": "PremiumAccountEntity",
+          "qualified_name": "PremiumAccountEntity",
+          "kind": "class",
+          "file": "domain_hierarchy.py",
+          "start_line": 14,
+          "end_line": 15
+        },
+        {
+          "id": "class_5d1a1d5ae12fcf6d3928",
+          "module_id": "module_44523b7680f5f5505adc",
+          "name": "AccountEntity",
+          "qualified_name": "AccountEntity",
+          "kind": "class",
+          "file": "domain_hierarchy.py",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "id": "class_922427b784220ecd45d0",
+          "module_id": "module_44523b7680f5f5505adc",
+          "name": "AuditedEntity",
+          "qualified_name": "AuditedEntity",
+          "kind": "class",
+          "file": "domain_hierarchy.py",
+          "start_line": 6,
+          "end_line": 7
+        },
+        {
+          "id": "class_e9ef59bb01ffea603404",
+          "module_id": "module_44523b7680f5f5505adc",
+          "name": "BaseEntity",
+          "qualified_name": "BaseEntity",
+          "kind": "class",
+          "file": "domain_hierarchy.py",
+          "start_line": 2,
+          "end_line": 3
+        }
+      ],
+      "source_locations": [
+        {
+          "file": "domain_hierarchy.py",
+          "start_line": 14,
+          "end_line": 15,
+          "kind": "inheritance_chain_class"
+        },
+        {
+          "file": "domain_hierarchy.py",
+          "start_line": 10,
+          "end_line": 11,
+          "kind": "inheritance_chain_class"
+        },
+        {
+          "file": "domain_hierarchy.py",
+          "start_line": 6,
+          "end_line": 7,
+          "kind": "inheritance_chain_class"
+        },
+        {
+          "file": "domain_hierarchy.py",
+          "start_line": 2,
+          "end_line": 3,
+          "kind": "inheritance_chain_class"
+        }
+      ],
+      "supporting_graph_evidence": {
+        "node_ids": [
+          "module_44523b7680f5f5505adc"
+        ],
+        "edge_ids": [],
+        "dependency_paths": [],
+        "component_ids": [],
+        "import_evidence": []
+      },
+      "observed_metric": {
+        "name": "inheritance_depth",
+        "value": 4,
+        "unit": "levels",
+        "details": {
+          "chain": [
+            "PremiumAccountEntity",
+            "AccountEntity",
+            "AuditedEntity",
+            "BaseEntity"
+          ],
+          "fully_resolved": true,
+          "cyclic_inheritance": false
+        }
+      },
+      "configured_threshold": {
+        "name": "max_inheritance_depth",
+        "value": 3,
+        "unit": "levels",
+        "source": "default"
+      },
+      "suggested_improvement": "Evaluate composition, delegation or Python Protocol interfaces where shared behavior does not require deep subtype hierarchies.",
+      "trade_offs": [
+        "Composition requires explicit forwarding or helper injection rather than implicit method inheritance.",
+        "Framework or domain taxonomies sometimes intentionally extend base hierarchies."
+      ],
+      "validation_method": "Verify inheritance depth drops in structure analysis while maintaining behavioral contract tests.",
+      "confidence": "confirmed",
+      "evidence_classification": "confirmed_structural",
+      "known_limitations": [
+        "Dynamic base expressions, metaclasses and external multi-level class hierarchies are not deeply traversed."
+      ],
+      "advisory_only": true
+    },
+    {
+      "id": "arch_obs_d6a33bca1356b6bac7fe",
+      "rule_id": "CODELY-ARCH-009",
+      "category": "size_complexity",
+      "priority": "LOW",
+      "title": "Excessive parameter count: dispatch_order",
+      "explanation": "dispatch_order in domain_hierarchy.py accepts 7 effective parameter(s) (7 total including receiver if method), exceeding threshold 6.",
+      "affected_modules": [
+        {
+          "module_id": "module_44523b7680f5f5505adc",
+          "file": "domain_hierarchy.py",
+          "label": "domain_hierarchy",
+          "role": "unclassified",
+          "classification_confidence": "unclassified"
+        }
+      ],
+      "affected_symbols": [
+        {
+          "id": "function_06a667d8c940c4b5188a",
+          "module_id": "module_44523b7680f5f5505adc",
+          "name": "dispatch_order",
+          "qualified_name": "dispatch_order",
+          "kind": "function",
+          "file": "domain_hierarchy.py",
+          "start_line": 18,
+          "end_line": 27
+        }
+      ],
+      "source_locations": [
+        {
+          "file": "domain_hierarchy.py",
+          "start_line": 18,
+          "end_line": 27,
+          "kind": "function"
+        }
+      ],
+      "supporting_graph_evidence": {
+        "node_ids": [
+          "module_44523b7680f5f5505adc"
+        ],
+        "edge_ids": [],
+        "dependency_paths": [],
+        "component_ids": [],
+        "import_evidence": []
+      },
+      "observed_metric": {
+        "name": "effective_function_parameters",
+        "value": 7,
+        "unit": "parameters",
+        "details": {
+          "total_parameters": 7
+        }
+      },
+      "configured_threshold": {
+        "name": "max_function_parameters",
+        "value": 6,
+        "unit": "parameters",
+        "source": "default"
+      },
+      "suggested_improvement": "Consider grouping cohesive parameters into a typed dataclass/configuration object or splitting distinct call modes into separate functions.",
+      "trade_offs": [
+        "Parameter objects add type definitions and indirection for simple internal helpers."
+      ],
+      "validation_method": "Update callers, re-run structure analysis and run type/unit checks.",
+      "confidence": "heuristic",
+      "evidence_classification": "heuristic_maintainability",
+      "known_limitations": [
+        "Does not account for *args/**kwargs unpacking complexity or framework-injected route parameters."
+      ],
+      "advisory_only": true
+    }
+  ],
+  "supporting_metrics": {
+    "graph": {
+      "node_count": 8,
+      "edge_count": 5,
+      "import_evidence_count": 5,
+      "is_acyclic": false,
+      "self_import_count": 0,
+      "isolated_modules": [
+        "module_41888e78c20039773001",
+        "module_44523b7680f5f5505adc",
+        "module_84dcd6e702f3380425ae"
+      ],
+      "isolated_module_count": 3,
+      "max_fan_in": 2,
+      "max_fan_out": 2,
+      "strong_component_count": 7,
+      "strong_components": [
+        {
+          "id": "scc_fed960e0b79c8d51ffee",
+          "node_ids": [
+            "module_41888e78c20039773001"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_1e80a2b5aa757938ff36",
+          "node_ids": [
+            "module_44523b7680f5f5505adc"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_585eb1eb70144f4ffe73",
+          "node_ids": [
+            "module_4b0667727df51025d016"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_ba5872177a21b269b75a",
+          "node_ids": [
+            "module_799fc8ed9e6fad30dd63",
+            "module_a31f7f9d7362ea346052"
+          ],
+          "size": 2,
+          "cyclic": true
+        },
+        {
+          "id": "scc_64afe34de0f6dd49d3af",
+          "node_ids": [
+            "module_81bba1bc6842ee1fe900"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_dcbb18f9ec020c7e186b",
+          "node_ids": [
+            "module_84dcd6e702f3380425ae"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_67b7a26708c295398da8",
+          "node_ids": [
+            "module_ec32a392ec7460fdb15c"
+          ],
+          "size": 1,
+          "cyclic": false
+        }
+      ],
+      "cyclic_component_count": 1,
+      "cyclic_components": [
+        {
+          "component_id": "scc_ba5872177a21b269b75a",
+          "node_ids": [
+            "module_799fc8ed9e6fad30dd63",
+            "module_a31f7f9d7362ea346052"
+          ],
+          "witness": {
+            "node_ids": [
+              "module_799fc8ed9e6fad30dd63",
+              "module_a31f7f9d7362ea346052",
+              "module_799fc8ed9e6fad30dd63"
+            ],
+            "edge_ids": [
+              "edge_5cc0438cd88c731ad9f3",
+              "edge_ff54537818789145d3e7"
+            ]
+          }
+        }
+      ],
+      "weak_component_count": 4,
+      "weak_components": [
+        {
+          "id": "wcc_fed960e0b79c8d51ffee",
+          "node_ids": [
+            "module_41888e78c20039773001"
+          ],
+          "size": 1,
+          "edge_count": 0
+        },
+        {
+          "id": "wcc_1e80a2b5aa757938ff36",
+          "node_ids": [
+            "module_44523b7680f5f5505adc"
+          ],
+          "size": 1,
+          "edge_count": 0
+        },
+        {
+          "id": "wcc_fe0911b785655f12640c",
+          "node_ids": [
+            "module_4b0667727df51025d016",
+            "module_799fc8ed9e6fad30dd63",
+            "module_81bba1bc6842ee1fe900",
+            "module_a31f7f9d7362ea346052",
+            "module_ec32a392ec7460fdb15c"
+          ],
+          "size": 5,
+          "edge_count": 5
+        },
+        {
+          "id": "wcc_dcbb18f9ec020c7e186b",
+          "node_ids": [
+            "module_84dcd6e702f3380425ae"
+          ],
+          "size": 1,
+          "edge_count": 0
+        }
+      ]
+    },
+    "structure": {
+      "modules": 8,
+      "parsed_modules": 8,
+      "classes": 6,
+      "functions": 8,
+      "imports": 9,
+      "internal_dependencies": 5,
+      "external_dependencies": 3,
+      "unresolved_internal_imports": 1,
+      "ambiguous_imports": 0,
+      "unclassified_external_imports": 0
+    }
+  },
+  "diagnostics": [],
+  "coverage": {
+    "structure_status": "complete",
+    "graph_status": "complete",
+    "graph_structure_consistent": true,
+    "policy_configured": true,
+    "layer_rules_active": true,
+    "parsed_modules": 8,
+    "unparsed_modules": 0,
+    "unresolved_internal_imports": 1,
+    "ambiguous_imports": 0,
+    "unclassified_external_imports": 0,
+    "truncated": false,
+    "diagnostics_truncated": false,
+    "observations_truncated": false,
+    "limits": {
+      "max_observations": 500,
+      "max_affected_modules_per_observation": 100,
+      "max_source_locations_per_observation": 64,
+      "max_evidence_edges": 100,
+      "max_dependency_paths": 64,
+      "max_diagnostics": 100
+    },
+    "limitations": [
+      "Architecture observations are static structural indicators and heuristic guidelines, not runtime defects or security vulnerabilities.",
+      "Edges reflect observed static internal imports only; dynamic imports, reflection, runtime hooks and unknown external dependencies are not fully captured.",
+      "Inferred module roles rely on filename/path heuristics rather than confirmed framework or database bindings.",
+      "Size, coupling, inheritance and responsibility thresholds are configurable heuristics and do not produce an overall architecture quality score.",
+      "Recommendations are advisory, context-dependent and require human engineering review; source files are never automatically rewritten.",
+      "No runtime latency, throughput, scalability improvement or exploitability probability is claimed without runtime measurement."
+    ]
+  }
+}

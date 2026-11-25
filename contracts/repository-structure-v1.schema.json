@@ -1,0 +1,489 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely repository structure v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "summary",
+    "diagnostics",
+    "coverage",
+    "files",
+    "modules",
+    "classes",
+    "functions",
+    "module_symbols",
+    "imports",
+    "calls",
+    "internal_dependencies",
+    "external_dependencies",
+    "framework_indicators",
+    "classifications",
+    "unresolved_references"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "error"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code"
+        ]
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "parsed_files",
+        "skipped_files",
+        "source_roots",
+        "limits",
+        "limitations"
+      ]
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/file"
+      }
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/module"
+      }
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/class"
+      }
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/function"
+      }
+    },
+    "module_symbols": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/symbol"
+      }
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/import"
+      }
+    },
+    "calls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/call"
+      }
+    },
+    "internal_dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dependency"
+      }
+    },
+    "external_dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/external"
+      }
+    },
+    "framework_indicators": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/framework"
+      }
+    },
+    "classifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/classification"
+      }
+    },
+    "unresolved_references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unresolved"
+      }
+    }
+  },
+  "$defs": {
+    "location": {
+      "type": "object",
+      "required": [
+        "file",
+        "start_line",
+        "end_line"
+      ],
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_column": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_column": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "file": {
+      "type": "object",
+      "required": [
+        "file",
+        "status",
+        "size_bytes"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "module": {
+      "type": "object",
+      "required": [
+        "id",
+        "file",
+        "names",
+        "parsed",
+        "is_package"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parsed": {
+          "type": "boolean"
+        },
+        "is_package": {
+          "type": "boolean"
+        }
+      }
+    },
+    "class": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "qualified_name",
+            "module_id",
+            "parent_id",
+            "bases",
+            "decorators",
+            "extent_start_line"
+          ],
+          "properties": {}
+        }
+      ]
+    },
+    "function": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "qualified_name",
+            "module_id",
+            "parent_id",
+            "parameters",
+            "decorators",
+            "kind",
+            "is_async",
+            "extent_start_line"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "function",
+                "method"
+              ]
+            },
+            "is_async": {
+              "type": "boolean"
+            },
+            "parameters": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/location"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "kind",
+                      "has_default"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "positional_only",
+                          "positional",
+                          "var_positional",
+                          "keyword_only",
+                          "var_keyword"
+                        ]
+                      },
+                      "has_default": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "symbol": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "module_id",
+            "kind"
+          ],
+          "properties": {}
+        }
+      ]
+    },
+    "import": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "module_id",
+            "scope_id",
+            "module",
+            "name",
+            "alias",
+            "binding",
+            "level",
+            "kind",
+            "resolution",
+            "candidate_module_ids"
+          ],
+          "properties": {
+            "resolution": {
+              "enum": [
+                "internal",
+                "external",
+                "stdlib",
+                "unresolved",
+                "ambiguous"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "call": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "module_id",
+            "scope_id",
+            "callee",
+            "resolution"
+          ],
+          "properties": {
+            "resolution": {
+              "enum": [
+                "syntactic_only",
+                "dynamic_callable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "dependency": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "source_module_id",
+            "target_module_id",
+            "relationship",
+            "import_id",
+            "target_parsed"
+          ],
+          "properties": {
+            "relationship": {
+              "const": "imports"
+            }
+          }
+        }
+      ]
+    },
+    "external": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "import_id",
+            "module",
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "external",
+                "stdlib"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "framework": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "framework",
+            "kind",
+            "symbol_id"
+          ],
+          "properties": {
+            "framework": {
+              "enum": [
+                "fastapi",
+                "flask",
+                "django",
+                "sqlalchemy",
+                "sqlmodel"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "classification": {
+      "type": "object",
+      "required": [
+        "component",
+        "confidence",
+        "module_id",
+        "symbol_id",
+        "reason",
+        "evidence"
+      ],
+      "properties": {
+        "confidence": {
+          "enum": [
+            "confirmed",
+            "inferred"
+          ]
+        },
+        "evidence": {
+          "type": "object",
+          "required": [
+            "file"
+          ]
+        }
+      }
+    },
+    "unresolved": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/location"
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "reference_id",
+            "reason"
+          ],
+          "properties": {}
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "vulnerable/dynamic-eval/case.py": [
+    {
+      "rule_id": "codely.python.dynamic-eval",
+      "line": 4
+    }
+  ],
+  "safe/dynamic-eval/case.py": [],
+  "vulnerable/dynamic-exec/case.py": [
+    {
+      "rule_id": "codely.python.dynamic-exec",
+      "line": 4
+    }
+  ],
+  "safe/dynamic-exec/case.py": [],
+  "vulnerable/sql-injection/case.py": [
+    {
+      "rule_id": "codely.python.sql-injection",
+      "line": 8
+    }
+  ],
+  "safe/sql-injection/case.py": [],
+  "vulnerable/command-injection/case.py": [
+    {
+      "rule_id": "codely.python.command-injection",
+      "line": 8
+    }
+  ],
+  "safe/command-injection/case.py": [],
+  "vulnerable/hardcoded-credential/case.py": [
+    {
+      "rule_id": "codely.python.hardcoded-credential",
+      "line": 4
+    }
+  ],
+  "safe/hardcoded-credential/case.py": [],
+  "vulnerable/unsafe-pickle/case.py": [
+    {
+      "rule_id": "codely.python.unsafe-pickle",
+      "line": 7
+    }
+  ],
+  "safe/unsafe-pickle/case.py": [],
+  "vulnerable/unsafe-yaml/case.py": [
+    {
+      "rule_id": "codely.python.unsafe-yaml",
+      "line": 5
+    }
+  ],
+  "safe/unsafe-yaml/case.py": [],
+  "vulnerable/weak-password-hash/case.py": [
+    {
+      "rule_id": "codely.python.weak-password-hash",
+      "line": 5
+    }
+  ],
+  "safe/weak-password-hash/case.py": [],
+  "vulnerable/tls-verification-disabled/case.py": [
+    {
+      "rule_id": "codely.python.tls-verification-disabled",
+      "line": 5
+    }
+  ],
+  "safe/tls-verification-disabled/case.py": [],
+  "vulnerable/insecure-tempfile/case.py": [
+    {
+      "rule_id": "codely.python.insecure-tempfile",
+      "line": 5
+    }
+  ],
+  "safe/insecure-tempfile/case.py": [],
+  "vulnerable/flask-debug/case.py": [
+    {
+      "rule_id": "codely.python.flask-debug",
+      "line": 5
+    }
+  ],
+  "safe/flask-debug/case.py": [],
+  "vulnerable/insecure-security-random/case.py": [
+    {
+      "rule_id": "codely.python.insecure-security-random",
+      "line": 5
+    }
+  ],
+  "safe/insecure-security-random/case.py": [],
+  "variants/nested package/sql-input-fstring.py": [
+    {
+      "rule_id": "codely.python.sql-injection",
+      "line": 6
+    }
+  ],
+  "variants/nested package/command-os-system.py": [
+    {
+      "rule_id": "codely.python.command-injection",
+      "line": 6
+    }
+  ],
+  "variants/nested package/yaml-alias.py": [
+    {
+      "rule_id": "codely.python.unsafe-yaml",
+      "line": 5
+    }
+  ],
+  "variants/nested package/password-sha256.py": [
+    {
+      "rule_id": "codely.python.weak-password-hash",
+      "line": 5
+    }
+  ],
+  "variants/nested package/httpx-client.py": [
+    {
+      "rule_id": "codely.python.tls-verification-disabled",
+      "line": 5
+    }
+  ],
+  "variants/nested package/flask-config.py": [
+    {
+      "rule_id": "codely.python.flask-debug",
+      "line": 5
+    }
+  ],
+  "variants/nested package/random-choice-join.py": [
+    {
+      "rule_id": "codely.python.insecure-security-random",
+      "line": 5
+    }
+  ],
+  "variants/nested package/credential-dict.py": [
+    {
+      "rule_id": "codely.python.hardcoded-credential",
+      "line": 4
+    }
+  ],
+  "tests/nested/evaluation.py": [
+    {
+      "rule_id": "codely.python.dynamic-eval",
+      "line": 3
+    }
+  ],
+  ".hidden/evaluation.py": [
+    {
+      "rule_id": "codely.python.dynamic-eval",
+      "line": 3
+    }
+  ],
+  "variants/uppercase.PY": [
+    {
+      "rule_id": "codely.python.dynamic-eval",
+      "line": 3
+    }
+  ],
+  "variants/suppression.py": [
+    {
+      "rule_id": "codely.python.dynamic-eval",
+      "line": 3
+    }
+  ],
+  "variants/short-credential.py": [
+    {
+      "rule_id": "codely.python.hardcoded-credential",
+      "line": 3
+    }
+  ]
+}

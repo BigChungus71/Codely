@@ -1,4 +1,4 @@
-"""Local, deterministic Python scanning. Uploaded code is only read as text."""
+"""Local, deterministic multi-language scanning. Uploaded code is only read as text."""
 from dataclasses import asdict, dataclass, field
 import ast
 import json
@@ -14,8 +14,19 @@ from .finding_normalizer import normalize_finding as _normalize, repository_rela
 
 ROOT = Path(__file__).resolve().parents[3]
 RULE = ROOT / 'backend/app/rules/python-security.yaml'
+PACKS = {
+    'python': ('python-security-v2', RULE),
+    'java': ('java-security-v1', RULE.with_name('java-security.yaml')),
+    'javascript': ('web-security-v1', RULE.with_name('web-security.yaml')),
+    'typescript': ('web-security-v1', RULE.with_name('web-security.yaml')),
+}
+LANGUAGE = {'.py': 'python', '.java': 'java', '.js': 'javascript', '.jsx': 'javascript',
+            '.ts': 'typescript', '.tsx': 'typescript', '.mjs': 'javascript', '.cjs': 'javascript',
+            '.go': 'go', '.rs': 'rust', '.kt': 'kotlin', '.rb': 'ruby', '.php': 'php',
+            '.swift': 'swift', '.cs': 'csharp', '.cpp': 'cpp', '.c': 'c', '.sh': 'shell'}
+
 EXCLUDED = {'.git', '.venv', 'venv', '__pycache__', 'node_modules',
-            '.semgrep-local', 'reference', 'dist', 'build'}
+            '.semgrep-local', 'reference', 'dist', 'build', 'target', '.next', 'coverage', 'out'}
 MAX_FILES = 5000
 MAX_FILE_BYTES = 1024 * 1024
 MAX_TOTAL_BYTES = 50 * 1024 * 1024
@@ -34,18 +45,23 @@ class ScanResult:
     findings: list[dict] = field(default_factory=list)
     diagnostics: list[dict] = field(default_factory=list)
 
+    coverage: dict = field(default_factory=dict)
+
     def to_dict(self):
         return asdict(self)
 
 
 def scan_repository(project_path: str) -> ScanResult:
-    """Scan a bounded Python snapshot with trusted rules and a 60-second limit.
+    """Scan a bounded source snapshot with trusted rules and a 60-second limit.
 
     Status is complete, partial, or error. Diagnostics deliberately omit source
-    text and raw stderr, which may contain secrets. This supports Python only.
+    text and raw stderr, which may contain secrets.
     """
     result = ScanResult('error')
     incomplete = False
+    detected, copied, scanned = set(), set(), set()
+    excluded_files = pruned_directories = 0
+    packs = {}
     try:
         if not isinstance(project_path, str) or not project_path.strip() or '\x00' in project_path:
             result.diagnostics.append({'code': 'invalid_repository'})
@@ -68,7 +84,6 @@ def scan_repository(project_path: str) -> ScanResult:
             # Uploaded ignore files and inline suppression comments cannot hide coverage.
             (snapshot / '.semgrepignore').write_text('', encoding='utf-8')
             count = size = 0
-            copied = set()
             unsupported = 0
 
             def walk_error(_error):
@@ -83,36 +98,55 @@ def scan_repository(project_path: str) -> ScanResult:
                     path = Path(folder) / directory
                     if directory in EXCLUDED:
                         dirs.remove(directory)
+                        pruned_directories += 1
                     elif _linked(path):
                         dirs.remove(directory)
                         incomplete = True
                         result.diagnostics.append({'code': 'linked_directory_skipped',
                             'file': path.relative_to(project).as_posix()})
                 for name in sorted(files):
-                    if Path(name).suffix.lower() != '.py':
+                    suffix = Path(name).suffix.lower()
+                    language = LANGUAGE.get(suffix)
+                    if language:
+                        detected.add(language)
+                    if language not in PACKS:
+                        excluded_files += 1
                         unsupported += 1
                         continue
                     path = Path(folder) / name
                     relative = path.relative_to(project)
+                    if (name.endswith(('.min.js', '.d.ts', '.bundle.js'))
+                            or not stat.S_ISREG(path.lstat().st_mode) and not _linked(path)):
+                        excluded_files += 1
+                        continue
                     if _linked(path) or not path.resolve().is_relative_to(project):
+                        excluded_files += 1
                         incomplete = True
                         result.diagnostics.append({'code': 'linked_file_skipped',
                                                    'file': relative.as_posix()})
                         continue
                     try:
-                        with path.open('rb') as source:
+                        flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+                        with os.fdopen(os.open(path, flags), 'rb') as source:
+                            if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
+                                excluded_files += 1
+                                incomplete = True
+                                continue
                             content = source.read(MAX_FILE_BYTES + 1)
                         if (len(content) > MAX_FILE_BYTES or count >= MAX_FILES
                                 or size + len(content) > MAX_TOTAL_BYTES):
                             incomplete = True
+                            excluded_files += 1
                             result.diagnostics.append({'code': 'coverage_limit',
                                                        'file': relative.as_posix()})
                             continue
                         text = content.decode('utf-8-sig')
                         try:
-                            ast.parse(text, filename=relative.as_posix())
+                            if language == 'python':
+                                ast.parse(text, filename=relative.as_posix())
                         except (SyntaxError, ValueError, RecursionError):
                             incomplete = True
+                            excluded_files += 1
                             result.diagnostics.append({'code': 'python_syntax_error',
                                                        'file': relative.as_posix()})
                             continue
@@ -120,21 +154,27 @@ def scan_repository(project_path: str) -> ScanResult:
                         target.parent.mkdir(parents=True, exist_ok=True)
                         target.write_bytes(content)
                         copied.add(relative.as_posix())
+                        pack, config = PACKS[language]
+                        packs[pack] = config
                         count += 1
                         size += len(content)
                     except (OSError, UnicodeError):
                         incomplete = True
+                        excluded_files += 1
                         result.diagnostics.append({'code': 'file_unreadable_or_non_utf8',
                                                    'file': relative.as_posix()})
-            result.diagnostics.append({'code': 'coverage', 'language': 'python',
+            result.diagnostics.append({'code': 'coverage', 'language': 'python' if detected == {'python'} else 'multi',
                 'snapshot_files': count, 'excluded_directories': sorted(EXCLUDED),
-                'unsupported_files': unsupported, 'rule_set': 'python-security-v2'})
+                'unsupported_files': unsupported, 'rule_set': 'python-security-v2'
+                if 'python-security-v2' in packs else next(iter(packs), None)})
             if count == 0:
-                result.diagnostics.append({'code': 'no_supported_files'})
+                result.diagnostics.append({'code': ('no_supported_files' if not detected & PACKS.keys()
+                                                    else 'no_eligible_files')})
                 return result
-            env = os.environ.copy()
-            env.pop('PYTHONPATH', None)
-            env.pop('PYTHONHOME', None)
+            env = {name: os.environ[name] for name in (
+                'PATH', 'SYSTEMROOT', 'WINDIR', 'COMSPEC', 'PATHEXT', 'TMP', 'TEMP', 'TMPDIR',
+                'HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'LANG', 'LC_ALL',
+            ) if name in os.environ}
             env.update(SEMGREP_LOG_FILE=str(work / 'scanner.log'),
                 SEMGREP_SETTINGS_FILE=str(work / 'settings.yaml'),
                 SEMGREP_VERSION_CACHE_PATH=str(work / 'version'),
@@ -142,7 +182,8 @@ def scan_repository(project_path: str) -> ScanResult:
                 PYTHONUTF8='1', PYTHONIOENCODING='utf-8', PYTHONSAFEPATH='1')
             scanner = Path(sys.executable).parent / ('semgrep.exe' if os.name == 'nt'
                                                      else 'semgrep')
-            command = [str(scanner), 'scan', '--config', str(RULE), '--json',
+            configs = [part for config in sorted(packs.values()) for part in ('--config', str(config))]
+            command = [str(scanner), 'scan', *configs, '--json',
                        '--metrics=off', '--disable-version-check', '--no-git-ignore',
                        '--no-rewrite-rule-ids', '--disable-nosem',
                        '--novcs', '--project-root', str(snapshot),
@@ -151,7 +192,7 @@ def scan_repository(project_path: str) -> ScanResult:
             # accepts .PY; provide those targets explicitly with a safe argv budget.
             argument_size = sum(len(argument) + 3 for argument in command)
             for relative in sorted(copied):
-                if Path(relative).suffix != '.py':
+                if Path(relative).suffix != Path(relative).suffix.lower():
                     argument_size += len(relative) + 3
                     if argument_size < 28000:
                         command.append(relative)
@@ -187,9 +228,11 @@ def scan_repository(project_path: str) -> ScanResult:
                 for error in errors:
                     result.diagnostics.append({'code': 'scanner_error',
                         'type': error.get('type', 'unknown')})
-                scanned = set()
                 for scanned_path in data.get('paths', {}).get('scanned', []):
                     scanned.add(repository_relative_path(scanned_path, snapshot))
+                if not scanned <= copied:
+                    scanned.clear()
+                    raise ValueError('Unexpected scanned path')
                 result.diagnostics.append({'code': 'scanner_coverage', 'files': len(scanned)})
                 for missing in sorted(copied - scanned):
                     result.diagnostics.append({'code': 'scanner_skipped_file', 'file': missing})
@@ -206,6 +249,20 @@ def scan_repository(project_path: str) -> ScanResult:
         result.diagnostics.append({'code': 'scanner_timeout', 'seconds': 60})
     except (OSError, ValueError, TypeError):
         result.diagnostics.append({'code': 'scanner_or_filesystem_unavailable'})
+    finally:
+        result.coverage = {
+            'detected_languages': sorted(detected),
+            'analyzed_languages': sorted({LANGUAGE[Path(file).suffix.lower()] for file in scanned}),
+            'unsupported_languages': sorted(detected - PACKS.keys()),
+            'scanned_files': len(scanned),
+            'excluded_files': excluded_files,
+            'excluded_directory_count': pruned_directories,
+            'unscanned_supported_files': len(copied - scanned),
+            'rule_sets': sorted(packs),
+            'status': ('unsupported' if any(item['code'] == 'no_supported_files' for item in result.diagnostics)
+                       else 'timeout' if any(item['code'] == 'scanner_timeout' for item in result.diagnostics)
+                       else result.status),
+        }
     result.findings.sort(key=lambda f: (f['file'], f['start_line'], f['rule_id'], f['id']))
     for finding in result.findings:
         result.summary['total'] += 1

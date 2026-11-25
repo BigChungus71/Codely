@@ -41,6 +41,8 @@ def _scan_input(scan_result, inventory):
         findings = []
         for raw in payload['findings']:
             file = repository_relative_path(raw['file'], inventory.root)
+            if raw['rule_id'].startswith(('codely.java.', 'codely.web.')) and Path(file).suffix.lower() != '.py':
+                continue
             if file not in inventory.trees or raw['end_line'] < raw['start_line']:
                 raise ValueError('Invalid finding location')
             if raw['end_line'] > len(inventory.texts[file].splitlines()):

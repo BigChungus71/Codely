@@ -121,7 +121,7 @@ def test_invalid_repository_arguments(value):
 
 
 def test_unsupported_only_repository_is_not_clean(tmp_path, monkeypatch):
-    (tmp_path / 'sample.js').write_text('eval(value)')
+    (tmp_path / 'sample.go').write_text('package sample')
     def unexpected(*args, **kwargs):
         pytest.fail('Scanner should not run without supported files')
     monkeypatch.setattr(adapter.subprocess, 'run', unexpected)

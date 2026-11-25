@@ -1,0 +1,97 @@
+rules:
+- id: codely.java.sql-concatenation
+  languages:
+  - java
+  severity: WARNING
+  message: Review concatenated SQL and bind dynamic values using a parameterized
+    query. The pattern does not establish input provenance.
+  metadata:
+    title: Concatenated SQL at execution
+    cwe:
+    - CWE-89
+  pattern-either:
+  - pattern: $STMT.executeQuery($LEFT + $RIGHT)
+  - pattern: $STMT.executeUpdate($LEFT + $RIGHT)
+  - pattern: $STMT.execute($LEFT + $RIGHT)
+- id: codely.java.command-concatenation
+  languages:
+  - java
+  severity: WARNING
+  message: Use a fixed program and validated arguments. The pattern does not
+    establish whether input is untrusted.
+  metadata:
+    title: Concatenated string passed to command execution
+    cwe:
+    - CWE-78
+  pattern: Runtime.getRuntime().exec($LEFT + $RIGHT, ...)
+- id: codely.java.object-stream
+  languages:
+  - java
+  severity: WARNING
+  message: Review whether serialized input is trusted and use an object input
+    filter or a safer format.
+  metadata:
+    title: Java object deserialization
+    cwe:
+    - CWE-502
+  pattern: new java.io.ObjectInputStream(...)
+- id: codely.java.weak-digest
+  languages:
+  - java
+  severity: WARNING
+  message: Review MD5 or SHA-1 use. A checksum use may be intentional, but these
+    algorithms are unsuitable for security-sensitive integrity or password
+    storage.
+  metadata:
+    title: Legacy message-digest algorithm
+    cwe:
+    - CWE-327
+  pattern-either:
+  - pattern: java.security.MessageDigest.getInstance("MD5", ...)
+  - pattern: java.security.MessageDigest.getInstance("SHA-1", ...)
+- id: codely.java.xml-factory
+  languages:
+  - java
+  severity: INFO
+  message: Verify the parser disables external entities and DTDs when handling
+    untrusted XML. Factory creation alone does not determine the effective
+    configuration.
+  metadata:
+    title: XML parser factory requires review
+    cwe:
+    - CWE-611
+  pattern: javax.xml.parsers.DocumentBuilderFactory.newInstance(...)
+- id: codely.java.permissive-hostname-verifier
+  languages:
+  - java
+  severity: WARNING
+  message: A verifier that always accepts names bypasses hostname verification.
+    Use the platform TLS verifier.
+  metadata:
+    title: Permissive TLS hostname verifier
+    cwe:
+    - CWE-297
+  pattern-either:
+  - pattern: $CONNECTION.setHostnameVerifier(($HOST, $SESSION) -> true)
+  - pattern: $CONNECTION.setDefaultHostnameVerifier(($HOST, $SESSION) -> true)
+- id: codely.java.csrf-disabled
+  languages:
+  - java
+  severity: WARNING
+  message: Review whether disabling CSRF is appropriate for the authentication
+    and client model.
+  metadata:
+    title: Spring Security CSRF protection disabled
+    cwe:
+    - CWE-352
+  pattern-either:
+  - pattern: $HTTP.csrf().disable()
+  - pattern: $HTTP.csrf($CSRF -> $CSRF.disable())
+- id: codely.java.credential-literal
+  languages: [java]
+  severity: WARNING
+  message: Review this credential-like variable initialized with a literal. Confirm it is a placeholder or load its value from a secret store.
+  metadata:
+    title: Credential-like Java literal
+    cwe: [CWE-798]
+  pattern-regex: '(?i)\bString\s+(?:password|apiKey|clientSecret)\s*=\s*"[^"\r\n]{6,}"'

@@ -41,6 +41,60 @@
       "items": {
         "$ref": "#/$defs/finding"
       }
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "detected_languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analyzed_languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unsupported_languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rule_sets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scanned_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded_directory_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unscanned_supported_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "partial",
+            "error",
+            "unsupported",
+            "timeout"
+          ]
+        }
+      }
     }
   },
   "$defs": {

@@ -118,3 +118,25 @@ original scanner regressions. The demo scans two Python files, returns two
 synthetic security findings, and evaluates to 8 PASS / 2 FAIL / 1 NEEDS_REVIEW /
 4 NOT_APPLICABLE. No code from that repository is executed. No Phase 4 work, API
 endpoints or frontend implementation is included.
+
+## Phase 4 repository structure
+
+`backend.app.analyzers.structure_analyzer.analyze_repository(path)` returns a
+versioned JSON-serializable RepositoryStructure without executing/importing target
+source. It extracts symbols, imports, direct dependency evidence, call syntax and
+framework/component indicators. Enclosing-function/class helpers prepare source
+context navigation without invoking Gemini.
+
+See [STRUCTURE_INTEGRATION.md](STRUCTURE_INTEGRATION.md),
+[the schema](contracts/repository-structure-v1.schema.json) and
+[the exact fixture example](contracts/examples/repository-structure-v1.json).
+The example is intentionally partial because it includes an invalid Python file.
+
+```powershell
+python -m backend.app.analyzers.structure_cli fixtures/structure_demo
+```
+
+Phase 4 verification: 61 new AST tests and 210 total passing tests, including
+19 native scanner/checklist tests. No dependencies or prior finding/checklist
+contracts changed. Import evidence is not a complete runtime call graph.
+No Phase 5 graph or impact mapping is implemented.

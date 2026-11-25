@@ -70,3 +70,17 @@ Full Phase 3 regression: 149 passing tests (130 unit/static, 19 native). The
 original twelve security rules and 37-fixture/25-finding expectations still pass.
 The new demo output is committed in contracts/examples/checklist-v1.json and
 compared exactly against real native scanner/checklist output in tests.
+
+## Phase 4 structure worker seam
+
+Call `backend.app.analyzers.structure_analyzer.analyze_repository(path).to_dict()`
+from repository root, or use `app.analyzers.structure_analyzer` from backend/.
+This is a distinct repository-structure contract, not the `{nodes, edges}`
+architecture-hook response. Do not plug it directly into that hook. Future graph
+work can aggregate its explicit import edges; no API or graph adapter is added.
+Enclosing-symbol helpers accept a relative file and line for future evidence
+context lookup; no Gemini call or automatic source export occurs.
+
+Phase 3 remote completion at 98b9d8d was verified first. Full Phase 4 regression:
+210 passed, including all prior 19 native tests; 61 tests cover the new AST engine.
+See STRUCTURE_INTEGRATION.md for capabilities, uncertainty and limits.

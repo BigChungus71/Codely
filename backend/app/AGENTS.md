@@ -14,3 +14,10 @@ CODELY_RUN_SEMGREP_INTEGRATION=1 outside the restricted sandbox.
 Checklist v1.0.0 is in app/checklists. Its evaluator must reuse the provided
 current-version scanner result, preserve uncertainty, and never emit source or
 secret values. See CHECKLIST_INTEGRATION.md. Stop before Phase 4.
+
+The user subsequently authorized Phase 4 AST structure analysis, committed and
+pushed only to security-analysis. Its interface is structure_analyzer.analyze_repository,
+with a separate repository-structure-v1 contract. Never execute/import target code
+or emit literal values. Preserve unresolved/ambiguous evidence and classify
+heuristics as inferred. See STRUCTURE_INTEGRATION.md. Stop before Phase 5; no
+full graph, impact mapping, architecture adapter, API/frontend or Gemini work.

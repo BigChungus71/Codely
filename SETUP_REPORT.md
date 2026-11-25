@@ -367,3 +367,64 @@ no Git history/tracking or image inspection, limited dependency format parsing,
 static naming/framework indicators and required stable caller-owned repositories.
 Backend branches still need to be combined by the team; no live endpoint wiring
 or hosted CI result is claimed. Phase 4 has not begun.
+
+## Phase 4 — repository structure analyzer (2026-11-25)
+
+Prerequisites verified: clean security-analysis at 98b9d8d90a5304362074a338526cb1affba5316d,
+matching remote; Phase 3 saved report showed 149 passing tests. No Phase 3 work
+was incomplete. The current task authorizes Phase 4 and its branch-only commit/push.
+
+Added structure_analyzer.py with separate discovery, extraction, resolution and
+CLI modules. The engine uses the Python standard library, with no new dependency
+or target import/execution. Existing scanner, rule pack, finding normalizer,
+checklist, requirements and teammate modules remain unchanged.
+
+Public interface: analyze_repository(project_path: str, *, options=StructureOptions())
+returns RepositoryStructure with .to_dict(). Separate helpers locate enclosing
+functions/classes from relative file and line, including Windows separators and
+decorator extents. No source is automatically exported to Gemini.
+
+Extraction covers modules, classes/bases, sync/async functions and methods,
+parameters, decorators, direct/annotated/unpacked module assignment names, imports,
+call syntax and explicitly supported framework routes/components. Locations are
+retained; named-symbol IDs survive unrelated line insertions. All literal values
+(defaults, arguments, assignments, string annotations, docstrings and route paths)
+are omitted/redacted. Identifier/path names remain for navigation.
+
+Discovery safely bounds file count/size, repository bytes, visited entries and
+per-file/aggregate AST nodes. It prunes mandatory exclusions, skips linked/reparse
+paths, validates repository boundaries, honors Python encoding cookies and reports
+unreadable, malformed and over-limit files. No raw source/exception snippets are
+logged. Stable caller-owned files remain a required filesystem-race boundary.
+
+Import resolution covers absolute/relative statements, aliases, package initializers,
+namespace directories, nested packages and common src layouts. File-backed unique
+targets create evidence-linked import dependencies; missing/ambiguous targets
+create no fabricated edges. Known/declared external and host stdlib namespaces
+are distinguished from unknown imports without loading them. This is not a
+complete runtime import/call graph, installation verifier or import-hook emulator.
+
+The representative fixture has 13 files, 12 parsed files, one deliberate syntax
+error, four classes, eight functions, sixteen imports, seven internal dependencies
+and three unresolved references. It includes FastAPI/Flask routes, service/data/
+auth/config/model modules, async methods, aliases, relative imports, nested packages
+and circular-import evidence. The full example JSON is generated from those files
+and checked against contracts/repository-structure-v1.schema.json.
+
+Actual final full suite: 210 passed in 51.43s, comprising 191 unit/static tests
+(including 61 new AST tests) and the original 19 native scanner/checklist tests.
+The original 37 security fixtures still produce exactly 25 expected findings.
+Permission and path-escape rejection are tested with controlled mocks; no security
+protections or system permissions were changed. The shared checkout itself was
+also analyzed without execution: 82 files discovered, 81 parsed, partial status
+for the deliberate syntax-error fixture. Its ignored local report is
+.semgrep-local/phase4-shared-repository.json. Unresolved dynamic/candidate references
+remain explicit and do not imply verified runtime dependencies.
+
+Created analyzer modules, 61 tests, 13 static demo files, versioned schema/example
+and STRUCTURE_INTEGRATION.md. Updated security docs, this report and scoped AGENTS;
+added an LF attribute only for the new fixtures to preserve example byte counts
+across Windows checkouts. Original CodeRAG hashes and local backup are preserved.
+No backend/frontend, scanner/checklist schema, full graph, impact mapping, cycle
+detector or architecture recommendation engine was changed/implemented. Phase 5
+has not begun. See STRUCTURE_INTEGRATION.md for usage and remaining limitations.

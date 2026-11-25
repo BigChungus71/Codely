@@ -1,3 +1,4 @@
 # Preserve exact supplied source bytes and historical whitespace for provenance.
 reference/coderag/** -text whitespace=-blank-at-eol
 *.zip -text
+fixtures/structure_demo/** text eol=lf

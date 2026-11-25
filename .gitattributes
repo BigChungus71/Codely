@@ -4,3 +4,6 @@ reference/coderag/** -text whitespace=-blank-at-eol
 fixtures/structure_demo/** text eol=lf
 fixtures/impact_demo/** text eol=lf
 fixtures/architecture_rules_demo/** text eol=lf
+fixtures/spring_boot_demo/** text eol=lf
+fixtures/express_demo/** text eol=lf
+fixtures/fullstack_demo/** text eol=lf

@@ -219,7 +219,7 @@ def test_invalid_repositories(value):
 
 def test_empty_and_unsupported_repositories(tmp_path):
     assert analyze_repository(str(tmp_path)).status == 'error'
-    write(tmp_path, {'app.js':'throw new Error("never run")'})
+    write(tmp_path, {'sample.go':'package sample\n'})
     result = analyze_repository(str(tmp_path))
     assert result.status == 'error' and result.coverage['unsupported_files'] == 1
 

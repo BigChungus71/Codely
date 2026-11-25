@@ -1,0 +1,3336 @@
+{
+  "schema_version": "1.0.0",
+  "status": "complete",
+  "profile": {
+    "languages": [
+      "python",
+      "tsx"
+    ],
+    "frameworks": [
+      "fastapi",
+      "flask",
+      "react"
+    ],
+    "package_managers": [
+      "npm",
+      "pip",
+      "typescript"
+    ],
+    "config_file_kinds": [
+      "dockerfile",
+      "json",
+      "manifest"
+    ],
+    "dependency_manifests": [
+      "backend/requirements.txt",
+      "frontend/package.json"
+    ],
+    "technologies": [
+      "fastapi",
+      "flask",
+      "nodejs",
+      "os",
+      "react",
+      "sqlite3"
+    ]
+  },
+  "timings_ms": {
+    "scan_ms": 3430.34,
+    "structure_ms": 11.96,
+    "graph_ms": 0.71,
+    "checklist_ms": 12.32,
+    "impact_ms": 0.76,
+    "architecture_rules_ms": 0.4,
+    "total_ms": 3456.52
+  },
+  "scan": {
+    "status": "complete",
+    "summary": {
+      "total": 2,
+      "critical": 0,
+      "high": 1,
+      "medium": 1,
+      "low": 0
+    },
+    "findings": [
+      {
+        "id": "finding_793792602421fd01",
+        "rule_id": "codely.python.sql-injection",
+        "source": "semgrep",
+        "severity": "HIGH",
+        "title": "Potential SQL injection",
+        "file": "backend/app/repository.py",
+        "start_line": 11,
+        "end_line": 11,
+        "message": "Supported user input reaches a SQL query argument; use bound query parameters.",
+        "cwe": [
+          "CWE-89"
+        ]
+      },
+      {
+        "id": "finding_31336847b37cc57a",
+        "rule_id": "codely.web.dangerously-set-inner-html",
+        "source": "semgrep",
+        "severity": "MEDIUM",
+        "title": "React dangerouslySetInnerHTML usage",
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 10,
+        "end_line": 10,
+        "message": "Review React dangerouslySetInnerHTML usage and sanitize untrusted HTML before rendering.",
+        "cwe": [
+          "CWE-79"
+        ]
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "coverage",
+        "language": "multi",
+        "snapshot_files": 8,
+        "excluded_directories": [
+          ".git",
+          ".next",
+          ".semgrep-local",
+          ".venv",
+          "__pycache__",
+          "build",
+          "coverage",
+          "dist",
+          "node_modules",
+          "out",
+          "reference",
+          "target",
+          "venv"
+        ],
+        "unsupported_files": 5,
+        "rule_set": "python-security-v2"
+      },
+      {
+        "code": "scanner_exit",
+        "exit_code": 0
+      },
+      {
+        "code": "scanner_coverage",
+        "files": 8
+      }
+    ],
+    "coverage": {
+      "detected_languages": [
+        "python",
+        "typescript"
+      ],
+      "analyzed_languages": [
+        "python",
+        "typescript"
+      ],
+      "unsupported_languages": [],
+      "scanned_files": 8,
+      "excluded_files": 5,
+      "excluded_directory_count": 0,
+      "unscanned_supported_files": 0,
+      "rule_sets": [
+        "python-security-v2",
+        "web-security-v1"
+      ],
+      "status": "complete"
+    }
+  },
+  "structure": {
+    "schema_version": "1.0.0",
+    "status": "complete",
+    "summary": {
+      "files": 8,
+      "parsed_files": 8,
+      "modules": 8,
+      "classes": 2,
+      "functions": 6,
+      "imports": 11,
+      "external_dependencies": 5,
+      "stdlib_dependencies": 2,
+      "internal_dependencies": 4,
+      "unresolved_references": 2
+    },
+    "files": [
+      {
+        "file": "backend/app/__init__.py",
+        "status": "parsed",
+        "size_bytes": 35,
+        "encoding": "utf-8",
+        "line_count": 1,
+        "module_id": "module_cdbaec5fe2aeb3e2152a"
+      },
+      {
+        "file": "backend/app/main.py",
+        "status": "parsed",
+        "size_bytes": 222,
+        "encoding": "utf-8",
+        "line_count": 8,
+        "module_id": "module_82608d38c4441937a3cf"
+      },
+      {
+        "file": "backend/app/repository.py",
+        "status": "parsed",
+        "size_bytes": 371,
+        "encoding": "utf-8",
+        "line_count": 11,
+        "module_id": "module_a423e2958516e3d727e5"
+      },
+      {
+        "file": "backend/app/routes.py",
+        "status": "parsed",
+        "size_bytes": 254,
+        "encoding": "utf-8",
+        "line_count": 10,
+        "module_id": "module_e75fd7d4022ed93f7b96"
+      },
+      {
+        "file": "backend/app/services.py",
+        "status": "parsed",
+        "size_bytes": 219,
+        "encoding": "utf-8",
+        "line_count": 7,
+        "module_id": "module_c6b26823a075d1c47d80"
+      },
+      {
+        "file": "backend/app/unrelated.py",
+        "status": "parsed",
+        "size_bytes": 135,
+        "encoding": "utf-8",
+        "line_count": 3,
+        "module_id": "module_6ee5eb37638e5f5ff322"
+      },
+      {
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "status": "parsed",
+        "size_bytes": 171,
+        "language": "tsx",
+        "encoding": "utf-8",
+        "line_count": 6,
+        "module_id": "module_7e49e4e03d356214e251"
+      },
+      {
+        "file": "frontend/src/components/OrderList.tsx",
+        "status": "parsed",
+        "size_bytes": 346,
+        "language": "tsx",
+        "encoding": "utf-8",
+        "line_count": 13,
+        "module_id": "module_59a9695c3b64c8de8158"
+      }
+    ],
+    "modules": [
+      {
+        "id": "module_cdbaec5fe2aeb3e2152a",
+        "file": "backend/app/__init__.py",
+        "is_package": true,
+        "parsed": true,
+        "names": [
+          "backend.app"
+        ],
+        "start_line": 1,
+        "end_line": 1
+      },
+      {
+        "id": "module_82608d38c4441937a3cf",
+        "file": "backend/app/main.py",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "backend.app.main"
+        ],
+        "start_line": 1,
+        "end_line": 8
+      },
+      {
+        "id": "module_a423e2958516e3d727e5",
+        "file": "backend/app/repository.py",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "backend.app.repository"
+        ],
+        "start_line": 1,
+        "end_line": 11
+      },
+      {
+        "id": "module_e75fd7d4022ed93f7b96",
+        "file": "backend/app/routes.py",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "backend.app.routes"
+        ],
+        "start_line": 1,
+        "end_line": 10
+      },
+      {
+        "id": "module_c6b26823a075d1c47d80",
+        "file": "backend/app/services.py",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "backend.app.services"
+        ],
+        "start_line": 1,
+        "end_line": 7
+      },
+      {
+        "id": "module_6ee5eb37638e5f5ff322",
+        "file": "backend/app/unrelated.py",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "backend.app.unrelated"
+        ],
+        "start_line": 1,
+        "end_line": 3
+      },
+      {
+        "id": "module_7e49e4e03d356214e251",
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "components/OrderBadge",
+          "frontend/src/components/OrderBadge"
+        ],
+        "start_line": 1,
+        "end_line": 6,
+        "language": "tsx"
+      },
+      {
+        "id": "module_59a9695c3b64c8de8158",
+        "file": "frontend/src/components/OrderList.tsx",
+        "is_package": false,
+        "parsed": true,
+        "names": [
+          "components/OrderList",
+          "frontend/src/components/OrderList"
+        ],
+        "start_line": 1,
+        "end_line": 13,
+        "language": "tsx"
+      }
+    ],
+    "classes": [
+      {
+        "id": "class_f027e59aa387a5239cd4",
+        "module_id": "module_a423e2958516e3d727e5",
+        "parent_id": "module_a423e2958516e3d727e5",
+        "name": "OrderRepository",
+        "qualified_name": "OrderRepository",
+        "bases": [],
+        "decorators": [],
+        "extent_start_line": 6,
+        "file": "backend/app/repository.py",
+        "start_line": 6,
+        "end_line": 11,
+        "start_column": 0,
+        "end_column": 32
+      },
+      {
+        "id": "class_34402114f4b59a297add",
+        "module_id": "module_c6b26823a075d1c47d80",
+        "parent_id": "module_c6b26823a075d1c47d80",
+        "name": "OrderService",
+        "qualified_name": "OrderService",
+        "bases": [],
+        "decorators": [],
+        "extent_start_line": 5,
+        "file": "backend/app/services.py",
+        "start_line": 5,
+        "end_line": 7,
+        "start_column": 0,
+        "end_column": 53
+      }
+    ],
+    "functions": [
+      {
+        "id": "function_ed23a6b6952eddcf7c8e",
+        "module_id": "module_a423e2958516e3d727e5",
+        "parent_id": "class_f027e59aa387a5239cd4",
+        "name": "query_orders",
+        "qualified_name": "OrderRepository.query_orders",
+        "kind": "method",
+        "is_async": false,
+        "parameters": [
+          {
+            "name": "self",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": null,
+            "file": "backend/app/repository.py",
+            "start_line": 7,
+            "end_line": 7,
+            "start_column": 21,
+            "end_column": 25
+          },
+          {
+            "name": "status",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": "str",
+            "file": "backend/app/repository.py",
+            "start_line": 7,
+            "end_line": 7,
+            "start_column": 27,
+            "end_column": 38
+          }
+        ],
+        "decorators": [],
+        "return_annotation": null,
+        "extent_start_line": 7,
+        "file": "backend/app/repository.py",
+        "start_line": 7,
+        "end_line": 11,
+        "start_column": 4,
+        "end_column": 32
+      },
+      {
+        "id": "function_0ff7073ccca19f3a9807",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "parent_id": "module_e75fd7d4022ed93f7b96",
+        "name": "get_orders",
+        "qualified_name": "get_orders",
+        "kind": "function",
+        "is_async": false,
+        "parameters": [
+          {
+            "name": "status",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": "str",
+            "file": "backend/app/routes.py",
+            "start_line": 9,
+            "end_line": 9,
+            "start_column": 15,
+            "end_column": 26
+          }
+        ],
+        "decorators": [
+          {
+            "name": "router.get",
+            "is_factory": true,
+            "file": "backend/app/routes.py",
+            "start_line": 8,
+            "end_line": 8,
+            "start_column": 1,
+            "end_column": 26
+          }
+        ],
+        "return_annotation": null,
+        "extent_start_line": 8,
+        "file": "backend/app/routes.py",
+        "start_line": 9,
+        "end_line": 10,
+        "start_column": 0,
+        "end_column": 45
+      },
+      {
+        "id": "function_f342a2b270c1a7516285",
+        "module_id": "module_c6b26823a075d1c47d80",
+        "parent_id": "class_34402114f4b59a297add",
+        "name": "list_orders",
+        "qualified_name": "OrderService.list_orders",
+        "kind": "method",
+        "is_async": false,
+        "parameters": [
+          {
+            "name": "self",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": null,
+            "file": "backend/app/services.py",
+            "start_line": 6,
+            "end_line": 6,
+            "start_column": 20,
+            "end_column": 24
+          },
+          {
+            "name": "status",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": "str",
+            "file": "backend/app/services.py",
+            "start_line": 6,
+            "end_line": 6,
+            "start_column": 26,
+            "end_column": 37
+          }
+        ],
+        "decorators": [],
+        "return_annotation": null,
+        "extent_start_line": 6,
+        "file": "backend/app/services.py",
+        "start_line": 6,
+        "end_line": 7,
+        "start_column": 4,
+        "end_column": 53
+      },
+      {
+        "id": "function_7be4910120811a9503e0",
+        "module_id": "module_6ee5eb37638e5f5ff322",
+        "parent_id": "module_6ee5eb37638e5f5ff322",
+        "name": "format_currency",
+        "qualified_name": "format_currency",
+        "kind": "function",
+        "is_async": false,
+        "parameters": [
+          {
+            "name": "cents",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": "int",
+            "file": "backend/app/unrelated.py",
+            "start_line": 2,
+            "end_line": 2,
+            "start_column": 20,
+            "end_column": 30
+          }
+        ],
+        "decorators": [],
+        "return_annotation": "str",
+        "extent_start_line": 2,
+        "file": "backend/app/unrelated.py",
+        "start_line": 2,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 31
+      },
+      {
+        "id": "function_190de65a1f8e99023dea",
+        "module_id": "module_7e49e4e03d356214e251",
+        "parent_id": "module_7e49e4e03d356214e251",
+        "name": "OrderBadge",
+        "qualified_name": "OrderBadge",
+        "kind": "function",
+        "is_constructor": false,
+        "is_async": false,
+        "parameters": [
+          {
+            "name": "props",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": "{ label: string }",
+            "file": "frontend/src/components/OrderBadge.tsx",
+            "start_line": 4,
+            "end_line": 4,
+            "start_column": 27,
+            "end_column": 51
+          }
+        ],
+        "decorators": [],
+        "return_annotation": null,
+        "extent_start_line": 4,
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "start_line": 4,
+        "end_line": 6,
+        "start_column": 7,
+        "end_column": 1
+      },
+      {
+        "id": "function_62ddfb10248cd537b8d3",
+        "module_id": "module_59a9695c3b64c8de8158",
+        "parent_id": "module_59a9695c3b64c8de8158",
+        "name": "OrderList",
+        "qualified_name": "OrderList",
+        "kind": "function",
+        "is_constructor": false,
+        "is_async": false,
+        "parameters": [
+          {
+            "name": "props",
+            "kind": "positional",
+            "has_default": false,
+            "annotation": "{ note: string }",
+            "file": "frontend/src/components/OrderList.tsx",
+            "start_line": 5,
+            "end_line": 5,
+            "start_column": 26,
+            "end_column": 49
+          }
+        ],
+        "decorators": [],
+        "return_annotation": null,
+        "extent_start_line": 5,
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 5,
+        "end_line": 13,
+        "start_column": 7,
+        "end_column": 1
+      }
+    ],
+    "module_symbols": [
+      {
+        "id": "symbol_2148a341cd0e954ae244",
+        "module_id": "module_82608d38c4441937a3cf",
+        "name": "app",
+        "kind": "assignment",
+        "has_annotation": false,
+        "conditional": false,
+        "file": "backend/app/main.py",
+        "start_line": 6,
+        "end_line": 6,
+        "start_column": 0,
+        "end_column": 26
+      },
+      {
+        "id": "symbol_2cce170e1b281f3c943e",
+        "module_id": "module_82608d38c4441937a3cf",
+        "name": "ENV_NAME",
+        "kind": "assignment",
+        "has_annotation": false,
+        "conditional": false,
+        "file": "backend/app/main.py",
+        "start_line": 8,
+        "end_line": 8,
+        "start_column": 0,
+        "end_column": 38
+      },
+      {
+        "id": "symbol_4d5208d12d63daeb841e",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "name": "router",
+        "kind": "assignment",
+        "has_annotation": false,
+        "conditional": false,
+        "file": "backend/app/routes.py",
+        "start_line": 5,
+        "end_line": 5,
+        "start_column": 0,
+        "end_column": 20
+      }
+    ],
+    "imports": [
+      {
+        "id": "import_d5417ccbc7eacac2eb63",
+        "module_id": "module_82608d38c4441937a3cf",
+        "scope_id": "module_82608d38c4441937a3cf",
+        "module": "os",
+        "name": null,
+        "alias": null,
+        "binding": "os",
+        "level": 0,
+        "kind": "import",
+        "conditional": false,
+        "file": "backend/app/main.py",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 9,
+        "resolution": "stdlib",
+        "resolved_name": "os",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": "module",
+        "reason": "host_stdlib_module_name"
+      },
+      {
+        "id": "import_0109152e9719b975ad34",
+        "module_id": "module_82608d38c4441937a3cf",
+        "scope_id": "module_82608d38c4441937a3cf",
+        "module": "fastapi",
+        "name": "FastAPI",
+        "alias": null,
+        "binding": "FastAPI",
+        "level": 0,
+        "kind": "from",
+        "conditional": false,
+        "file": "backend/app/main.py",
+        "start_line": 3,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 27,
+        "resolution": "external",
+        "resolved_name": "fastapi",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": null,
+        "reason": "known_or_caller_declared_external_module"
+      },
+      {
+        "id": "import_1f3b58511859fba74adb",
+        "module_id": "module_82608d38c4441937a3cf",
+        "scope_id": "module_82608d38c4441937a3cf",
+        "module": "routes",
+        "name": "router",
+        "alias": null,
+        "binding": "router",
+        "level": 1,
+        "kind": "from",
+        "conditional": false,
+        "file": "backend/app/main.py",
+        "start_line": 4,
+        "end_line": 4,
+        "start_column": 0,
+        "end_column": 26,
+        "resolution": "internal",
+        "resolved_name": "backend.app.routes",
+        "candidate_module_ids": [
+          "module_e75fd7d4022ed93f7b96"
+        ],
+        "namespace_paths": [],
+        "symbol_status": "observed_declaration",
+        "reason": null
+      },
+      {
+        "id": "import_8704d6373bb3f34b2187",
+        "module_id": "module_a423e2958516e3d727e5",
+        "scope_id": "module_a423e2958516e3d727e5",
+        "module": "sqlite3",
+        "name": null,
+        "alias": null,
+        "binding": "sqlite3",
+        "level": 0,
+        "kind": "import",
+        "conditional": false,
+        "file": "backend/app/repository.py",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 14,
+        "resolution": "stdlib",
+        "resolved_name": "sqlite3",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": "module",
+        "reason": "host_stdlib_module_name"
+      },
+      {
+        "id": "import_240038b5ec84efd4ab81",
+        "module_id": "module_a423e2958516e3d727e5",
+        "scope_id": "module_a423e2958516e3d727e5",
+        "module": "flask",
+        "name": "request",
+        "alias": null,
+        "binding": "request",
+        "level": 0,
+        "kind": "from",
+        "conditional": false,
+        "file": "backend/app/repository.py",
+        "start_line": 3,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 25,
+        "resolution": "external",
+        "resolved_name": "flask",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": null,
+        "reason": "known_or_caller_declared_external_module"
+      },
+      {
+        "id": "import_a8d3a1a61706b34bc1e6",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "scope_id": "module_e75fd7d4022ed93f7b96",
+        "module": "fastapi",
+        "name": "APIRouter",
+        "alias": null,
+        "binding": "APIRouter",
+        "level": 0,
+        "kind": "from",
+        "conditional": false,
+        "file": "backend/app/routes.py",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 29,
+        "resolution": "external",
+        "resolved_name": "fastapi",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": null,
+        "reason": "known_or_caller_declared_external_module"
+      },
+      {
+        "id": "import_019f31bce441f3dfecdd",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "scope_id": "module_e75fd7d4022ed93f7b96",
+        "module": "services",
+        "name": "OrderService",
+        "alias": null,
+        "binding": "OrderService",
+        "level": 1,
+        "kind": "from",
+        "conditional": false,
+        "file": "backend/app/routes.py",
+        "start_line": 3,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 34,
+        "resolution": "internal",
+        "resolved_name": "backend.app.services",
+        "candidate_module_ids": [
+          "module_c6b26823a075d1c47d80"
+        ],
+        "namespace_paths": [],
+        "symbol_status": "observed_declaration",
+        "reason": null
+      },
+      {
+        "id": "import_5da53c5c08290473c119",
+        "module_id": "module_c6b26823a075d1c47d80",
+        "scope_id": "module_c6b26823a075d1c47d80",
+        "module": "repository",
+        "name": "OrderRepository",
+        "alias": null,
+        "binding": "OrderRepository",
+        "level": 1,
+        "kind": "from",
+        "conditional": false,
+        "file": "backend/app/services.py",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 39,
+        "resolution": "internal",
+        "resolved_name": "backend.app.repository",
+        "candidate_module_ids": [
+          "module_a423e2958516e3d727e5"
+        ],
+        "namespace_paths": [],
+        "symbol_status": "observed_declaration",
+        "reason": null
+      },
+      {
+        "id": "import_11712fc2bb54a9ccc069",
+        "module_id": "module_7e49e4e03d356214e251",
+        "scope_id": "module_7e49e4e03d356214e251",
+        "module": "react",
+        "name": "default",
+        "alias": null,
+        "binding": "React",
+        "level": 0,
+        "kind": "es_default",
+        "conditional": false,
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 26,
+        "resolution": "external",
+        "resolved_name": "react",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": null,
+        "reason": "known_or_caller_declared_external_module"
+      },
+      {
+        "id": "import_a378f7cce10eb2b0df75",
+        "module_id": "module_59a9695c3b64c8de8158",
+        "scope_id": "module_59a9695c3b64c8de8158",
+        "module": "react",
+        "name": "default",
+        "alias": null,
+        "binding": "React",
+        "level": 0,
+        "kind": "es_default",
+        "conditional": false,
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 26,
+        "resolution": "external",
+        "resolved_name": "react",
+        "candidate_module_ids": [],
+        "namespace_paths": [],
+        "symbol_status": null,
+        "reason": "known_or_caller_declared_external_module"
+      },
+      {
+        "id": "import_6978c34d05bf3738f9ac",
+        "module_id": "module_59a9695c3b64c8de8158",
+        "scope_id": "module_59a9695c3b64c8de8158",
+        "module": "@/components/OrderBadge",
+        "name": "OrderBadge",
+        "alias": null,
+        "binding": "OrderBadge",
+        "level": 0,
+        "kind": "es_named",
+        "conditional": false,
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 3,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 53,
+        "resolution": "internal",
+        "resolved_name": "@/components/OrderBadge",
+        "candidate_module_ids": [
+          "module_7e49e4e03d356214e251"
+        ],
+        "namespace_paths": [],
+        "symbol_status": null,
+        "reason": "tsconfig_path_alias_match"
+      }
+    ],
+    "calls": [
+      {
+        "id": "call_d1115fba7e8d9afb7745",
+        "module_id": "module_82608d38c4441937a3cf",
+        "scope_id": "module_82608d38c4441937a3cf",
+        "callee": "FastAPI",
+        "import_qualified_name": "fastapi.FastAPI",
+        "resolution": "syntactic_only",
+        "file": "backend/app/main.py",
+        "start_line": 6,
+        "end_line": 6,
+        "start_column": 6,
+        "end_column": 26
+      },
+      {
+        "id": "call_7526fe29ba62b9a9e1b2",
+        "module_id": "module_82608d38c4441937a3cf",
+        "scope_id": "module_82608d38c4441937a3cf",
+        "callee": "app.include_router",
+        "import_qualified_name": null,
+        "resolution": "syntactic_only",
+        "file": "backend/app/main.py",
+        "start_line": 7,
+        "end_line": 7,
+        "start_column": 0,
+        "end_column": 26
+      },
+      {
+        "id": "call_b632632d218d1c7d6b2d",
+        "module_id": "module_82608d38c4441937a3cf",
+        "scope_id": "module_82608d38c4441937a3cf",
+        "callee": "os.getenv",
+        "import_qualified_name": "os.getenv",
+        "resolution": "syntactic_only",
+        "file": "backend/app/main.py",
+        "start_line": 8,
+        "end_line": 8,
+        "start_column": 11,
+        "end_column": 38
+      },
+      {
+        "id": "call_95cdd4214fa81f9dfee2",
+        "module_id": "module_a423e2958516e3d727e5",
+        "scope_id": "function_ed23a6b6952eddcf7c8e",
+        "callee": "request.args.get",
+        "import_qualified_name": "flask.request.args.get",
+        "resolution": "syntactic_only",
+        "file": "backend/app/repository.py",
+        "start_line": 8,
+        "end_line": 8,
+        "start_column": 22,
+        "end_column": 48
+      },
+      {
+        "id": "call_920559b389bc4af4fca3",
+        "module_id": "module_a423e2958516e3d727e5",
+        "scope_id": "function_ed23a6b6952eddcf7c8e",
+        "callee": "sqlite3.connect",
+        "import_qualified_name": "sqlite3.connect",
+        "resolution": "syntactic_only",
+        "file": "backend/app/repository.py",
+        "start_line": 10,
+        "end_line": 10,
+        "start_column": 15,
+        "end_column": 43
+      },
+      {
+        "id": "call_b472624b1bb6218a5c68",
+        "module_id": "module_a423e2958516e3d727e5",
+        "scope_id": "function_ed23a6b6952eddcf7c8e",
+        "callee": "conn.execute",
+        "import_qualified_name": null,
+        "resolution": "syntactic_only",
+        "file": "backend/app/repository.py",
+        "start_line": 11,
+        "end_line": 11,
+        "start_column": 15,
+        "end_column": 32
+      },
+      {
+        "id": "call_bbe9d50c9b593019a1f8",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "scope_id": "module_e75fd7d4022ed93f7b96",
+        "callee": "APIRouter",
+        "import_qualified_name": "fastapi.APIRouter",
+        "resolution": "syntactic_only",
+        "file": "backend/app/routes.py",
+        "start_line": 5,
+        "end_line": 5,
+        "start_column": 9,
+        "end_column": 20
+      },
+      {
+        "id": "call_9bfaf426ad58acc0eb79",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "scope_id": "module_e75fd7d4022ed93f7b96",
+        "callee": "router.get",
+        "import_qualified_name": null,
+        "resolution": "syntactic_only",
+        "file": "backend/app/routes.py",
+        "start_line": 8,
+        "end_line": 8,
+        "start_column": 1,
+        "end_column": 26
+      },
+      {
+        "id": "call_a4a71269bdad1bade955",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "scope_id": "function_0ff7073ccca19f3a9807",
+        "callee": "OrderService",
+        "import_qualified_name": null,
+        "resolution": "syntactic_only",
+        "file": "backend/app/routes.py",
+        "start_line": 10,
+        "end_line": 10,
+        "start_column": 11,
+        "end_column": 25
+      },
+      {
+        "id": "call_dd2cb562cb1c2fa00188",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "scope_id": "function_0ff7073ccca19f3a9807",
+        "callee": null,
+        "import_qualified_name": null,
+        "resolution": "dynamic_callable",
+        "file": "backend/app/routes.py",
+        "start_line": 10,
+        "end_line": 10,
+        "start_column": 11,
+        "end_column": 45
+      },
+      {
+        "id": "call_5e053ae64841ca1fff13",
+        "module_id": "module_c6b26823a075d1c47d80",
+        "scope_id": "function_f342a2b270c1a7516285",
+        "callee": null,
+        "import_qualified_name": null,
+        "resolution": "dynamic_callable",
+        "file": "backend/app/services.py",
+        "start_line": 7,
+        "end_line": 7,
+        "start_column": 15,
+        "end_column": 53
+      },
+      {
+        "id": "call_9ecc1fab10272ef0c772",
+        "module_id": "module_c6b26823a075d1c47d80",
+        "scope_id": "function_f342a2b270c1a7516285",
+        "callee": "OrderRepository",
+        "import_qualified_name": null,
+        "resolution": "syntactic_only",
+        "file": "backend/app/services.py",
+        "start_line": 7,
+        "end_line": 7,
+        "start_column": 15,
+        "end_column": 32
+      },
+      {
+        "id": "call_f484fb1db1df1f4f3a69",
+        "module_id": "module_59a9695c3b64c8de8158",
+        "scope_id": "function_62ddfb10248cd537b8d3",
+        "callee": "fetch",
+        "import_qualified_name": null,
+        "resolution": "syntactic_only",
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 6,
+        "end_line": 6,
+        "start_column": 2,
+        "end_column": 22
+      }
+    ],
+    "internal_dependencies": [
+      {
+        "id": "dependency_1f3b58511859fba74adb",
+        "source_module_id": "module_82608d38c4441937a3cf",
+        "target_module_id": "module_e75fd7d4022ed93f7b96",
+        "relationship": "imports",
+        "import_id": "import_1f3b58511859fba74adb",
+        "target_parsed": true,
+        "file": "backend/app/main.py",
+        "start_line": 4,
+        "end_line": 4
+      },
+      {
+        "id": "dependency_019f31bce441f3dfecdd",
+        "source_module_id": "module_e75fd7d4022ed93f7b96",
+        "target_module_id": "module_c6b26823a075d1c47d80",
+        "relationship": "imports",
+        "import_id": "import_019f31bce441f3dfecdd",
+        "target_parsed": true,
+        "file": "backend/app/routes.py",
+        "start_line": 3,
+        "end_line": 3
+      },
+      {
+        "id": "dependency_5da53c5c08290473c119",
+        "source_module_id": "module_c6b26823a075d1c47d80",
+        "target_module_id": "module_a423e2958516e3d727e5",
+        "relationship": "imports",
+        "import_id": "import_5da53c5c08290473c119",
+        "target_parsed": true,
+        "file": "backend/app/services.py",
+        "start_line": 2,
+        "end_line": 2
+      },
+      {
+        "id": "dependency_6978c34d05bf3738f9ac",
+        "source_module_id": "module_59a9695c3b64c8de8158",
+        "target_module_id": "module_7e49e4e03d356214e251",
+        "relationship": "imports",
+        "import_id": "import_6978c34d05bf3738f9ac",
+        "target_parsed": true,
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 3,
+        "end_line": 3
+      }
+    ],
+    "external_dependencies": [
+      {
+        "import_id": "import_d5417ccbc7eacac2eb63",
+        "module": "os",
+        "kind": "stdlib",
+        "file": "backend/app/main.py",
+        "start_line": 2,
+        "end_line": 2
+      },
+      {
+        "import_id": "import_0109152e9719b975ad34",
+        "module": "fastapi",
+        "kind": "external",
+        "file": "backend/app/main.py",
+        "start_line": 3,
+        "end_line": 3
+      },
+      {
+        "import_id": "import_8704d6373bb3f34b2187",
+        "module": "sqlite3",
+        "kind": "stdlib",
+        "file": "backend/app/repository.py",
+        "start_line": 2,
+        "end_line": 2
+      },
+      {
+        "import_id": "import_240038b5ec84efd4ab81",
+        "module": "flask",
+        "kind": "external",
+        "file": "backend/app/repository.py",
+        "start_line": 3,
+        "end_line": 3
+      },
+      {
+        "import_id": "import_a8d3a1a61706b34bc1e6",
+        "module": "fastapi",
+        "kind": "external",
+        "file": "backend/app/routes.py",
+        "start_line": 2,
+        "end_line": 2
+      },
+      {
+        "import_id": "import_11712fc2bb54a9ccc069",
+        "module": "react",
+        "kind": "external",
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "start_line": 2,
+        "end_line": 2
+      },
+      {
+        "import_id": "import_a378f7cce10eb2b0df75",
+        "module": "react",
+        "kind": "external",
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 2,
+        "end_line": 2
+      }
+    ],
+    "framework_indicators": [
+      {
+        "id": "framework_import_c1598260e92381f145e3",
+        "framework": "fastapi",
+        "kind": "import",
+        "binding": "FastAPI",
+        "symbol_id": "module_82608d38c4441937a3cf",
+        "file": "backend/app/main.py",
+        "start_line": 3,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 27
+      },
+      {
+        "id": "framework_3a5dce7aa1e3eda203da",
+        "framework": "fastapi",
+        "kind": "application",
+        "binding": "app",
+        "symbol_id": "module_82608d38c4441937a3cf",
+        "file": "backend/app/main.py",
+        "start_line": 6,
+        "end_line": 6,
+        "start_column": 0,
+        "end_column": 26
+      },
+      {
+        "id": "framework_import_aa087cf1aaf491a677e9",
+        "framework": "flask",
+        "kind": "import",
+        "binding": "request",
+        "symbol_id": "module_a423e2958516e3d727e5",
+        "file": "backend/app/repository.py",
+        "start_line": 3,
+        "end_line": 3,
+        "start_column": 0,
+        "end_column": 25
+      },
+      {
+        "id": "framework_import_75889bb2052d46d2f4d0",
+        "framework": "fastapi",
+        "kind": "import",
+        "binding": "APIRouter",
+        "symbol_id": "module_e75fd7d4022ed93f7b96",
+        "file": "backend/app/routes.py",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 29
+      },
+      {
+        "id": "framework_4332435e585805d5d988",
+        "framework": "fastapi",
+        "kind": "router",
+        "binding": "router",
+        "symbol_id": "module_e75fd7d4022ed93f7b96",
+        "file": "backend/app/routes.py",
+        "start_line": 5,
+        "end_line": 5,
+        "start_column": 0,
+        "end_column": 20
+      },
+      {
+        "id": "route_4c5bafc9661dce6af14f",
+        "framework": "fastapi",
+        "kind": "route",
+        "receiver": "router",
+        "receiver_kind": "router",
+        "symbol_id": "function_0ff7073ccca19f3a9807",
+        "methods": [
+          "GET"
+        ],
+        "path_is_literal": true,
+        "path": "<redacted>",
+        "file": "backend/app/routes.py",
+        "start_line": 8,
+        "end_line": 8,
+        "start_column": 1,
+        "end_column": 26
+      },
+      {
+        "id": "framework_import_b51cda2bbd2478cdad7c",
+        "framework": "react",
+        "kind": "import",
+        "binding": "React",
+        "symbol_id": "module_7e49e4e03d356214e251",
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 26
+      },
+      {
+        "id": "react_comp_096a0bd86dbb6bef7042",
+        "framework": "react",
+        "kind": "component",
+        "binding": "OrderBadge",
+        "symbol_id": "function_190de65a1f8e99023dea",
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "start_line": 4,
+        "end_line": 6,
+        "start_column": 7,
+        "end_column": 1
+      },
+      {
+        "id": "framework_import_4b21979825b0390ccd33",
+        "framework": "react",
+        "kind": "import",
+        "binding": "React",
+        "symbol_id": "module_59a9695c3b64c8de8158",
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 2,
+        "end_line": 2,
+        "start_column": 0,
+        "end_column": 26
+      },
+      {
+        "id": "react_comp_b54cf1e91362b8282120",
+        "framework": "react",
+        "kind": "component",
+        "binding": "OrderList",
+        "symbol_id": "function_62ddfb10248cd537b8d3",
+        "file": "frontend/src/components/OrderList.tsx",
+        "start_line": 5,
+        "end_line": 13,
+        "start_column": 7,
+        "end_column": 1
+      }
+    ],
+    "classifications": [
+      {
+        "component": "api_application",
+        "confidence": "confirmed",
+        "reason": "explicit_framework_constructor",
+        "module_id": "module_82608d38c4441937a3cf",
+        "symbol_id": null,
+        "evidence": {
+          "file": "backend/app/main.py",
+          "start_line": 6,
+          "end_line": 6,
+          "start_column": 0,
+          "end_column": 26
+        }
+      },
+      {
+        "component": "configuration",
+        "confidence": "confirmed",
+        "reason": "environment_api_indicator",
+        "module_id": "module_82608d38c4441937a3cf",
+        "symbol_id": null,
+        "evidence": {
+          "file": "backend/app/main.py",
+          "start_line": 8,
+          "end_line": 8,
+          "start_column": 11,
+          "end_column": 38
+        }
+      },
+      {
+        "component": "data_access",
+        "confidence": "confirmed",
+        "reason": "explicit_database_api",
+        "module_id": "module_a423e2958516e3d727e5",
+        "symbol_id": null,
+        "evidence": {
+          "file": "backend/app/repository.py",
+          "start_line": 10,
+          "end_line": 10,
+          "start_column": 15,
+          "end_column": 43
+        }
+      },
+      {
+        "component": "router",
+        "confidence": "confirmed",
+        "reason": "explicit_framework_constructor",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "symbol_id": null,
+        "evidence": {
+          "file": "backend/app/routes.py",
+          "start_line": 5,
+          "end_line": 5,
+          "start_column": 0,
+          "end_column": 20
+        }
+      },
+      {
+        "component": "controller",
+        "confidence": "confirmed",
+        "reason": "framework_route_decorator",
+        "module_id": "module_e75fd7d4022ed93f7b96",
+        "symbol_id": "function_0ff7073ccca19f3a9807",
+        "evidence": {
+          "file": "backend/app/routes.py",
+          "start_line": 8,
+          "end_line": 8,
+          "start_column": 1,
+          "end_column": 26
+        }
+      },
+      {
+        "component": "service",
+        "confidence": "inferred",
+        "reason": "filename_heuristic",
+        "module_id": "module_c6b26823a075d1c47d80",
+        "symbol_id": null,
+        "evidence": {
+          "file": "backend/app/services.py"
+        }
+      },
+      {
+        "component": "frontend_component",
+        "confidence": "confirmed",
+        "reason": "react_jsx_component",
+        "module_id": "module_7e49e4e03d356214e251",
+        "symbol_id": "function_190de65a1f8e99023dea",
+        "evidence": {
+          "file": "frontend/src/components/OrderBadge.tsx",
+          "start_line": 4,
+          "end_line": 6,
+          "start_column": 7,
+          "end_column": 1
+        }
+      },
+      {
+        "component": "frontend_component",
+        "confidence": "confirmed",
+        "reason": "react_jsx_component",
+        "module_id": "module_59a9695c3b64c8de8158",
+        "symbol_id": "function_62ddfb10248cd537b8d3",
+        "evidence": {
+          "file": "frontend/src/components/OrderList.tsx",
+          "start_line": 5,
+          "end_line": 13,
+          "start_column": 7,
+          "end_column": 1
+        }
+      }
+    ],
+    "unresolved_references": [
+      {
+        "kind": "call",
+        "reference_id": "call_dd2cb562cb1c2fa00188",
+        "reason": "dynamic_callable_or_import",
+        "file": "backend/app/routes.py",
+        "start_line": 10,
+        "end_line": 10
+      },
+      {
+        "kind": "call",
+        "reference_id": "call_5e053ae64841ca1fff13",
+        "reason": "dynamic_callable_or_import",
+        "file": "backend/app/services.py",
+        "start_line": 7,
+        "end_line": 7
+      }
+    ],
+    "diagnostics": [],
+    "coverage": {
+      "supported_language": "multi",
+      "parser_python_version": "3.11",
+      "column_units": "zero_based_utf8_bytes",
+      "discovered_files": 8,
+      "unresolved_imports": 0,
+      "ambiguous_imports": 0,
+      "dynamic_call_sites": 2,
+      "parsed_files": 8,
+      "skipped_files": 0,
+      "unsupported_files": 1,
+      "bytes_read": 1753,
+      "source_roots": [
+        ".",
+        "frontend/src"
+      ],
+      "excluded_paths": [],
+      "limits": {
+        "max_files": 5000,
+        "max_file_bytes": 1048576,
+        "max_repository_bytes": 52428800,
+        "max_entries": 50000,
+        "max_ast_nodes": 200000,
+        "max_repository_ast_nodes": 1000000
+      },
+      "limitations": [
+        "Static source evidence only; never a complete runtime import or call graph.",
+        "No target code, dependency installation, LLM, import hooks, or external API is executed.",
+        "Host Python grammar/stdlib and configured file, byte, entry and AST limits bound coverage.",
+        "Source-root candidates are conservative; runtime sys.path and packaging hooks are not evaluated.",
+        "Unknown external modules, dynamic imports/attributes, re-exports and wildcard symbols can remain unresolved.",
+        "Filename classifications are inferred; framework declarations do not prove runtime use or authentication coverage.",
+        "Literal defaults, annotation strings, route paths, arguments, assignment values and docstrings are omitted.",
+        "The caller must own a stable repository and prevent concurrent filesystem replacement."
+      ],
+      "languages": [
+        "python",
+        "tsx"
+      ],
+      "frameworks": [
+        "fastapi",
+        "flask",
+        "react"
+      ],
+      "package_managers": [
+        "npm",
+        "pip",
+        "typescript"
+      ],
+      "config_file_kinds": [
+        "dockerfile",
+        "json",
+        "manifest"
+      ],
+      "recognized_config_files": [
+        "Dockerfile",
+        "backend/requirements.txt",
+        "frontend/package.json",
+        "frontend/tsconfig.json"
+      ],
+      "semantic_relationships": [
+        {
+          "id": "sem_rel_a79ab5db9e02eba2b8be",
+          "source_module_id": "module_59a9695c3b64c8de8158",
+          "target_module_id": "module_e75fd7d4022ed93f7b96",
+          "relationship": "potential_api_call",
+          "confidence": "inferred",
+          "file": "frontend/src/components/OrderList.tsx",
+          "start_line": 6,
+          "end_line": 6,
+          "reference_id": "api_call_e3478a6fe72939000afa"
+        },
+        {
+          "id": "sem_rel_39eba10403dafe85c7ef",
+          "source_module_id": "module_59a9695c3b64c8de8158",
+          "target_module_id": "module_7e49e4e03d356214e251",
+          "relationship": "references_component",
+          "confidence": "confirmed",
+          "file": "frontend/src/components/OrderList.tsx",
+          "start_line": 9,
+          "end_line": 9,
+          "reference_id": "jsx_c28201e84e7fd1c25757"
+        }
+      ]
+    }
+  },
+  "architecture": {
+    "schema_version": "1.0.0",
+    "status": "complete",
+    "nodes": [
+      {
+        "id": "module_59a9695c3b64c8de8158",
+        "file": "frontend/src/components/OrderList.tsx",
+        "parsed": true,
+        "module_names": [],
+        "language": "tsx",
+        "label": "OrderList",
+        "type": "frontend_component",
+        "classifications": [
+          {
+            "type": "frontend_component",
+            "confidence": "confirmed",
+            "reason": "react_jsx_component",
+            "evidence": {
+              "file": "frontend/src/components/OrderList.tsx",
+              "start_line": 5,
+              "end_line": 13
+            }
+          }
+        ],
+        "classification_confidence": "confirmed",
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      {
+        "id": "module_6ee5eb37638e5f5ff322",
+        "file": "backend/app/unrelated.py",
+        "parsed": true,
+        "module_names": [
+          "backend.app.unrelated"
+        ],
+        "label": "backend.app.unrelated",
+        "type": "unclassified",
+        "classifications": [],
+        "classification_confidence": "unclassified",
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "id": "module_7e49e4e03d356214e251",
+        "file": "frontend/src/components/OrderBadge.tsx",
+        "parsed": true,
+        "module_names": [],
+        "language": "tsx",
+        "label": "OrderBadge",
+        "type": "frontend_component",
+        "classifications": [
+          {
+            "type": "frontend_component",
+            "confidence": "confirmed",
+            "reason": "react_jsx_component",
+            "evidence": {
+              "file": "frontend/src/components/OrderBadge.tsx",
+              "start_line": 4,
+              "end_line": 6
+            }
+          }
+        ],
+        "classification_confidence": "confirmed",
+        "fan_in": 1,
+        "fan_out": 0
+      },
+      {
+        "id": "module_82608d38c4441937a3cf",
+        "file": "backend/app/main.py",
+        "parsed": true,
+        "module_names": [
+          "backend.app.main"
+        ],
+        "label": "backend.app.main",
+        "type": "application_entry_point",
+        "classifications": [
+          {
+            "type": "application_entry_point",
+            "confidence": "confirmed",
+            "reason": "explicit_framework_constructor",
+            "evidence": {
+              "file": "backend/app/main.py",
+              "start_line": 6,
+              "end_line": 6
+            }
+          },
+          {
+            "type": "configuration",
+            "confidence": "confirmed",
+            "reason": "environment_api_indicator",
+            "evidence": {
+              "file": "backend/app/main.py",
+              "start_line": 8,
+              "end_line": 8
+            }
+          }
+        ],
+        "classification_confidence": "confirmed",
+        "fan_in": 0,
+        "fan_out": 1
+      },
+      {
+        "id": "module_a423e2958516e3d727e5",
+        "file": "backend/app/repository.py",
+        "parsed": true,
+        "module_names": [
+          "backend.app.repository"
+        ],
+        "label": "backend.app.repository",
+        "type": "data_access",
+        "classifications": [
+          {
+            "type": "data_access",
+            "confidence": "confirmed",
+            "reason": "explicit_database_api",
+            "evidence": {
+              "file": "backend/app/repository.py",
+              "start_line": 10,
+              "end_line": 10
+            }
+          }
+        ],
+        "classification_confidence": "confirmed",
+        "fan_in": 1,
+        "fan_out": 0
+      },
+      {
+        "id": "module_c6b26823a075d1c47d80",
+        "file": "backend/app/services.py",
+        "parsed": true,
+        "module_names": [
+          "backend.app.services"
+        ],
+        "label": "backend.app.services",
+        "type": "service",
+        "classifications": [
+          {
+            "type": "service",
+            "confidence": "inferred",
+            "reason": "filename_heuristic",
+            "evidence": {
+              "file": "backend/app/services.py"
+            }
+          }
+        ],
+        "classification_confidence": "inferred",
+        "fan_in": 1,
+        "fan_out": 1
+      },
+      {
+        "id": "module_cdbaec5fe2aeb3e2152a",
+        "file": "backend/app/__init__.py",
+        "parsed": true,
+        "module_names": [
+          "backend.app"
+        ],
+        "label": "backend.app",
+        "type": "unclassified",
+        "classifications": [],
+        "classification_confidence": "unclassified",
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "id": "module_e75fd7d4022ed93f7b96",
+        "file": "backend/app/routes.py",
+        "parsed": true,
+        "module_names": [
+          "backend.app.routes"
+        ],
+        "label": "backend.app.routes",
+        "type": "router",
+        "classifications": [
+          {
+            "type": "router",
+            "confidence": "confirmed",
+            "reason": "explicit_framework_constructor",
+            "evidence": {
+              "file": "backend/app/routes.py",
+              "start_line": 5,
+              "end_line": 5
+            }
+          },
+          {
+            "type": "controller",
+            "confidence": "confirmed",
+            "reason": "framework_route_decorator",
+            "evidence": {
+              "file": "backend/app/routes.py",
+              "start_line": 8,
+              "end_line": 8
+            }
+          }
+        ],
+        "classification_confidence": "confirmed",
+        "fan_in": 1,
+        "fan_out": 1
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_f327761a6b247b9be91f",
+        "source": "module_59a9695c3b64c8de8158",
+        "target": "module_7e49e4e03d356214e251",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_6978c34d05bf3738f9ac",
+            "file": "frontend/src/components/OrderList.tsx",
+            "start_line": 3,
+            "end_line": 3,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_59a9695c3b64c8de8158"
+          }
+        ],
+        "evidence_count": 1
+      },
+      {
+        "id": "edge_762c0101f1b75490ba2c",
+        "source": "module_82608d38c4441937a3cf",
+        "target": "module_e75fd7d4022ed93f7b96",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_1f3b58511859fba74adb",
+            "file": "backend/app/main.py",
+            "start_line": 4,
+            "end_line": 4,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_82608d38c4441937a3cf"
+          }
+        ],
+        "evidence_count": 1
+      },
+      {
+        "id": "edge_d42f66edafb4f4585dbb",
+        "source": "module_c6b26823a075d1c47d80",
+        "target": "module_a423e2958516e3d727e5",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_5da53c5c08290473c119",
+            "file": "backend/app/services.py",
+            "start_line": 2,
+            "end_line": 2,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_c6b26823a075d1c47d80"
+          }
+        ],
+        "evidence_count": 1
+      },
+      {
+        "id": "edge_fef77824bc3d3007eda8",
+        "source": "module_e75fd7d4022ed93f7b96",
+        "target": "module_c6b26823a075d1c47d80",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_019f31bce441f3dfecdd",
+            "file": "backend/app/routes.py",
+            "start_line": 3,
+            "end_line": 3,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_e75fd7d4022ed93f7b96"
+          }
+        ],
+        "evidence_count": 1
+      },
+      {
+        "id": "edge_18da97692470408f5506",
+        "source": "module_59a9695c3b64c8de8158",
+        "target": "module_7e49e4e03d356214e251",
+        "relationship": "references_component",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "import_id": "jsx_c28201e84e7fd1c25757",
+            "file": "frontend/src/components/OrderList.tsx",
+            "start_line": 9,
+            "end_line": 9,
+            "resolution": "semantic",
+            "conditional": false,
+            "target_parsed": true
+          }
+        ],
+        "evidence_count": 1
+      },
+      {
+        "id": "edge_581add008641d6fa0a94",
+        "source": "module_59a9695c3b64c8de8158",
+        "target": "module_e75fd7d4022ed93f7b96",
+        "relationship": "potential_api_call",
+        "confidence": "inferred",
+        "evidence": [
+          {
+            "import_id": "api_call_e3478a6fe72939000afa",
+            "file": "frontend/src/components/OrderList.tsx",
+            "start_line": 6,
+            "end_line": 6,
+            "resolution": "inferred_api",
+            "conditional": false,
+            "target_parsed": true
+          }
+        ],
+        "evidence_count": 1
+      }
+    ],
+    "statistics": {
+      "node_count": 8,
+      "edge_count": 4,
+      "import_evidence_count": 4,
+      "is_acyclic": true,
+      "self_import_count": 0,
+      "isolated_modules": [
+        "module_6ee5eb37638e5f5ff322",
+        "module_cdbaec5fe2aeb3e2152a"
+      ],
+      "isolated_module_count": 2,
+      "max_fan_in": 1,
+      "max_fan_out": 1,
+      "strong_component_count": 8,
+      "strong_components": [
+        {
+          "id": "scc_4cf64f55eadaffbcd6c7",
+          "node_ids": [
+            "module_59a9695c3b64c8de8158"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_455c9e13819622effc84",
+          "node_ids": [
+            "module_6ee5eb37638e5f5ff322"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_010259a9613066c12754",
+          "node_ids": [
+            "module_7e49e4e03d356214e251"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_ee5ae6ae167896978cf7",
+          "node_ids": [
+            "module_82608d38c4441937a3cf"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_3288ad37d08bcff023f6",
+          "node_ids": [
+            "module_a423e2958516e3d727e5"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_09e9541ba533a5bb5acd",
+          "node_ids": [
+            "module_c6b26823a075d1c47d80"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_73dd657a81fc7348ebbf",
+          "node_ids": [
+            "module_cdbaec5fe2aeb3e2152a"
+          ],
+          "size": 1,
+          "cyclic": false
+        },
+        {
+          "id": "scc_d4ed85039bcdf23cdd28",
+          "node_ids": [
+            "module_e75fd7d4022ed93f7b96"
+          ],
+          "size": 1,
+          "cyclic": false
+        }
+      ],
+      "cyclic_component_count": 0,
+      "cyclic_components": [],
+      "weak_component_count": 4,
+      "weak_components": [
+        {
+          "id": "wcc_10bba4bfdc2500d6ad7f",
+          "node_ids": [
+            "module_59a9695c3b64c8de8158",
+            "module_7e49e4e03d356214e251"
+          ],
+          "size": 2,
+          "edge_count": 1
+        },
+        {
+          "id": "wcc_455c9e13819622effc84",
+          "node_ids": [
+            "module_6ee5eb37638e5f5ff322"
+          ],
+          "size": 1,
+          "edge_count": 0
+        },
+        {
+          "id": "wcc_7468a9711e2aa170ab5e",
+          "node_ids": [
+            "module_82608d38c4441937a3cf",
+            "module_a423e2958516e3d727e5",
+            "module_c6b26823a075d1c47d80",
+            "module_e75fd7d4022ed93f7b96"
+          ],
+          "size": 4,
+          "edge_count": 3
+        },
+        {
+          "id": "wcc_73dd657a81fc7348ebbf",
+          "node_ids": [
+            "module_cdbaec5fe2aeb3e2152a"
+          ],
+          "size": 1,
+          "edge_count": 0
+        }
+      ],
+      "semantic_edge_count": 2
+    },
+    "diagnostics": [],
+    "coverage": {
+      "structure_status": "complete",
+      "relationship_scope": "resolved_internal_imports_only",
+      "structure_modules": 8,
+      "graph_modules": 8,
+      "parsed_modules": 8,
+      "unparsed_modules": 0,
+      "unresolved_imports": 0,
+      "ambiguous_imports": 0,
+      "namespace_imports_without_file": 0,
+      "duplicate_dependency_records_removed": 0,
+      "duplicate_module_records_removed": 0,
+      "limits": {
+        "max_nodes": 10000,
+        "max_edges": 100000,
+        "max_evidence_records": 200000
+      },
+      "limitations": [
+        "Edges represent resolved file-backed static imports: importer -> imported module, not runtime calls.",
+        "Unknown, ambiguous, namespace-only, external and stdlib imports do not create internal edges.",
+        "Unparsed modules and unresolved imports can hide dependencies; isolation and metrics concern only observed edges.",
+        "Confirmed roles mean explicit static evidence; inferred roles are naming heuristics, not enforced layers.",
+        "Cycles are detected by strongly connected components with one witness each; not every simple cycle is enumerated.",
+        "Graph metrics alone do not establish architecture quality, exploitability or vulnerability impact."
+      ]
+    }
+  },
+  "checklist": {
+    "catalog_version": "1.0.0",
+    "profile": {
+      "languages": [
+        "python",
+        "tsx"
+      ],
+      "frameworks": [
+        "fastapi",
+        "flask",
+        "react"
+      ],
+      "technologies": [
+        "fastapi",
+        "flask",
+        "nodejs",
+        "os",
+        "react",
+        "sqlite3"
+      ],
+      "dependency_manifests": [
+        "backend/requirements.txt",
+        "frontend/package.json"
+      ],
+      "evidence": [
+        {
+          "file": "backend/app/main.py",
+          "kind": "static_import",
+          "start_line": 2,
+          "end_line": 2,
+          "technology": "os"
+        },
+        {
+          "file": "backend/app/main.py",
+          "kind": "static_import",
+          "start_line": 3,
+          "end_line": 3,
+          "technology": "fastapi"
+        },
+        {
+          "file": "backend/app/repository.py",
+          "kind": "static_import",
+          "start_line": 2,
+          "end_line": 2,
+          "technology": "sqlite3"
+        },
+        {
+          "file": "backend/app/repository.py",
+          "kind": "static_import",
+          "start_line": 3,
+          "end_line": 3,
+          "technology": "flask"
+        },
+        {
+          "file": "backend/app/routes.py",
+          "kind": "static_import",
+          "start_line": 2,
+          "end_line": 2,
+          "technology": "fastapi"
+        },
+        {
+          "file": "frontend/src/components/OrderBadge.tsx",
+          "kind": "static_import",
+          "start_line": 1,
+          "end_line": 1,
+          "technology": "react"
+        },
+        {
+          "file": "frontend/src/components/OrderList.tsx",
+          "kind": "static_import",
+          "start_line": 1,
+          "end_line": 1,
+          "technology": "react"
+        }
+      ]
+    },
+    "coverage": {
+      "status": "complete",
+      "scanner_status": "complete",
+      "inventoried_files": 13,
+      "parsed_python_files": 6,
+      "diagnostics": [],
+      "excluded_directories": [
+        ".git",
+        ".next",
+        ".semgrep-local",
+        ".venv",
+        "__pycache__",
+        "build",
+        "coverage",
+        "dist",
+        "node_modules",
+        "out",
+        "reference",
+        "target",
+        "venv"
+      ],
+      "limitations": [
+        "Static Python/configuration indicators only; no exploitability or comprehensive compliance claim.",
+        "The caller must supply a trusted scanner result for the same stable repository version; no cross-run identity is inferred.",
+        "No uploaded code, dependencies, image build, network call, LLM, or additional security scan runs inside the checklist evaluator.",
+        "PASS is limited to the described indicator or local rule scope; zero findings does not establish security.",
+        "UTF-8, host Python grammar, bounded inventory, and generated-directory exclusions limit coverage.",
+        "Source values, environment values, raw scanner messages and raw dependency URLs are never copied to checklist output."
+      ]
+    },
+    "summary": {
+      "PASS": 5,
+      "FAIL": 1,
+      "NEEDS_REVIEW": 5,
+      "NOT_APPLICABLE": 4
+    },
+    "checks": [
+      {
+        "id": "CODELY-CHK-001",
+        "key": "hardcoded-credentials",
+        "title": "Hardcoded credential patterns",
+        "description": "No supported hardcoded credential pattern in the supplied complete scan.",
+        "cwe": [
+          "CWE-798"
+        ],
+        "reference_categories": [
+          "A07:2021 - Identification and Authentication Failures"
+        ],
+        "reference_urls": [
+          "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+        ],
+        "remediation": "Load secrets from a managed secret store or environment and rotate exposed credentials.",
+        "limitations": [
+          "Only credential-like names and literal patterns supported by the local rule pack are covered."
+        ],
+        "status": "PASS",
+        "reason": "no_supported_pattern_in_complete_scan",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-002",
+        "key": "environment-configuration",
+        "title": "Environment configuration indicator",
+        "description": "Observe static environment-based configuration access; this is not proof that all config is externalized.",
+        "cwe": [],
+        "reference_categories": [
+          "Twelve-Factor App: III. Config"
+        ],
+        "reference_urls": [
+          "https://12factor.net/config"
+        ],
+        "remediation": "Use deploy-time environment configuration instead of hardcoding deploy-specific values.",
+        "limitations": [
+          "An environment read is an indicator only; runtime settings and secret-store access are not verified."
+        ],
+        "status": "PASS",
+        "reason": "environment_access_observed",
+        "evidence": [
+          {
+            "file": "backend/app/main.py",
+            "kind": "environment_access",
+            "start_line": 8,
+            "end_line": 8
+          }
+        ],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-003",
+        "key": "sensitive-files-gitignore",
+        "title": "Sensitive filenames and ignore policy",
+        "description": "Inspect sensitive-named files and a bounded subset of root gitignore patterns.",
+        "cwe": [],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://git-scm.com/docs/gitignore"
+        ],
+        "remediation": "Exclude local secrets/private keys from version control; inspect tracking history and rotate any exposed values.",
+        "limitations": [
+          "No Git index/history inspection. Ignored sensitive files still require review; public certificate files may match names."
+        ],
+        "status": "NEEDS_REVIEW",
+        "reason": "bounded_root_ignore_policy",
+        "evidence": [
+          {
+            "file": ".gitignore",
+            "kind": "root_ignore_configuration"
+          }
+        ],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-004",
+        "key": "production-debug",
+        "title": "Explicit production debug settings",
+        "description": "Check supported Flask scan findings and explicit FastAPI/Django debug indicators.",
+        "cwe": [
+          "CWE-489"
+        ],
+        "reference_categories": [
+          "A05:2021 - Security Misconfiguration"
+        ],
+        "reference_urls": [
+          "https://flask.palletsprojects.com/en/stable/debugging/"
+        ],
+        "remediation": "Disable development debug mode in deployed applications and verify effective environment settings.",
+        "limitations": [
+          "No runtime or deployment environment is inferred; dynamic settings require review."
+        ],
+        "status": "PASS",
+        "reason": "no_supported_pattern_in_complete_scan",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-005",
+        "key": "tls-verification",
+        "title": "Explicit TLS verification flags",
+        "description": "Check supported disabled certificate-verification patterns.",
+        "cwe": [
+          "CWE-295"
+        ],
+        "reference_categories": [
+          "A02:2021 - Cryptographic Failures"
+        ],
+        "reference_urls": [
+          "https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification"
+        ],
+        "remediation": "Enable certificate verification and use a trusted CA bundle.",
+        "limitations": [
+          "Only requests/httpx/ssl patterns in the local pack are covered; custom transports are not modeled."
+        ],
+        "status": "NOT_APPLICABLE",
+        "reason": "no_supported_technology_indicator",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-006",
+        "key": "unsafe-sql",
+        "title": "Modeled SQL injection flows",
+        "description": "Check supported input-to-query flows, preserving existing Semgrep evidence.",
+        "cwe": [
+          "CWE-89"
+        ],
+        "reference_categories": [
+          "A03:2021 - Injection"
+        ],
+        "reference_urls": [
+          "https://docs.python.org/3/library/sqlite3.html#sqlite3-placeholders"
+        ],
+        "remediation": "Bind values separately from constant SQL using the database driver parameter API.",
+        "limitations": [
+          "OSS taint scope and modeled input sources only; no database runtime or universal query analysis."
+        ],
+        "status": "FAIL",
+        "reason": "supported_security_finding",
+        "evidence": [
+          {
+            "file": "backend/app/repository.py",
+            "start_line": 11,
+            "end_line": 11,
+            "kind": "semgrep_finding"
+          }
+        ],
+        "related_finding_ids": [
+          "finding_793792602421fd01"
+        ]
+      },
+      {
+        "id": "CODELY-CHK-007",
+        "key": "unsafe-command",
+        "title": "Modeled shell and dynamic execution risks",
+        "description": "Check supported shell input flows and dynamic eval/exec findings.",
+        "cwe": [
+          "CWE-78",
+          "CWE-95"
+        ],
+        "reference_categories": [
+          "A03:2021 - Injection"
+        ],
+        "reference_urls": [
+          "https://docs.python.org/3/library/subprocess.html#security-considerations"
+        ],
+        "remediation": "Use fixed executables and argument arrays without shell interpretation; avoid dynamic Python execution.",
+        "limitations": [
+          "No general shell=False argument-injection proof; supported taint sources and API names only."
+        ],
+        "status": "NOT_APPLICABLE",
+        "reason": "no_supported_technology_indicator",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-008",
+        "key": "password-hashing",
+        "title": "Supported password hash patterns",
+        "description": "Check fast hashing of password-named input in supported hashlib constructors.",
+        "cwe": [
+          "CWE-916"
+        ],
+        "reference_categories": [
+          "A07:2021 - Identification and Authentication Failures"
+        ],
+        "reference_urls": [
+          "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+        ],
+        "remediation": "Use a salted password KDF with an appropriate work factor.",
+        "limitations": [
+          "Naming-based indicators do not establish complete authentication or password-storage coverage."
+        ],
+        "status": "NOT_APPLICABLE",
+        "reason": "no_supported_technology_indicator",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-009",
+        "key": "unsafe-deserialization",
+        "title": "Modeled unsafe deserialization",
+        "description": "Check supported untrusted pickle flows and unsafe PyYAML loader patterns.",
+        "cwe": [
+          "CWE-502"
+        ],
+        "reference_categories": [
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "reference_urls": [
+          "https://docs.python.org/3/library/pickle.html"
+        ],
+        "remediation": "Use data-only formats and safe YAML loaders for untrusted input.",
+        "limitations": [
+          "Unmodeled inputs and custom serializers remain unassessed even with zero findings."
+        ],
+        "status": "NOT_APPLICABLE",
+        "reason": "no_supported_technology_indicator",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-010",
+        "key": "permissive-cors",
+        "title": "Static CORS configuration",
+        "description": "Inspect explicit origins and credentials on recognized FastAPI/Starlette and Flask-CORS APIs.",
+        "cwe": [
+          "CWE-942"
+        ],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://fastapi.tiangolo.com/tutorial/cors/"
+        ],
+        "remediation": "Use a reviewed explicit origin allowlist; do not combine wildcard origins and credentials.",
+        "limitations": [
+          "Wildcard public APIs need policy review; explicit allowlists are configuration indicators, not an authorization proof."
+        ],
+        "status": "NEEDS_REVIEW",
+        "reason": "cors_policy_not_observed",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-011",
+        "key": "authentication-indicators",
+        "title": "Authentication coverage indicators",
+        "description": "Locate authentication imports/decorators without claiming route protection.",
+        "cwe": [],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://fastapi.tiangolo.com/tutorial/security/"
+        ],
+        "remediation": "Review access policy and verify protected routes and object-level authorization with dedicated tests.",
+        "limitations": [
+          "Authentication decorators/imports never prove coverage. This check cannot return PASS from static indicators."
+        ],
+        "status": "NEEDS_REVIEW",
+        "reason": "authentication_coverage_cannot_be_proven_statically",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-012",
+        "key": "dependency-manifest",
+        "title": "Python dependency manifest presence",
+        "description": "Check for requirements files, pyproject.toml, Pipfile, setup.py or setup.cfg.",
+        "cwe": [],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/"
+        ],
+        "remediation": "Declare dependencies in a supported version-controlled manifest.",
+        "limitations": [
+          "Presence only; setup.py is never executed, and dependencies are never installed."
+        ],
+        "status": "PASS",
+        "reason": "manifest_presence_indicator",
+        "evidence": [
+          {
+            "file": "backend/requirements.txt",
+            "kind": "dependency_manifest"
+          },
+          {
+            "file": "frontend/package.json",
+            "kind": "dependency_manifest"
+          }
+        ],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-013",
+        "key": "dependency-constraints",
+        "title": "Dependency version declaration bounds",
+        "description": "Inspect requirements and PEP 621/build-system dependency specifiers.",
+        "cwe": [],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://packaging.python.org/en/latest/specifications/dependency-specifiers/"
+        ],
+        "remediation": "Pin application dependencies or use reviewed bounded compatible ranges and a maintained lock strategy.",
+        "limitations": [
+          "No vulnerability, resolution, compatibility or supply-chain audit. Includes, direct URLs and unparsed formats require review."
+        ],
+        "status": "NEEDS_REVIEW",
+        "reason": "bounded_version_declarations_only",
+        "evidence": [
+          {
+            "file": "backend/requirements.txt",
+            "start_line": 1,
+            "end_line": 1,
+            "kind": "dependency_declaration"
+          },
+          {
+            "file": "frontend/package.json",
+            "kind": "dependency_manifest"
+          }
+        ],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-014",
+        "key": "test-presence",
+        "title": "Python test filename indicator",
+        "description": "Check for test_*.py or *_test.py filenames without executing them.",
+        "cwe": [],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://docs.pytest.org/en/stable/explanation/goodpractices.html#test-discovery"
+        ],
+        "remediation": "Maintain and run security-relevant tests in a trusted development pipeline.",
+        "limitations": [
+          "Names indicate presence only, not test quality, passing status or exercised security coverage."
+        ],
+        "status": "NEEDS_REVIEW",
+        "reason": "presence_does_not_prove_test_quality",
+        "evidence": [],
+        "related_finding_ids": []
+      },
+      {
+        "id": "CODELY-CHK-015",
+        "key": "docker-user",
+        "title": "Docker final-stage user declaration",
+        "description": "Inspect an explicit USER declaration in the final Dockerfile stage.",
+        "cwe": [
+          "CWE-250"
+        ],
+        "reference_categories": [],
+        "reference_urls": [
+          "https://docs.docker.com/reference/dockerfile/#user"
+        ],
+        "remediation": "Declare an appropriate non-root runtime user in the final image and verify its effective UID.",
+        "limitations": [
+          "No image is built or inspected. Base-image defaults, named UID mappings and inherited stage users are not resolved."
+        ],
+        "status": "PASS",
+        "reason": "final_stage_user_declaration",
+        "evidence": [
+          {
+            "file": "Dockerfile",
+            "start_line": 2,
+            "end_line": 2,
+            "kind": "docker_nonroot_declaration"
+          }
+        ],
+        "related_finding_ids": []
+      }
+    ]
+  },
+  "impact": {
+    "schema_version": "1.0.0",
+    "status": "complete",
+    "scope": {
+      "type": "repository",
+      "finding_id": null
+    },
+    "summary": {
+      "findings_received": 2,
+      "findings_selected": 2,
+      "mapped_findings": 2,
+      "unmapped_findings": 0,
+      "vulnerable_modules": 2,
+      "analyzed_modules": 2,
+      "unique_direct_dependents": 1,
+      "unique_transitive_dependents": 2
+    },
+    "finding_impacts": [
+      {
+        "id": "impact_9afc5e4d5e233cf68e2f",
+        "finding_id": "finding_31336847b37cc57a",
+        "finding": {
+          "id": "finding_31336847b37cc57a",
+          "rule_id": "codely.web.dangerously-set-inner-html",
+          "source": "semgrep",
+          "severity": "MEDIUM",
+          "cwe": [
+            "CWE-79"
+          ],
+          "file": "frontend/src/components/OrderList.tsx",
+          "start_line": 10,
+          "end_line": 10
+        },
+        "mapping_status": "mapped",
+        "mapping_reason": "parsed_file_and_graph_node",
+        "vulnerable_node_id": "module_59a9695c3b64c8de8158",
+        "enclosing_symbol": {
+          "id": "function_62ddfb10248cd537b8d3",
+          "module_id": "module_59a9695c3b64c8de8158",
+          "parent_id": "module_59a9695c3b64c8de8158",
+          "name": "OrderList",
+          "qualified_name": "OrderList",
+          "kind": "function",
+          "is_async": false,
+          "file": "frontend/src/components/OrderList.tsx",
+          "start_line": 5,
+          "end_line": 13,
+          "extent_start_line": 5
+        },
+        "enclosing_function": {
+          "id": "function_62ddfb10248cd537b8d3",
+          "module_id": "module_59a9695c3b64c8de8158",
+          "parent_id": "module_59a9695c3b64c8de8158",
+          "name": "OrderList",
+          "qualified_name": "OrderList",
+          "kind": "function",
+          "is_async": false,
+          "file": "frontend/src/components/OrderList.tsx",
+          "start_line": 5,
+          "end_line": 13,
+          "extent_start_line": 5
+        },
+        "enclosing_class": null,
+        "module_impact_id": "module_impact_4cf64f55eadaffbcd6c7",
+        "direct_dependent_node_ids": [],
+        "transitive_dependent_node_ids": [],
+        "relevant_edge_ids": [],
+        "evidence_path_ids": [],
+        "source_references": [
+          {
+            "file": "frontend/src/components/OrderList.tsx",
+            "start_line": 10,
+            "end_line": 10,
+            "kind": "original_finding_location"
+          },
+          {
+            "file": "frontend/src/components/OrderList.tsx",
+            "start_line": 5,
+            "end_line": 13,
+            "kind": "enclosing_function"
+          }
+        ],
+        "coverage": {
+          "truncated": false,
+          "diagnostics": []
+        }
+      },
+      {
+        "id": "impact_125faf1b2b8ebd00d233",
+        "finding_id": "finding_793792602421fd01",
+        "finding": {
+          "id": "finding_793792602421fd01",
+          "rule_id": "codely.python.sql-injection",
+          "source": "semgrep",
+          "severity": "HIGH",
+          "cwe": [
+            "CWE-89"
+          ],
+          "file": "backend/app/repository.py",
+          "start_line": 11,
+          "end_line": 11
+        },
+        "mapping_status": "mapped",
+        "mapping_reason": "parsed_file_and_graph_node",
+        "vulnerable_node_id": "module_a423e2958516e3d727e5",
+        "enclosing_symbol": {
+          "id": "function_ed23a6b6952eddcf7c8e",
+          "module_id": "module_a423e2958516e3d727e5",
+          "parent_id": "class_f027e59aa387a5239cd4",
+          "name": "query_orders",
+          "qualified_name": "OrderRepository.query_orders",
+          "kind": "method",
+          "is_async": false,
+          "file": "backend/app/repository.py",
+          "start_line": 7,
+          "end_line": 11,
+          "extent_start_line": 7
+        },
+        "enclosing_function": {
+          "id": "function_ed23a6b6952eddcf7c8e",
+          "module_id": "module_a423e2958516e3d727e5",
+          "parent_id": "class_f027e59aa387a5239cd4",
+          "name": "query_orders",
+          "qualified_name": "OrderRepository.query_orders",
+          "kind": "method",
+          "is_async": false,
+          "file": "backend/app/repository.py",
+          "start_line": 7,
+          "end_line": 11,
+          "extent_start_line": 7
+        },
+        "enclosing_class": {
+          "id": "class_f027e59aa387a5239cd4",
+          "module_id": "module_a423e2958516e3d727e5",
+          "parent_id": "module_a423e2958516e3d727e5",
+          "name": "OrderRepository",
+          "qualified_name": "OrderRepository",
+          "file": "backend/app/repository.py",
+          "start_line": 6,
+          "end_line": 11,
+          "extent_start_line": 6,
+          "kind": "class"
+        },
+        "module_impact_id": "module_impact_3288ad37d08bcff023f6",
+        "direct_dependent_node_ids": [
+          "module_c6b26823a075d1c47d80"
+        ],
+        "transitive_dependent_node_ids": [
+          "module_e75fd7d4022ed93f7b96",
+          "module_82608d38c4441937a3cf"
+        ],
+        "relevant_edge_ids": [
+          "edge_762c0101f1b75490ba2c",
+          "edge_d42f66edafb4f4585dbb",
+          "edge_fef77824bc3d3007eda8"
+        ],
+        "evidence_path_ids": [
+          "impact_path_c718b3cf1ca0208a3c4d",
+          "impact_path_60bb05fb9e2627dff533",
+          "impact_path_fb04c6d52b423ea4d012"
+        ],
+        "source_references": [
+          {
+            "file": "backend/app/repository.py",
+            "start_line": 11,
+            "end_line": 11,
+            "kind": "original_finding_location"
+          },
+          {
+            "file": "backend/app/repository.py",
+            "start_line": 7,
+            "end_line": 11,
+            "kind": "enclosing_function"
+          },
+          {
+            "file": "backend/app/repository.py",
+            "start_line": 6,
+            "end_line": 11,
+            "kind": "enclosing_class"
+          }
+        ],
+        "coverage": {
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    ],
+    "module_impacts": [
+      {
+        "id": "module_impact_4cf64f55eadaffbcd6c7",
+        "vulnerable_node_id": "module_59a9695c3b64c8de8158",
+        "direct_dependent_node_ids": [],
+        "transitive_dependent_node_ids": [],
+        "dependency_distances": [],
+        "paths": [],
+        "relevant_edge_ids": [],
+        "summary": {
+          "direct_dependents": 0,
+          "transitive_dependents": 0,
+          "observed_direct_dependents": 0,
+          "returned_paths": 0
+        },
+        "coverage": {
+          "graph_status": "complete",
+          "truncated": false,
+          "limit_reasons": [],
+          "visited_nodes": 1,
+          "examined_edges": 0,
+          "path_search_edges": 0,
+          "path_expansions": 0,
+          "path_policy": "bounded_shortest_import_paths_only"
+        }
+      },
+      {
+        "id": "module_impact_3288ad37d08bcff023f6",
+        "vulnerable_node_id": "module_a423e2958516e3d727e5",
+        "direct_dependent_node_ids": [
+          "module_c6b26823a075d1c47d80"
+        ],
+        "transitive_dependent_node_ids": [
+          "module_e75fd7d4022ed93f7b96",
+          "module_82608d38c4441937a3cf"
+        ],
+        "dependency_distances": [
+          {
+            "node_id": "module_c6b26823a075d1c47d80",
+            "distance": 1,
+            "exposure": "direct_dependent"
+          },
+          {
+            "node_id": "module_e75fd7d4022ed93f7b96",
+            "distance": 2,
+            "exposure": "transitive_dependent"
+          },
+          {
+            "node_id": "module_82608d38c4441937a3cf",
+            "distance": 3,
+            "exposure": "transitive_dependent"
+          }
+        ],
+        "paths": [
+          {
+            "id": "impact_path_c718b3cf1ca0208a3c4d",
+            "target_id": "module_c6b26823a075d1c47d80",
+            "distance": 1,
+            "node_ids": [
+              "module_c6b26823a075d1c47d80",
+              "module_a423e2958516e3d727e5"
+            ],
+            "edge_ids": [
+              "edge_d42f66edafb4f4585dbb"
+            ]
+          },
+          {
+            "id": "impact_path_60bb05fb9e2627dff533",
+            "target_id": "module_e75fd7d4022ed93f7b96",
+            "distance": 2,
+            "node_ids": [
+              "module_e75fd7d4022ed93f7b96",
+              "module_c6b26823a075d1c47d80",
+              "module_a423e2958516e3d727e5"
+            ],
+            "edge_ids": [
+              "edge_fef77824bc3d3007eda8",
+              "edge_d42f66edafb4f4585dbb"
+            ]
+          },
+          {
+            "id": "impact_path_fb04c6d52b423ea4d012",
+            "target_id": "module_82608d38c4441937a3cf",
+            "distance": 3,
+            "node_ids": [
+              "module_82608d38c4441937a3cf",
+              "module_e75fd7d4022ed93f7b96",
+              "module_c6b26823a075d1c47d80",
+              "module_a423e2958516e3d727e5"
+            ],
+            "edge_ids": [
+              "edge_762c0101f1b75490ba2c",
+              "edge_fef77824bc3d3007eda8",
+              "edge_d42f66edafb4f4585dbb"
+            ]
+          }
+        ],
+        "relevant_edge_ids": [
+          "edge_762c0101f1b75490ba2c",
+          "edge_d42f66edafb4f4585dbb",
+          "edge_fef77824bc3d3007eda8"
+        ],
+        "summary": {
+          "direct_dependents": 1,
+          "transitive_dependents": 2,
+          "observed_direct_dependents": 1,
+          "returned_paths": 3
+        },
+        "coverage": {
+          "graph_status": "complete",
+          "truncated": false,
+          "limit_reasons": [],
+          "visited_nodes": 4,
+          "examined_edges": 3,
+          "path_search_edges": 3,
+          "path_expansions": 9,
+          "path_policy": "bounded_shortest_import_paths_only"
+        },
+        "inferred_relationships": [
+          {
+            "node_id": "module_59a9695c3b64c8de8158",
+            "target_node_id": "module_e75fd7d4022ed93f7b96",
+            "relationship": "potential_api_call",
+            "confidence": "inferred",
+            "edge_id": "edge_581add008641d6fa0a94"
+          }
+        ]
+      }
+    ],
+    "node_contexts": [
+      {
+        "id": "module_59a9695c3b64c8de8158",
+        "label": "OrderList",
+        "type": "frontend_component",
+        "file": "frontend/src/components/OrderList.tsx",
+        "parsed": true,
+        "classification_confidence": "confirmed",
+        "classifications": [
+          {
+            "type": "frontend_component",
+            "confidence": "confirmed",
+            "reason": "react_jsx_component",
+            "evidence": {
+              "file": "frontend/src/components/OrderList.tsx",
+              "start_line": 5,
+              "end_line": 13
+            }
+          }
+        ]
+      },
+      {
+        "id": "module_82608d38c4441937a3cf",
+        "label": "backend.app.main",
+        "type": "application_entry_point",
+        "file": "backend/app/main.py",
+        "parsed": true,
+        "classification_confidence": "confirmed",
+        "classifications": [
+          {
+            "type": "application_entry_point",
+            "confidence": "confirmed",
+            "reason": "explicit_framework_constructor",
+            "evidence": {
+              "file": "backend/app/main.py",
+              "start_line": 6,
+              "end_line": 6
+            }
+          },
+          {
+            "type": "configuration",
+            "confidence": "confirmed",
+            "reason": "environment_api_indicator",
+            "evidence": {
+              "file": "backend/app/main.py",
+              "start_line": 8,
+              "end_line": 8
+            }
+          }
+        ]
+      },
+      {
+        "id": "module_a423e2958516e3d727e5",
+        "label": "backend.app.repository",
+        "type": "data_access",
+        "file": "backend/app/repository.py",
+        "parsed": true,
+        "classification_confidence": "confirmed",
+        "classifications": [
+          {
+            "type": "data_access",
+            "confidence": "confirmed",
+            "reason": "explicit_database_api",
+            "evidence": {
+              "file": "backend/app/repository.py",
+              "start_line": 10,
+              "end_line": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "module_c6b26823a075d1c47d80",
+        "label": "backend.app.services",
+        "type": "service",
+        "file": "backend/app/services.py",
+        "parsed": true,
+        "classification_confidence": "inferred",
+        "classifications": [
+          {
+            "type": "service",
+            "confidence": "inferred",
+            "reason": "filename_heuristic",
+            "evidence": {
+              "file": "backend/app/services.py"
+            }
+          }
+        ]
+      },
+      {
+        "id": "module_e75fd7d4022ed93f7b96",
+        "label": "backend.app.routes",
+        "type": "router",
+        "file": "backend/app/routes.py",
+        "parsed": true,
+        "classification_confidence": "confirmed",
+        "classifications": [
+          {
+            "type": "router",
+            "confidence": "confirmed",
+            "reason": "explicit_framework_constructor",
+            "evidence": {
+              "file": "backend/app/routes.py",
+              "start_line": 5,
+              "end_line": 5
+            }
+          },
+          {
+            "type": "controller",
+            "confidence": "confirmed",
+            "reason": "framework_route_decorator",
+            "evidence": {
+              "file": "backend/app/routes.py",
+              "start_line": 8,
+              "end_line": 8
+            }
+          }
+        ]
+      }
+    ],
+    "evidence_edges": [
+      {
+        "id": "edge_762c0101f1b75490ba2c",
+        "source": "module_82608d38c4441937a3cf",
+        "target": "module_e75fd7d4022ed93f7b96",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_1f3b58511859fba74adb",
+            "file": "backend/app/main.py",
+            "start_line": 4,
+            "end_line": 4,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_82608d38c4441937a3cf"
+          }
+        ],
+        "evidence_count": 1,
+        "provided_evidence_count": 1,
+        "evidence_truncated": false
+      },
+      {
+        "id": "edge_d42f66edafb4f4585dbb",
+        "source": "module_c6b26823a075d1c47d80",
+        "target": "module_a423e2958516e3d727e5",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_5da53c5c08290473c119",
+            "file": "backend/app/services.py",
+            "start_line": 2,
+            "end_line": 2,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_c6b26823a075d1c47d80"
+          }
+        ],
+        "evidence_count": 1,
+        "provided_evidence_count": 1,
+        "evidence_truncated": false
+      },
+      {
+        "id": "edge_fef77824bc3d3007eda8",
+        "source": "module_e75fd7d4022ed93f7b96",
+        "target": "module_c6b26823a075d1c47d80",
+        "relationship": "imports",
+        "evidence": [
+          {
+            "import_id": "import_019f31bce441f3dfecdd",
+            "file": "backend/app/routes.py",
+            "start_line": 3,
+            "end_line": 3,
+            "resolution": "internal",
+            "conditional": false,
+            "target_parsed": true,
+            "scope_id": "module_e75fd7d4022ed93f7b96"
+          }
+        ],
+        "evidence_count": 1,
+        "provided_evidence_count": 1,
+        "evidence_truncated": false
+      }
+    ],
+    "diagnostics": [
+      {
+        "source": "scanner",
+        "code": "coverage"
+      },
+      {
+        "source": "scanner",
+        "code": "scanner_coverage"
+      },
+      {
+        "source": "scanner",
+        "code": "scanner_exit",
+        "exit_code": 0
+      }
+    ],
+    "coverage": {
+      "scanner_status": "complete",
+      "scanner_complete": true,
+      "structure_status": "complete",
+      "graph_status": "complete",
+      "graph_structure_consistent": true,
+      "snapshot_identity": "caller_required",
+      "dependency_scope": "resolved_internal_imports_only",
+      "dependency_gaps": {
+        "unresolved_imports": 0,
+        "ambiguous_imports": 0,
+        "namespace_imports_without_file": 0,
+        "unparsed_modules": 0
+      },
+      "diagnostics_truncated": false,
+      "truncated": false,
+      "limits": {
+        "traversal": {
+          "max_depth": 32,
+          "max_nodes": 1000,
+          "max_edges": 10000,
+          "max_paths": 128
+        },
+        "max_findings": 1000,
+        "max_modules": 128,
+        "max_path_search_edges": 10000,
+        "max_path_expansions": 10000,
+        "max_evidence_per_edge": 32,
+        "max_evidence_records": 10000,
+        "max_diagnostics": 100
+      },
+      "limitations": [
+        "Static import reachability indicates potential relevance, not confirmed exploit propagation or runtime calls.",
+        "Severity and CWE belong only to the original finding; dependent modules are not assigned that vulnerability.",
+        "The caller must supply scan, structure and graph from the same immutable repository version.",
+        "Cross-input references are checked, but these existing contracts do not prove repository snapshot identity.",
+        "Unknown, ambiguous, conditional, dynamic and omitted external dependencies limit coverage.",
+        "Only bounded shortest observed import paths are returned; longer alternate paths are not enumerated.",
+        "Unparsed source cannot be mapped to a trusted symbol; unmapped findings remain explicit.",
+        "Source text, finding title/message, literal values and raw diagnostics are omitted from this evidence package."
+      ]
+    }
+  },
+  "architecture_evaluation": {
+    "schema_version": "1.0.0",
+    "status": "complete",
+    "policy": {
+      "schema_version": "1.0.0",
+      "architecture_style": "layered",
+      "layers": {
+        "allowed_dependencies": {
+          "application_entry_point": [
+            "router",
+            "controller",
+            "service",
+            "authentication",
+            "configuration",
+            "utility"
+          ],
+          "controller": [
+            "service",
+            "authentication",
+            "configuration",
+            "utility"
+          ],
+          "data_access": [
+            "database_model",
+            "configuration",
+            "utility"
+          ],
+          "router": [
+            "service",
+            "authentication",
+            "configuration",
+            "utility"
+          ],
+          "service": [
+            "data_access",
+            "database_model",
+            "authentication",
+            "configuration",
+            "utility"
+          ]
+        },
+        "prohibited_dependencies": [
+          {
+            "source": "data_access",
+            "target": "controller",
+            "reason": "Data-access modules must not depend on HTTP controller modules."
+          }
+        ],
+        "prohibit_controller_to_data_access": true,
+        "allow_same_layer": true,
+        "include_inferred_roles": true
+      },
+      "thresholds": {
+        "max_module_lines": 400,
+        "max_module_functions": 15,
+        "max_module_classes": 8,
+        "max_class_methods": 15,
+        "max_function_lines": 60,
+        "max_function_parameters": 6,
+        "max_fan_in": 8,
+        "max_fan_out": 8,
+        "max_total_coupling": 12,
+        "max_inheritance_depth": 3,
+        "max_responsibility_groups_per_module": 3,
+        "include_tests_in_heuristics": false
+      },
+      "disabled_rules": [],
+      "check_circular_dependencies": true,
+      "check_unresolved_dependencies": true,
+      "policy_configured": true,
+      "layer_rules_active": true
+    },
+    "summary": {
+      "total_observations": 0,
+      "by_priority": {
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+      },
+      "by_category": {},
+      "by_evidence_classification": {
+        "confirmed_structural": 0,
+        "heuristic_maintainability": 0
+      },
+      "evaluated_modules": 8,
+      "evaluated_edges": 6,
+      "evaluated_classes": 2,
+      "evaluated_functions": 6
+    },
+    "observations": [],
+    "supporting_metrics": {
+      "graph": {
+        "node_count": 8,
+        "edge_count": 4,
+        "import_evidence_count": 4,
+        "is_acyclic": true,
+        "self_import_count": 0,
+        "isolated_modules": [
+          "module_6ee5eb37638e5f5ff322",
+          "module_cdbaec5fe2aeb3e2152a"
+        ],
+        "isolated_module_count": 2,
+        "max_fan_in": 1,
+        "max_fan_out": 1,
+        "strong_component_count": 8,
+        "strong_components": [
+          {
+            "id": "scc_4cf64f55eadaffbcd6c7",
+            "node_ids": [
+              "module_59a9695c3b64c8de8158"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_455c9e13819622effc84",
+            "node_ids": [
+              "module_6ee5eb37638e5f5ff322"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_010259a9613066c12754",
+            "node_ids": [
+              "module_7e49e4e03d356214e251"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_ee5ae6ae167896978cf7",
+            "node_ids": [
+              "module_82608d38c4441937a3cf"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_3288ad37d08bcff023f6",
+            "node_ids": [
+              "module_a423e2958516e3d727e5"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_09e9541ba533a5bb5acd",
+            "node_ids": [
+              "module_c6b26823a075d1c47d80"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_73dd657a81fc7348ebbf",
+            "node_ids": [
+              "module_cdbaec5fe2aeb3e2152a"
+            ],
+            "size": 1,
+            "cyclic": false
+          },
+          {
+            "id": "scc_d4ed85039bcdf23cdd28",
+            "node_ids": [
+              "module_e75fd7d4022ed93f7b96"
+            ],
+            "size": 1,
+            "cyclic": false
+          }
+        ],
+        "cyclic_component_count": 0,
+        "cyclic_components": [],
+        "weak_component_count": 4,
+        "weak_components": [
+          {
+            "id": "wcc_10bba4bfdc2500d6ad7f",
+            "node_ids": [
+              "module_59a9695c3b64c8de8158",
+              "module_7e49e4e03d356214e251"
+            ],
+            "size": 2,
+            "edge_count": 1
+          },
+          {
+            "id": "wcc_455c9e13819622effc84",
+            "node_ids": [
+              "module_6ee5eb37638e5f5ff322"
+            ],
+            "size": 1,
+            "edge_count": 0
+          },
+          {
+            "id": "wcc_7468a9711e2aa170ab5e",
+            "node_ids": [
+              "module_82608d38c4441937a3cf",
+              "module_a423e2958516e3d727e5",
+              "module_c6b26823a075d1c47d80",
+              "module_e75fd7d4022ed93f7b96"
+            ],
+            "size": 4,
+            "edge_count": 3
+          },
+          {
+            "id": "wcc_73dd657a81fc7348ebbf",
+            "node_ids": [
+              "module_cdbaec5fe2aeb3e2152a"
+            ],
+            "size": 1,
+            "edge_count": 0
+          }
+        ],
+        "semantic_edge_count": 2
+      },
+      "structure": {
+        "modules": 8,
+        "parsed_modules": 8,
+        "classes": 2,
+        "functions": 6,
+        "imports": 11,
+        "internal_dependencies": 4,
+        "external_dependencies": 7,
+        "unresolved_internal_imports": 0,
+        "ambiguous_imports": 0,
+        "unclassified_external_imports": 0
+      }
+    },
+    "diagnostics": [],
+    "coverage": {
+      "structure_status": "complete",
+      "graph_status": "complete",
+      "graph_structure_consistent": true,
+      "policy_configured": true,
+      "layer_rules_active": true,
+      "parsed_modules": 8,
+      "unparsed_modules": 0,
+      "unresolved_internal_imports": 0,
+      "ambiguous_imports": 0,
+      "unclassified_external_imports": 0,
+      "truncated": false,
+      "diagnostics_truncated": false,
+      "observations_truncated": false,
+      "limits": {
+        "max_observations": 500,
+        "max_affected_modules_per_observation": 100,
+        "max_source_locations_per_observation": 64,
+        "max_evidence_edges": 100,
+        "max_dependency_paths": 64,
+        "max_diagnostics": 100
+      },
+      "limitations": [
+        "Architecture observations are static structural indicators and heuristic guidelines, not runtime defects or security vulnerabilities.",
+        "Edges reflect observed static internal imports only; dynamic imports, reflection, runtime hooks and unknown external dependencies are not fully captured.",
+        "Inferred module roles rely on filename/path heuristics rather than confirmed framework or database bindings.",
+        "Size, coupling, inheritance and responsibility thresholds are configurable heuristics and do not produce an overall architecture quality score.",
+        "Recommendations are advisory, context-dependent and require human engineering review; source files are never automatically rewritten.",
+        "No runtime latency, throughput, scalability improvement or exploitability probability is claimed without runtime measurement."
+      ]
+    }
+  },
+  "diagnostics": [
+    {
+      "stage": "scanner",
+      "code": "coverage",
+      "language": "multi",
+      "snapshot_files": 8,
+      "excluded_directories": [
+        ".git",
+        ".next",
+        ".semgrep-local",
+        ".venv",
+        "__pycache__",
+        "build",
+        "coverage",
+        "dist",
+        "node_modules",
+        "out",
+        "reference",
+        "target",
+        "venv"
+      ],
+      "unsupported_files": 5,
+      "rule_set": "python-security-v2"
+    },
+    {
+      "stage": "scanner",
+      "code": "scanner_exit",
+      "exit_code": 0
+    },
+    {
+      "stage": "scanner",
+      "code": "scanner_coverage",
+      "files": 8
+    },
+    {
+      "stage": "impact",
+      "source": "scanner",
+      "code": "coverage"
+    },
+    {
+      "stage": "impact",
+      "source": "scanner",
+      "code": "scanner_coverage"
+    },
+    {
+      "stage": "impact",
+      "source": "scanner",
+      "code": "scanner_exit",
+      "exit_code": 0
+    }
+  ],
+  "coverage": {
+    "stage_statuses": {
+      "scan": "complete",
+      "structure": "complete",
+      "architecture": "complete",
+      "checklist": "complete",
+      "impact": "complete",
+      "architecture_rules": "complete"
+    },
+    "scan_coverage": {
+      "detected_languages": [
+        "python",
+        "typescript"
+      ],
+      "analyzed_languages": [
+        "python",
+        "typescript"
+      ],
+      "unsupported_languages": [],
+      "scanned_files": 8,
+      "excluded_files": 5,
+      "excluded_directory_count": 0,
+      "unscanned_supported_files": 0,
+      "rule_sets": [
+        "python-security-v2",
+        "web-security-v1"
+      ],
+      "status": "complete"
+    },
+    "files_analyzed": 8,
+    "total_discovered_code_files": 8
+  }
+}

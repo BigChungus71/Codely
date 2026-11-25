@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from backend.app.analyzers.semgrep_adapter import ROOT, scan_repository
+from backend.app.analyzers.semgrep_adapter import ROOT, RULE, scan_repository
 from tools.validate_security_rules import validate_rules
 
 
@@ -26,7 +26,8 @@ def real_scan():
 
 
 def test_native_rule_compilation():
-    assert validate_rules() == 12
+    assert validate_rules([RULE]) == 12
+    assert validate_rules() == 34
 
 
 @pytest.mark.parametrize('rule_id', RULE_IDS)

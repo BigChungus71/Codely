@@ -4,7 +4,6 @@ import { useTemplateCopy } from "@/components/foundations/template-copy/template
 
 import {
   RiAddFill,
-  RiChatAiLine,
   RiCloseLine,
   RiDashboardLine,
   RiFilter3Fill,
@@ -57,7 +56,6 @@ export function useStarterBase(): string {
 
 export function starterNav(base: string): DashboardNavItem[] {
   return [
-    { key: "chat", label: "Chat", icon: RiChatAiLine, href: base || "/" },
     { key: "scanner", label: "Scanner", icon: RiShieldCheckLine, href: `${base}/scanner` },
     { key: "dashboard", label: "Dashboard", icon: RiDashboardLine, href: `${base}/dashboard` },
   ];

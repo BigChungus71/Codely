@@ -6,6 +6,10 @@ import { RiCheckLine, RiFileCopyLine, RiVolumeMuteLine, RiVolumeUpLine } from "@
 import { motion, useReducedMotion } from "motion/react";
 import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import {
+  CodelyResearchLog,
+  matchResearchPlan,
+} from "@/components/application/agent-chat/codely-research-log";
 import { Logo } from "@/components/foundations/brand/logo";
 import { cx } from "@/utils/cx";
 
@@ -24,14 +28,20 @@ import { cx } from "@/utils/cx";
 export interface AgentMessageProps {
   role: string;
   text: string;
+  /** The user prompt this assistant message answers, used to render structured thinking/research steps. */
+  userPrompt?: string;
   /** True while this message is still being streamed. */
   streaming?: boolean;
   /** When the message first appeared, for the hover timestamp. */
   at?: number;
 }
 
-export function AgentMessage({ role, text, streaming = false, at }: AgentMessageProps) {
+export function AgentMessage({ role, text, userPrompt, streaming = false, at }: AgentMessageProps) {
   const localize = useTemplateCopy();
+  const researchPlan = useMemo(
+    () => (role === "assistant" ? matchResearchPlan(userPrompt) : null),
+    [role, userPrompt],
+  );
   if (!text) return null;
 
   if (role === "user") {
@@ -47,14 +57,12 @@ export function AgentMessage({ role, text, streaming = false, at }: AgentMessage
 
   return localize((
     <div className="group/message flex items-start gap-2.5 px-1">
-      <Logo size={28} className="mt-0.5 rounded-lg" />
+      <Logo size={24} className="mt-1" />
       <div className="flex min-w-0 max-w-[85%] flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <span className="text-caption-1-semibold text-text-primary">Codely</span>
-          <span className="rounded-full bg-background-tertiary-default px-1.5 py-0.5 text-[10px] font-medium leading-none text-text-secondary">
-            AI Bot
-          </span>
         </div>
+        {researchPlan && <CodelyResearchLog plan={researchPlan} streaming={streaming} />}
         <div className="rounded-2xl rounded-ss-sm border border-border-button-default bg-background-primary-default px-4 py-3 shadow-xs">
           <StreamedText text={text} />
         </div>

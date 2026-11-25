@@ -71,40 +71,27 @@ export function SidebarChatHistory({
   threads,
   activeId,
   onSelect,
-  onNewChat,
   onRename,
   onToggleUnread,
   onDelete,
   onExport,
   disabled = false,
-}: Omit<AgentChatHistoryProps, "className">) {
+}: Omit<AgentChatHistoryProps, "className" | "onNewChat"> & { onNewChat?: () => void }) {
   const localize = useTemplateCopy();
   return localize((
-    <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <div className="flex items-center justify-between px-1">
-        <span className="text-body-2-medium text-text-tertiary">Chats</span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onExport}
-            disabled={threads.length === 0}
-            aria-label={threads.length === 0 ? "No chats to export" : `Export ${threads.length} chats`}
-            title={threads.length === 0 ? "No chats to export" : `Export ${threads.length} chats`}
-            className="inline-flex size-6 cursor-pointer items-center justify-center rounded-md text-foreground-icon-tertiary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <RiDownloadLine className="size-3.5 shrink-0" aria-hidden />
-          </button>
-          <button
-            type="button"
-            onClick={onNewChat}
-            disabled={disabled}
-            aria-label="New chat"
-            title="New chat"
-            className="inline-flex size-6 cursor-pointer items-center justify-center rounded-md text-foreground-icon-secondary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <RiAddLine className="size-4 shrink-0" aria-hidden />
-          </button>
-        </div>
+    <div className="flex min-h-0 flex-1 flex-col gap-1.5">
+      <div className="flex items-center justify-between px-2">
+        <span className="text-body-2-medium text-text-tertiary">Recents</span>
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={threads.length === 0}
+          aria-label={threads.length === 0 ? "No chats to export" : `Export ${threads.length} chats`}
+          title={threads.length === 0 ? "No chats to export" : `Export ${threads.length} chats`}
+          className="inline-flex size-6 cursor-pointer items-center justify-center rounded-md text-foreground-icon-tertiary transition-colors hover:bg-background-secondary-hover hover:text-foreground-icon-primary disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <RiDownloadLine className="size-3.5 shrink-0" aria-hidden />
+        </button>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto [scrollbar-width:none]">

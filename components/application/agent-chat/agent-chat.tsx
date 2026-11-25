@@ -3,7 +3,7 @@
 import { useTemplateCopy } from "@/components/foundations/template-copy/template-copy";
 
 import { useChat } from "@ai-sdk/react";
-import { RiAddLine, RiCloseLine, RiMenuLine } from "@remixicon/react";
+import { RiCloseLine, RiMenuLine } from "@remixicon/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 
 import { DemoTransport, SwitchingTransport } from "@/components/application/agent-chat/demo-transport";
@@ -17,6 +17,7 @@ import {
 import { AgentMessage } from "@/components/application/agent-chat/agent-chat-message";
 import { AgentComposer } from "@/components/application/agent-chat/agent-composer";
 import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
+import { matchResearchPlan } from "@/components/application/agent-chat/codely-research-log";
 import { starterNav, useStarterBase } from "@/components/application/app-shell/app-shell";
 import { DashboardSidebar } from "@/components/application/dashboard/dashboard-sidebar";
 import { IconButton } from "@/components/base/buttons/icon-button";
@@ -68,11 +69,35 @@ export function AgentChat({
   const [scrolledUnder, setScrolledUnder] = useState(false);
   const [canClash, setCanClash] = useState(false);
   const [restored, setRestored] = useState(false);
+  /** True when no live provider key is present so queries stream via DemoTransport. */
+  const [demoMode, setDemoMode] = useState(true);
+  /** Index into WELCOME_TAGLINES; increments every time New Chat is clicked. */
+  const [taglineIndex, setTaglineIndex] = useState(0);
+  /** Brief shimmer across the middle tagline when New Chat is clicked. */
+  const [taglineShimmer, setTaglineShimmer] = useState(false);
 
-  /** Codely always starts in live mode; demo transport is a silent fallback. */
+  /** Codely routes live when configured, with transparent DemoTransport fallback. */
   const [transport] = useState(
     () => new SwitchingTransport(new DefaultChatTransport({ api: ENDPOINT }), new DemoTransport()),
   );
+
+  // Silent probe: if `/api/chat` has a configured key, use live streaming; otherwise stay in local stream mode.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(ENDPOINT, { method: "GET" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { configured?: boolean } | null) => {
+        if (!cancelled && data && data.configured === true) {
+          setDemoMode(false);
+        }
+      })
+      .catch(() => {
+        // Keep local stream mode on probe failure.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const { messages, sendMessage, setMessages, status, stop, error } = useChat({
     transport,
@@ -165,7 +190,8 @@ export function AgentChat({
     const trimmed = text.trim();
     if (!trimmed || busy) return;
     setActiveUpdatedAt(Date.now());
-    sendMessage({ text: trimmed }, { body: { demo: false } });
+    const isPresetShowcase = matchResearchPlan(trimmed) !== null;
+    sendMessage({ text: trimmed }, { body: { demo: demoMode || isPresetShowcase } });
     setInput("");
   };
 
@@ -185,6 +211,9 @@ export function AgentChat({
     setMessageAt({});
     setMessages([]);
     setInput("");
+    setTaglineIndex((prev) => (prev + 1) % WELCOME_TAGLINES.length);
+    setTaglineShimmer(true);
+    window.setTimeout(() => setTaglineShimmer(false), 1100);
   }, [busy, keepLiveThread, setMessages]);
 
   const renameThread = useCallback(
@@ -280,6 +309,11 @@ export function AgentChat({
       <DashboardSidebar
         items={navItems}
         selected="chat"
+        onNewChat={() => {
+          startNewChat();
+          setNavOpen(false);
+        }}
+        newChatBusy={busy}
         sidebarSlot={chatSidebarSlot}
         className="hidden lg:flex"
       />
@@ -298,6 +332,11 @@ export function AgentChat({
               mobile
               items={navItems}
               selected="chat"
+              onNewChat={() => {
+                startNewChat();
+                setNavOpen(false);
+              }}
+              newChatBusy={busy}
               sidebarSlot={chatSidebarSlot}
               onClose={() => setNavOpen(false)}
               className="flex"
@@ -337,18 +376,6 @@ export function AgentChat({
             </span>
 
             <div className="ms-auto flex items-center gap-1">
-              <button
-                type="button"
-                onClick={startNewChat}
-                disabled={busy || messages.length === 0}
-                aria-label="New chat"
-                title="New chat"
-                className="inline-flex h-7 cursor-pointer items-center gap-1 rounded-md px-2 text-body-2-medium text-text-secondary transition-colors hover:bg-background-primary-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <RiAddLine className="size-4 shrink-0" aria-hidden />
-                <span className="hidden sm:inline">New chat</span>
-              </button>
-
               <AgentChatActions
                 transcript={transcript}
                 onExport={exportThreads}
@@ -363,8 +390,14 @@ export function AgentChat({
           {messages.length === 0 ? (
             <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4">
               <div className="flex w-full max-w-2xl flex-col items-center gap-6">
-                <h2 className="text-center text-title-2-medium text-text-primary">
-                  What’s on the agenda today?
+                <h2
+                  key={taglineIndex}
+                  className={cx(
+                    "text-center text-title-2-medium transition-opacity duration-300",
+                    taglineShimmer ? "agent-progress-loading-text" : "text-text-primary",
+                  )}
+                >
+                  {WELCOME_TAGLINES[taglineIndex]}
                 </h2>
 
                 <AgentComposer
@@ -404,20 +437,29 @@ export function AgentChat({
                   ref={columnRef}
                   className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 pt-[72px] pb-6"
                 >
-                  {messages.map((message, index) => (
-                    <AgentMessage
-                      key={message.id}
-                      role={message.role}
-                      text={messageText(message)}
-                      streaming={busy && index === messages.length - 1}
-                      at={messageAt[message.id]}
-                    />
-                  ))}
+                  {messages.map((message, index) => {
+                    const prevUserPrompt =
+                      message.role === "assistant"
+                        ? [...messages.slice(0, index)]
+                            .reverse()
+                            .find((m) => m.role === "user")
+                        : undefined;
+                    return (
+                      <AgentMessage
+                        key={message.id}
+                        role={message.role}
+                        text={messageText(message)}
+                        userPrompt={prevUserPrompt ? messageText(prevUserPrompt) : undefined}
+                        streaming={busy && index === messages.length - 1}
+                        at={messageAt[message.id]}
+                      />
+                    );
+                  })}
 
                   {showThinking && (
                     <div className="flex items-center gap-2.5 px-1">
-                      <Logo size={28} className="rounded-lg" />
-                      <AgentThinking variant="wave" label="Codely is thinking…" />
+                      <Logo size={24} />
+                      <AgentThinking variant="wave" tone="accent" label="Codely is thinking…" />
                     </div>
                   )}
 
@@ -450,6 +492,15 @@ export function AgentChat({
     </div>
   ));
 }
+
+const WELCOME_TAGLINES = [
+  "What’s on the agenda today?",
+  "Ready to crush every bug like a pro?",
+  "Drop a repo, let’s hunt some vulnerabilities.",
+  "What are we building — or hardening — today?",
+  "Clean code starts with a sharp scan.",
+  "Got a tricky architecture puzzle? Let’s unpack it.",
+];
 
 const PRESET_QUESTIONS = [
   "How does Codely show structured thinking while a scan is running?",

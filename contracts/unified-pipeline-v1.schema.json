@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely unified analysis pipeline v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "profile",
+    "timings_ms",
+    "scan",
+    "structure",
+    "architecture",
+    "checklist",
+    "impact",
+    "architecture_evaluation",
+    "diagnostics",
+    "coverage"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "error"
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "languages",
+        "frameworks",
+        "package_managers",
+        "config_file_kinds",
+        "dependency_manifests",
+        "technologies"
+      ]
+    },
+    "timings_ms": {
+      "type": "object",
+      "required": [
+        "scan_ms",
+        "structure_ms",
+        "graph_ms",
+        "checklist_ms",
+        "impact_ms",
+        "architecture_rules_ms",
+        "total_ms"
+      ]
+    },
+    "scan": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "structure": {
+      "type": "object"
+    },
+    "architecture": {
+      "type": "object"
+    },
+    "checklist": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "impact": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "architecture_evaluation": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stage",
+          "code"
+        ]
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "stage_statuses",
+        "files_analyzed",
+        "total_discovered_code_files"
+      ]
+    }
+  }
+}

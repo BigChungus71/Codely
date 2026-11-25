@@ -7,6 +7,7 @@ import { ScannerUpload, type ScanFile } from "@/components/application/scanner/s
 import { ScannerGithubInput } from "@/components/application/scanner/scanner-github-input";
 import { ScannerConfig, type ScanConfig } from "@/components/application/scanner/scanner-config";
 import { ScannerResults, type ScanFinding } from "@/components/application/scanner/scanner-results";
+import { recordCodelyScan } from "@/utils/codely-metrics";
 import { cx } from "@/utils/cx";
 
 const GITHUB_RE = /^https:\/\/github\.com\/[^/]+\/[^/]+(\/.*)?$/;
@@ -101,6 +102,7 @@ export function ScannerPanel() {
     setTimeout(() => {
       setFindings(DEMO_FINDINGS);
       setScanState("done");
+      recordCodelyScan(DEMO_FINDINGS.length, Math.max(180, files.length * 140));
     }, 2200);
   };
 

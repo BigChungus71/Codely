@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codely system architecture graph",
+  "type": "object",
+  "required": [
+    "graph_type",
+    "status",
+    "nodes",
+    "edges",
+    "diagnostics",
+    "coverage"
+  ],
+  "properties": {
+    "graph_type": {
+      "const": "system"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "unsupported",
+        "error"
+      ]
+    },
+    "nodes": {
+      "type": "array",
+      "maxItems": 180,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file",
+          "files",
+          "type",
+          "label",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^(?!/|.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$"
+          },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^(?!/|.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "target",
+          "relationship",
+          "confidence",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "relationship": {
+            "enum": [
+              "contains",
+              "declares_integration",
+              "declares_field_type",
+              "constructor_dependency",
+              "imports",
+              "api_route_reference"
+            ]
+          },
+          "confidence": {
+            "enum": [
+              "confirmed",
+              "inferred"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "coverage": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": [
+        "file",
+        "start_line",
+        "end_line"
+      ],
+      "properties": {
+        "file": {
+          "type": "string",
+          "pattern": "^(?!/|.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$"
+        },
+        "start_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

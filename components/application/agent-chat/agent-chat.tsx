@@ -547,7 +547,7 @@ export function AgentChat({
                 </div>
               </div>
 
-              <div className="shrink-0 px-3 pb-3">
+              <div className="shrink-0 px-4 pb-5">
                 <div className="mx-auto w-full max-w-3xl">
                   <AgentComposer
                     value={input}

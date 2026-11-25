@@ -9,20 +9,22 @@ import { cx } from "@/utils/cx";
 export function Logo({
   size = 28,
   mono: _mono = false,
+  showDot = false,
   className,
 }: {
   size?: number;
   mono?: boolean;
+  showDot?: boolean;
   className?: string;
 }) {
-  return (
+  const images = (
     <>
       <Image
         src="/logo/codely-icon-light.png"
         alt="Codely"
         width={size}
         height={size}
-        className={cx("theme-logo-light shrink-0 object-contain", className)}
+        className={cx("theme-logo-light shrink-0 object-contain", !showDot && className)}
         priority
       />
       <Image
@@ -30,10 +32,37 @@ export function Logo({
         alt="Codely"
         width={size}
         height={size}
-        className={cx("theme-logo-dark shrink-0 object-contain", className)}
+        className={cx("theme-logo-dark shrink-0 object-contain", !showDot && className)}
         priority
       />
     </>
+  );
+
+  if (!showDot) return images;
+
+  const dotSize = Math.max(4, Math.round(size * 0.22));
+  // Matches the wordmark's bottom-right baseline alignment with `<>`.
+  const dotBaselineOffset = Math.round(size * 0.29);
+
+  return (
+    <span
+      dir="ltr"
+      className={cx("inline-flex shrink-0 items-end", className)}
+      style={{ gap: Math.max(1, Math.round(size * 0.05)) }}
+    >
+      <span className="relative inline-flex shrink-0" style={{ width: size, height: size }}>
+        {images}
+      </span>
+      <span
+        aria-hidden
+        className="shrink-0 rounded-full bg-accent-600"
+        style={{
+          width: dotSize,
+          height: dotSize,
+          marginBottom: dotBaselineOffset,
+        }}
+      />
+    </span>
   );
 }
 

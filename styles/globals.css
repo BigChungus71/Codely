@@ -840,8 +840,24 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+@keyframes bui-composer-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.74;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.bui-composer-glow-pulse {
+  animation: bui-composer-glow-pulse 2.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bui-composer-loader-rect {
+  .bui-composer-loader-rect,
+  .bui-composer-glow-pulse {
     animation: none !important;
   }
 }

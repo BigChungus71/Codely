@@ -35,12 +35,12 @@ const ANSWERS: DemoAnswer[] = [
       "Here's a Codely update in three sentences. This release adds real-time vulnerability scanning for uploaded files and GitHub repos, an OWASP-mapped findings view with severity chips, and a conversational fix-suggestion flow powered by your own model. Every result is explained in plain language so your whole team can act on it immediately.",
   },
   {
-    match: /names?\\b.*\\b(app|product|scheduling|startup|company)|name ideas|suggest.*names/i,
+    match: /names?\b.*\b(app|product|scheduling|startup|company)|name ideas|suggest.*names/i,
     reply:
       "Five names for a security-first dev tool: ShieldScript, VaultCode, PatchForge, BugCrusher, and SentinelCI. ShieldScript signals protection, VaultCode implies safety, PatchForge suggests active fixing, BugCrusher echoes the Codely slogan, and SentinelCI fits the CI/CD pipeline context.",
   },
   {
-    match: /hello|hi\\b|hey|good (morning|afternoon|evening)/i,
+    match: /\b(hello|hi|hey)\b|good (morning|afternoon|evening)/i,
     reply:
       "Hello! I'm Codely — here to help you crush every bug like a pro. Drop a file, paste a GitHub link, or just ask me a security question to get started.",
   },

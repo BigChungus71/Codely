@@ -103,7 +103,8 @@ export function AppShell({
 }) {
   const localize = useTemplateCopy();
   const [navOpen, setNavOpen] = useState(false);
-  const items = starterNav(useStarterBase());
+  const starterBase = useStarterBase();
+  const items = starterNav(starterBase);
   const selected = useStarterSelected();
 
   return localize((
@@ -122,7 +123,7 @@ export function AppShell({
             type="button"
             aria-label="Close navigation"
             onClick={() => setNavOpen(false)}
-            className="absolute inset-0 cursor-pointer bg-black/40"
+            className="absolute inset-0 cursor-pointer bg-background-full/70 backdrop-blur-xs"
           />
           <div className="relative flex h-full p-3">
             <DashboardSidebar
@@ -140,11 +141,11 @@ export function AppShell({
         <div className={cx("flex w-full max-w-[1300px] flex-col gap-2.5", columnClassName)}>
           <header className="flex w-full flex-col gap-2">
             <Breadcrumb>
-              <BreadcrumbItem href="#">
+              <BreadcrumbItem href={starterBase || "/"}>
                 <Avatar size="xs" color="blue" initials="C" />
                 Codely
               </BreadcrumbItem>
-              <BreadcrumbItem href="#">
+              <BreadcrumbItem>
                 <Avatar size="xs" color="neutral" initials="N" />
                 ninad
               </BreadcrumbItem>
@@ -157,7 +158,8 @@ export function AppShell({
                 <IconButton
                   icon={navOpen ? RiCloseLine : RiMenuLine}
                   size="medium"
-                  aria-label="Open navigation"
+                  aria-label={navOpen ? "Close navigation" : "Open navigation"}
+                  aria-expanded={navOpen}
                   onClick={() => setNavOpen((open) => !open)}
                   className="lg:hidden"
                 />

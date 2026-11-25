@@ -10,6 +10,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   RiAsterisk,
@@ -97,29 +98,17 @@ function NavItem({
   onClick?: () => void;
 }) {
   const localize = useTemplateCopy();
-  return localize((
-    <a
-      href={href}
-      onClick={
-        onClick
-          ? (event) => {
-              event.preventDefault();
-              onClick();
-            }
-          : undefined
-      }
-      aria-current={isSelected ? "page" : undefined}
-      aria-label={label}
-      title={collapsed ? label : undefined}
-      className={cx(
-        "flex items-center justify-between overflow-hidden rounded-2lg p-2",
-        "transition-[width,background-color] duration-300 ease-in-out",
-        collapsed ? "w-9" : "w-full",
-        isSelected
-          ? "bg-linear-to-b from-accent-500 to-accent-600 shadow-nav-selected"
-          : "hover:bg-background-secondary-hover",
-      )}
-    >
+  const isInternal = href.startsWith("/") && !onClick;
+  const classes = cx(
+    "flex items-center justify-between overflow-hidden rounded-2lg p-2",
+    "transition-[width,background-color] duration-300 ease-in-out",
+    collapsed ? "w-9" : "w-full",
+    isSelected
+      ? "bg-linear-to-b from-accent-500 to-accent-600 shadow-nav-selected"
+      : "hover:bg-background-secondary-hover",
+  );
+  const content = (
+    <>
       <span className="flex min-w-0 items-center gap-2">
         <Icon
           className={cx("size-5 shrink-0", isSelected ? "text-white" : "text-foreground-icon-secondary")}
@@ -137,6 +126,40 @@ function NavItem({
         </Collapsible>
       </span>
       {badge && <Collapsible collapsed={collapsed}>{badge}</Collapsible>}
+    </>
+  );
+
+  if (isInternal) {
+    return localize((
+      <Link
+        href={href}
+        aria-current={isSelected ? "page" : undefined}
+        aria-label={label}
+        title={collapsed ? label : undefined}
+        className={classes}
+      >
+        {content}
+      </Link>
+    ));
+  }
+
+  return localize((
+    <a
+      href={href}
+      onClick={
+        onClick
+          ? (event) => {
+              event.preventDefault();
+              onClick();
+            }
+          : undefined
+      }
+      aria-current={isSelected ? "page" : undefined}
+      aria-label={label}
+      title={collapsed ? label : undefined}
+      className={classes}
+    >
+      {content}
     </a>
   ));
 }
@@ -250,14 +273,25 @@ export function DashboardSidebar({
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const shimmerTimerRef = useRef<number | null>(null);
   const collapsed = mobile ? false : collapsedState;
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const secondaryMatch = false;
 
+  useEffect(() => {
+    return () => {
+      if (shimmerTimerRef.current !== null) window.clearTimeout(shimmerTimerRef.current);
+    };
+  }, []);
+
   const handleNewChat = useCallback(() => {
     if (newChatBusy) return;
     setNewChatShimmer(true);
-    window.setTimeout(() => setNewChatShimmer(false), 950);
+    if (shimmerTimerRef.current !== null) window.clearTimeout(shimmerTimerRef.current);
+    shimmerTimerRef.current = window.setTimeout(() => {
+      shimmerTimerRef.current = null;
+      setNewChatShimmer(false);
+    }, 950);
     if (onNewChat) {
       onNewChat();
     } else {
@@ -345,13 +379,13 @@ export function DashboardSidebar({
               : "flex-row justify-between px-1 pt-0.5",
           )}
         >
-          <a
+          <Link
             href="/"
             aria-label="Codely home"
             className="flex items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring"
           >
             {collapsed ? <Logo size={24} /> : <CodelyWordmark height={20} />}
-          </a>
+          </Link>
 
           <div className={cx("flex items-center gap-1", collapsed && "flex-col gap-2")}>
             {!flat && (

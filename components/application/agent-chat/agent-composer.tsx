@@ -73,7 +73,10 @@ export function AgentComposer({
   return localize((
     <div className={cx("flex w-full flex-col gap-2.5", className)}>
       {/* radius omitted: ComposerLoader defaults to a full pill, matching the form. */}
-      <ComposerLoader active={busy}>
+      <ComposerLoader
+        active={busy}
+        colors={["#1d4ed8", "#1e3a8a", "#2563eb", "#1e40af"]}
+      >
         {/* The pill sits one step lighter than the chat surface behind it in
             both themes (white on neutral-100 in light, neutral-800 on
             neutral-900 in dark), so a single token works without a dark

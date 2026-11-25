@@ -8,7 +8,7 @@ import { cx } from "@/utils/cx";
 
 /**
  * Agent Thinking — the agent "thinking" state that sits above a chat composer
- * while a response is being worked on.
+ * or inside a reasoning/research card while a response is being worked on.
  *
  * Four curated variants:
  * - `wave`     dot grid with a diagonal wavefront gliding top-left → bottom-right
@@ -16,9 +16,12 @@ import { cx } from "@/utils/cx";
  * - `stars`    sparkles twinkling in and out with a stagger
  * - `infinity` a comet trail sweeping a figure-eight
  *
- * Every variant pairs the indicator with a shimmering label and an elapsed
- * timer that starts when the loader mounts. Shimmer and CSS animations fall
- * back to static rendering under `prefers-reduced-motion` (see globals.css).
+ * Every variant pairs the indicator with an optional shimmering label and an
+ * elapsed timer. Passing `active={false}` stops all motion and freezes the
+ * timer (or displays `durationSeconds` statically) so completed thinking /
+ * deep-research states never keep animating or ticking. Shimmer and CSS
+ * animations also fall back to static rendering under `prefers-reduced-motion`
+ * (see globals.css).
  */
 
 export type AgentThinkingVariant = "wave" | "spin" | "stars" | "infinity";
@@ -30,10 +33,16 @@ export interface AgentThinkingProps {
   label?: string;
   /** Tone of the indicator + label. Defaults per variant (`stars` is subtle). */
   tone?: AgentThinkingTone;
-  /** Animated highlight traveling across the label. */
+  /** Animated highlight traveling across the label (only runs while `active` is true). */
   shimmer?: boolean;
-  /** Elapsed seconds since mount, rendered after the label. */
+  /** Elapsed seconds since start, rendered after the label. */
   showTimer?: boolean;
+  /** Whether the indicator and timer are actively running. Defaults to `true`. */
+  active?: boolean;
+  /** Optional epoch-ms start timestamp used to compute live elapsed seconds. */
+  startedAt?: number;
+  /** Explicit final duration in seconds; renders statically without a timer interval. */
+  durationSeconds?: number;
   className?: string;
 }
 
@@ -63,7 +72,7 @@ const DOTS_MIN_OPACITY = 0.12;
 const DOTS_PHASE_STEP = 1 / 8;
 
 // Static first frame: identical on server and client, and the resting state
-// under prefers-reduced-motion.
+// under prefers-reduced-motion or when inactive.
 const DOTS_SEED = [0.55, 0.3, 0.15, 0.85, 0.55, 0.3, 1, 0.85, 0.55];
 
 /**
@@ -90,11 +99,12 @@ function dotOpacities(variant: "wave" | "spin", phase: number) {
   });
 }
 
-function DotsIndicator({ variant }: { variant: "wave" | "spin" }) {
+function DotsIndicator({ variant, active }: { variant: "wave" | "spin"; active: boolean }) {
   const localize = useTemplateCopy();
   const [opacities, setOpacities] = useState<number[]>(DOTS_SEED);
 
   useEffect(() => {
+    if (!active) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let phase = 0;
     const id = window.setInterval(() => {
@@ -102,7 +112,9 @@ function DotsIndicator({ variant }: { variant: "wave" | "spin" }) {
       setOpacities(dotOpacities(variant, phase));
     }, DOTS_TICK_MS);
     return () => window.clearInterval(id);
-  }, [variant]);
+  }, [variant, active]);
+
+  const renderedOpacities = active ? opacities : DOTS_SEED;
 
   return localize((
     <span
@@ -113,7 +125,7 @@ function DotsIndicator({ variant }: { variant: "wave" | "spin" }) {
         gap: DOTS_GAP,
       }}
     >
-      {opacities.map((opacity, i) => (
+      {renderedOpacities.map((opacity, i) => (
         <span
           key={i}
           className="rounded-[1px] bg-current"
@@ -143,12 +155,13 @@ const STAR_LAYOUT = [
 ];
 const STAR_PATH = "M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z";
 
-function StarsIndicator() {
+function StarsIndicator({ active }: { active: boolean }) {
   const localize = useTemplateCopy();
   const box = STAR_SIZE * 1.5;
   return localize((
     <span
       aria-hidden
+      data-active={active ? "true" : "false"}
       className="bui-agent-thinking-stars relative block shrink-0"
       style={{ width: box, height: box }}
     >
@@ -166,8 +179,8 @@ function StarsIndicator() {
               top: `${star.y}%`,
               marginLeft: -size / 2,
               marginTop: -size / 2,
-              animationDuration: `${STAR_PERIOD_S}s`,
-              animationDelay: `${(i * STAR_PERIOD_S * 0.7) / STAR_COUNT}s`,
+              animationDuration: active ? `${STAR_PERIOD_S}s` : undefined,
+              animationDelay: active ? `${(i * STAR_PERIOD_S * 0.7) / STAR_COUNT}s` : undefined,
             }}
           >
             <path d={STAR_PATH} fill="currentColor" />
@@ -187,7 +200,7 @@ const INFINITY_DURATION_S = 1.2;
 const INFINITY_PATH =
   "M28 14C33 5 47 5 47 14C47 23 33 23 28 14C23 5 9 5 9 14C9 23 23 23 28 14Z";
 
-function InfinityIndicator() {
+function InfinityIndicator({ active }: { active: boolean }) {
   const localize = useTemplateCopy();
   return localize((
     <svg
@@ -204,41 +217,64 @@ function InfinityIndicator() {
         fill="none"
         stroke="currentColor"
         strokeWidth={INFINITY_STROKE}
-        opacity={0.15}
+        opacity={active ? 0.15 : 0.85}
       />
-      <path
-        d={INFINITY_PATH}
-        pathLength={100}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={INFINITY_STROKE}
-        strokeLinecap="round"
-        strokeDasharray={`${INFINITY_TRAIL} ${100 - INFINITY_TRAIL}`}
-        className="bui-agent-thinking-comet"
-        style={{ animationDuration: `${INFINITY_DURATION_S}s` }}
-      />
+      {active && (
+        <path
+          d={INFINITY_PATH}
+          pathLength={100}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={INFINITY_STROKE}
+          strokeLinecap="round"
+          strokeDasharray={`${INFINITY_TRAIL} ${100 - INFINITY_TRAIL}`}
+          data-active="true"
+          className="bui-agent-thinking-comet"
+          style={{ animationDuration: `${INFINITY_DURATION_S}s` }}
+        />
+      )}
     </svg>
   ));
 }
 
 /* ------------------------------------------------------------------ timer */
 
-function ElapsedTimer() {
+function ElapsedTimer({
+  active,
+  startedAt,
+  durationSeconds,
+}: {
+  active: boolean;
+  startedAt?: number;
+  durationSeconds?: number;
+}) {
   const localize = useTemplateCopy();
-  const [elapsed, setElapsed] = useState(0);
+  const [elapsed, setElapsed] = useState(() =>
+    durationSeconds !== undefined ? Math.max(0, durationSeconds) : 0,
+  );
 
   useEffect(() => {
-    const started = performance.now();
-    const id = window.setInterval(
-      () => setElapsed((performance.now() - started) / 1000),
-      100,
-    );
-    return () => window.clearInterval(id);
-  }, []);
+    if (durationSeconds !== undefined || !active) return;
+
+    const originPerf =
+      startedAt !== undefined
+        ? performance.now() - Math.max(0, Date.now() - startedAt)
+        : performance.now();
+
+    const update = () => setElapsed(Math.max(0, (performance.now() - originPerf) / 1000));
+    const frame = window.requestAnimationFrame(update);
+    const id = window.setInterval(update, 100);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(id);
+    };
+  }, [active, startedAt, durationSeconds]);
+
+  const shown = durationSeconds !== undefined ? Math.max(0, durationSeconds) : elapsed;
 
   return localize((
     <span className="font-mono text-caption-1-regular text-text-tertiary tabular-nums">
-      {elapsed.toFixed(1)}s
+      {shown.toFixed(1)}s
     </span>
   ));
 }
@@ -251,6 +287,9 @@ export function AgentThinking({
   tone,
   shimmer = true,
   showTimer = true,
+  active = true,
+  startedAt,
+  durationSeconds,
   className,
 }: AgentThinkingProps) {
   const localize = useTemplateCopy();
@@ -259,19 +298,22 @@ export function AgentThinking({
   return localize((
     <div
       role="status"
+      aria-live={active ? "polite" : "off"}
       className={cx("flex items-center gap-2.5", className)}
       style={{ color, "--bui-agent-thinking-tone": color } as CSSProperties}
     >
-      {(variant === "wave" || variant === "spin") && <DotsIndicator variant={variant} />}
-      {variant === "stars" && <StarsIndicator />}
-      {variant === "infinity" && <InfinityIndicator />}
+      {(variant === "wave" || variant === "spin") && <DotsIndicator variant={variant} active={active} />}
+      {variant === "stars" && <StarsIndicator active={active} />}
+      {variant === "infinity" && <InfinityIndicator active={active} />}
       <span
         aria-label={label}
-        className={cx("text-body-medium", shimmer && "bui-agent-thinking-label")}
+        className={cx("text-body-medium", shimmer && active && "bui-agent-thinking-label")}
       >
         {label}
       </span>
-      {showTimer && <ElapsedTimer />}
+      {showTimer && (
+        <ElapsedTimer active={active} startedAt={startedAt} durationSeconds={durationSeconds} />
+      )}
     </div>
   ));
 }

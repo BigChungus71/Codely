@@ -49,14 +49,13 @@ export function CodelyWordmark({
   height?: number;
   className?: string;
 }) {
-  const width = Math.round(height * 4.9);
   return (
     <>
       <Image
         src="/logo/codely-wordmark-light.png"
         alt="Codely"
-        width={width}
-        height={height}
+        width={707}
+        height={143}
         style={{ height, width: "auto" }}
         className={cx("theme-logo-light shrink-0 object-contain", className)}
         priority
@@ -64,8 +63,8 @@ export function CodelyWordmark({
       <Image
         src="/logo/codely-wordmark-dark.png"
         alt="Codely"
-        width={width}
-        height={height}
+        width={685}
+        height={141}
         style={{ height, width: "auto" }}
         className={cx("theme-logo-dark shrink-0 object-contain", className)}
         priority

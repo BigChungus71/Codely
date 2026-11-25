@@ -774,6 +774,12 @@ input[type="search"]::-webkit-search-cancel-button {
   animation-iteration-count: infinite;
 }
 
+.bui-agent-thinking-stars[data-active="false"] .bui-agent-thinking-star {
+  animation: none;
+  transform: none;
+  opacity: 0.85;
+}
+
 /* Infinity comet: the dash segment laps the normalized (pathLength=100)
  * figure-eight once per animation-duration. */
 @keyframes bui-agent-thinking-dash {
@@ -786,6 +792,10 @@ input[type="search"]::-webkit-search-cancel-button {
   animation-name: bui-agent-thinking-dash;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+}
+
+.bui-agent-thinking-comet[data-active="false"] {
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

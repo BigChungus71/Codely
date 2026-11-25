@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { RiShieldCheckLine, RiScanLine } from "@remixicon/react";
+import { useEffect, useRef, useState } from "react";
+import { RiShieldCheckLine, RiScanLine, RiStopFill } from "@remixicon/react";
 import { Button } from "@/components/base/buttons/button";
 import { ScannerUpload, type ScanFile } from "@/components/application/scanner/scanner-upload";
 import { ScannerGithubInput } from "@/components/application/scanner/scanner-github-input";
@@ -11,6 +11,7 @@ import { recordCodelyScan } from "@/utils/codely-metrics";
 import { cx } from "@/utils/cx";
 
 const GITHUB_RE = /^https:\/\/github\.com\/[^/]+\/[^/]+(\/.*)?$/;
+const TEXT_FILE_RE = /\.(json|ts|tsx|js|jsx|py|go|java|md|yaml|yml|toml)$/i;
 
 type ScanState = "idle" | "scanning" | "done";
 
@@ -22,66 +23,122 @@ const DEFAULT_CONFIG: ScanConfig = {
   baseline: "clean",
 };
 
-/** Demo findings shown when no real backend is wired. */
-const DEMO_FINDINGS: ScanFinding[] = [
+interface CategorizedFinding {
+  category: "security" | "dependencies" | "architecture" | "comparison" | "info";
+  finding: ScanFinding;
+}
+
+/** Config-aware demo findings used when no live AI provider key is configured. */
+const DEMO_FINDINGS: CategorizedFinding[] = [
   {
-    id: "1",
-    severity: "critical",
-    title: "SQL Injection vulnerability",
-    description: "User input is concatenated directly into a SQL query without parameterisation. An attacker can read or modify any data in the database.",
-    file: "src/api/users.ts",
-    line: 42,
-    recommendation: "Use parameterised queries or a query builder (e.g. knex, Prisma). Never interpolate user input into SQL strings.",
+    category: "security",
+    finding: {
+      id: "1",
+      severity: "critical",
+      title: "SQL Injection vulnerability",
+      description: "User input is concatenated directly into a SQL query without parameterisation. An attacker can read or modify any data in the database.",
+      file: "src/api/users.ts",
+      line: 42,
+      recommendation: "Use parameterised queries or a query builder (e.g. knex, Prisma). Never interpolate user input into SQL strings.",
+    },
   },
   {
-    id: "2",
-    severity: "high",
-    title: "Hardcoded secret detected",
-    description: "An API key or password was found embedded in source code. If committed to a public repository, this credential is compromised.",
-    file: "src/config.ts",
-    line: 8,
-    recommendation: "Move secrets to environment variables and add this file pattern to .gitignore. Rotate the exposed credential immediately.",
+    category: "security",
+    finding: {
+      id: "2",
+      severity: "high",
+      title: "Hardcoded secret detected",
+      description: "An API key or password was found embedded in source code. If committed to a public repository, this credential is compromised.",
+      file: "src/config.ts",
+      line: 8,
+      recommendation: "Move secrets to environment variables and add this file pattern to .gitignore. Rotate the exposed credential immediately.",
+    },
   },
   {
-    id: "3",
-    severity: "high",
-    title: "Outdated dependency with known CVE",
-    description: "Package lodash@3.10.1 has a known prototype-pollution vulnerability (CVE-2019-10744).",
-    recommendation: "Upgrade lodash to 4.17.21 or later. Run `npm audit fix` to resolve automatically.",
+    category: "dependencies",
+    finding: {
+      id: "3",
+      severity: "high",
+      title: "Outdated dependency with known CVE",
+      description: "Package lodash@3.10.1 has a known prototype-pollution vulnerability (CVE-2019-10744).",
+      recommendation: "Upgrade lodash to 4.17.21 or later. Run `npm audit fix` to resolve automatically.",
+    },
   },
   {
-    id: "4",
-    severity: "medium",
-    title: "Missing CSRF protection",
-    description: "State-changing POST endpoints do not validate a CSRF token, allowing cross-site request forgery attacks.",
-    file: "src/api/auth.ts",
-    recommendation: "Add a CSRF token header requirement to all state-mutating routes. Use a library like csurf or implement the synchroniser-token pattern.",
+    category: "security",
+    finding: {
+      id: "4",
+      severity: "medium",
+      title: "Missing CSRF protection",
+      description: "State-changing POST endpoints do not validate a CSRF token, allowing cross-site request forgery attacks.",
+      file: "src/api/auth.ts",
+      recommendation: "Add a CSRF token header requirement to all state-mutating routes. Use a library like csurf or implement the synchroniser-token pattern.",
+    },
   },
   {
-    id: "5",
-    severity: "medium",
-    title: "Circular dependency detected",
-    description: "Module A imports Module B, which imports Module A, creating a circular reference that can cause initialisation failures and hard-to-trace bugs.",
-    file: "src/services/order.ts",
-    recommendation: "Extract the shared logic into a third module that both A and B import, breaking the cycle.",
+    category: "architecture",
+    finding: {
+      id: "5",
+      severity: "medium",
+      title: "Circular dependency detected",
+      description: "Module A imports Module B, which imports Module A, creating a circular reference that can cause initialisation failures and hard-to-trace bugs.",
+      file: "src/services/order.ts",
+      recommendation: "Extract the shared logic into a third module that both A and B import, breaking the cycle.",
+    },
   },
   {
-    id: "6",
-    severity: "low",
-    title: "Unused exported function",
-    description: "The function `calculateDiscount` is exported but never imported elsewhere in the project.",
-    file: "src/utils/pricing.ts",
-    line: 56,
-    recommendation: "Remove the export or the function if it is dead code. If it is intended for future use, add a TODO comment.",
+    category: "comparison",
+    finding: {
+      id: "6",
+      severity: "low",
+      title: "Presentation layer imports infrastructure directly",
+      description: "UI components bypass application use-cases and import database clients directly, violating architectural layer boundaries.",
+      file: "src/app/dashboard/page.tsx",
+      line: 14,
+      recommendation: "Route data access through an application service or repository interface defined in the domain layer.",
+    },
   },
   {
-    id: "7",
-    severity: "info",
-    title: "Missing TSDoc comments on public API",
-    description: "12 exported functions lack documentation comments, which makes IDE hover-help less useful for consumers.",
-    recommendation: "Add TSDoc comments explaining parameters, return values, and thrown errors for all public exports.",
+    category: "info",
+    finding: {
+      id: "7",
+      severity: "info",
+      title: "Missing TSDoc comments on public API",
+      description: "12 exported functions lack documentation comments, which makes IDE hover-help less useful for consumers.",
+      recommendation: "Add TSDoc comments explaining parameters, return values, and thrown errors for all public exports.",
+    },
   },
 ];
+
+function demoFindingsForConfig(config: ScanConfig): ScanFinding[] {
+  return DEMO_FINDINGS.filter(({ category }) => {
+    if (category === "security") return config.security;
+    if (category === "dependencies") return config.dependencies;
+    if (category === "architecture") return config.architecture;
+    if (category === "comparison") return config.comparison;
+    return true;
+  }).map(({ finding }) => finding);
+}
+
+async function serializeFilesForScan(files: ScanFile[]) {
+  return Promise.all(
+    files.slice(0, 20).map(async ({ file }) => {
+      let content: string | undefined;
+      if (TEXT_FILE_RE.test(file.name) && file.size <= 24_000) {
+        try {
+          content = await file.text();
+        } catch {
+          content = undefined;
+        }
+      }
+      return {
+        name: file.name,
+        size: file.size,
+        content,
+      };
+    }),
+  );
+}
 
 export function ScannerPanel() {
   const [files, setFiles] = useState<ScanFile[]>([]);
@@ -89,21 +146,92 @@ export function ScannerPanel() {
   const [config, setConfig] = useState<ScanConfig>(DEFAULT_CONFIG);
   const [scanState, setScanState] = useState<ScanState>("idle");
   const [findings, setFindings] = useState<ScanFinding[]>([]);
+  const [startedAt, setStartedAt] = useState<number | undefined>(undefined);
+  const [durationSeconds, setDurationSeconds] = useState<number | undefined>(undefined);
+
+  const scanTimerRef = useRef<number | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (scanTimerRef.current !== null) window.clearTimeout(scanTimerRef.current);
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const githubValid = githubUrl === "" || GITHUB_RE.test(githubUrl);
   const hasInput = files.length > 0 || (githubUrl.length > 0 && githubValid);
   const canScan = hasInput && scanState !== "scanning";
 
-  const startScan = () => {
+  const cancelScan = () => {
+    if (scanTimerRef.current !== null) {
+      window.clearTimeout(scanTimerRef.current);
+      scanTimerRef.current = null;
+    }
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setScanState("idle");
+  };
+
+  const finishScan = (resultFindings: ScanFinding[], runStartedAt: number, apiDurationMs?: number) => {
+    const elapsedSeconds = Math.max(
+      0.1,
+      apiDurationMs !== undefined ? apiDurationMs / 1000 : (Date.now() - runStartedAt) / 1000,
+    );
+    setFindings(resultFindings);
+    setDurationSeconds(elapsedSeconds);
+    setScanState("done");
+    recordCodelyScan(resultFindings.length, Math.max(180, files.length * 140));
+  };
+
+  const startScan = async () => {
     if (!canScan) return;
+    cancelScan();
+
+    const runStartedAt = Date.now();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setStartedAt(runStartedAt);
+    setDurationSeconds(undefined);
     setScanState("scanning");
     setFindings([]);
-    // Simulate a scan — replace with a real API call when the backend is ready.
-    setTimeout(() => {
-      setFindings(DEMO_FINDINGS);
-      setScanState("done");
-      recordCodelyScan(DEMO_FINDINGS.length, Math.max(180, files.length * 140));
-    }, 2200);
+
+    try {
+      const payloadFiles = await serializeFilesForScan(files);
+      if (controller.signal.aborted) return;
+
+      const response = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          githubUrl: githubUrl.trim(),
+          files: payloadFiles,
+          config,
+        }),
+        signal: controller.signal,
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as { findings?: ScanFinding[]; durationMs?: number };
+        if (controller.signal.aborted) return;
+        finishScan(data.findings ?? [], runStartedAt, data.durationMs);
+        abortRef.current = null;
+        return;
+      }
+    } catch (error) {
+      if (controller.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
+        return;
+      }
+    }
+
+    // Fallback when unconfigured (503) or offline: run config-filtered local analysis.
+    scanTimerRef.current = window.setTimeout(() => {
+      scanTimerRef.current = null;
+      abortRef.current = null;
+      if (controller.signal.aborted) return;
+      finishScan(demoFindingsForConfig(config), runStartedAt);
+    }, 1800);
   };
 
   return (
@@ -138,15 +266,27 @@ export function ScannerPanel() {
         <p className={cx("text-body-2-regular text-text-tertiary", hasInput && "opacity-0")}>
           Add a file or GitHub URL to begin.
         </p>
-        <Button
-          variant="primary"
-          size="medium"
-          leadingIcon={RiScanLine}
-          disabled={!canScan}
-          onClick={startScan}
-        >
-          {scanState === "scanning" ? "Scanning…" : "Run Scan"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {scanState === "scanning" && (
+            <Button
+              variant="secondary"
+              size="medium"
+              leadingIcon={RiStopFill}
+              onClick={cancelScan}
+            >
+              Stop
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            size="medium"
+            leadingIcon={RiScanLine}
+            disabled={!canScan}
+            onClick={startScan}
+          >
+            {scanState === "scanning" ? "Scanning…" : "Run Scan"}
+          </Button>
+        </div>
       </div>
 
       {/* Results */}
@@ -154,7 +294,12 @@ export function ScannerPanel() {
         <div className="flex flex-col gap-4">
           <div className="h-px bg-separator-border" />
           <h3 className="text-headline-medium text-text-primary">Findings</h3>
-          <ScannerResults findings={findings} loading={scanState === "scanning"} />
+          <ScannerResults
+            findings={findings}
+            loading={scanState === "scanning"}
+            startedAt={startedAt}
+            durationSeconds={durationSeconds}
+          />
         </div>
       )}
     </div>

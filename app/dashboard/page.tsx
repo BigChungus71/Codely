@@ -1,19 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import {
   RiBugFill,
   RiCodeSSlashFill,
+  RiScanLine,
   RiShieldCheckFill,
   RiShieldCheckLine,
   RiVerifiedBadgeFill,
 } from "@remixicon/react";
 
-import { AppShell } from "@/components/application/app-shell/app-shell";
+import { AppShell, useStarterBase } from "@/components/application/app-shell/app-shell";
+import { NotificationBell } from "@/components/application/app-shell/notification-bell";
 import { OrdersChartCard, type OrdersPoint } from "@/components/application/dashboard/orders-chart-card";
 import { RevenueChartCard, type RevenuePoint } from "@/components/application/dashboard/revenue-chart-card";
 import { StatCards, type Stat } from "@/components/application/dashboard/stat-cards";
 import { DataTableExample } from "@/components/application/data-table/data-table";
+import { buttonStyles } from "@/components/base/buttons/button";
+import { cx } from "@/utils/cx";
 import {
   DEFAULT_METRICS,
   readCodelyMetrics,
@@ -51,18 +56,24 @@ const BUGS_CRUSHED_DATA: OrdersPoint[] = [
   { label: "Dec", current: 38, previous: 27 },
 ];
 
+const subscribeMetrics = (listener: () => void) => subscribeCodelyMetrics(listener);
+const getMetricsSnapshot = () => readCodelyMetrics();
+const getServerMetricsSnapshot = () => DEFAULT_METRICS;
+
 /**
  * Codely Security & Usage Flex Dashboard:
  * Security-related metrics like security vulnerabilities edited and fixed,
  * bugs crushed, and number of line changes in the codebase done to date.
  */
 export default function DashboardPage() {
-  const [metrics, setMetrics] = useState<CodelyMetrics>(DEFAULT_METRICS);
-
-  useEffect(() => {
-    setMetrics(readCodelyMetrics());
-    return subscribeCodelyMetrics(setMetrics);
-  }, []);
+  const base = useStarterBase();
+  // Read cached snapshot safely; readCodelyMetrics returns a new object so cache by string.
+  const rawMetrics = useSyncExternalStore(
+    subscribeMetrics,
+    () => JSON.stringify(getMetricsSnapshot()),
+    () => JSON.stringify(getServerMetricsSnapshot()),
+  );
+  const metrics = JSON.parse(rawMetrics) as CodelyMetrics;
 
   const stats: Stat[] = [
     {
@@ -108,7 +119,23 @@ export default function DashboardPage() {
   ];
 
   return (
-    <AppShell title="Dashboard" heading="Welcome ninad — Codely Security Flex" icon={RiShieldCheckLine}>
+    <AppShell
+      title="Dashboard"
+      heading="Welcome ninad — Codely Security Flex"
+      icon={RiShieldCheckLine}
+      actions={
+        <>
+          <NotificationBell />
+          <Link
+            href={`${base}/scanner`}
+            className={cx(buttonStyles.base, buttonStyles.size.medium, buttonStyles.variant.primary)}
+          >
+            <RiScanLine className={buttonStyles.icon.medium} aria-hidden />
+            <span className={buttonStyles.label.medium}>Run Scan</span>
+          </Link>
+        </>
+      }
+    >
       <p className="px-1 text-body-regular text-text-secondary">
         Live security-related metrics: security vulnerabilities edited and fixed, bugs crushed, and number of line changes in the codebase done to date.
       </p>

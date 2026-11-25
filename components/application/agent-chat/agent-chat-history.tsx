@@ -242,7 +242,7 @@ function AccountMenu({ threads }: { threads: ChatThreadSummary[] }) {
   const base = useStarterBase();
   const logOut = () => {
     close();
-    router.push(`${base}/login`);
+    router.push(base || "/");
   };
 
   const chatPercent = Math.min(100, Math.round((threads.length / THREAD_CAPACITY) * 100));

@@ -20,7 +20,7 @@ import { PREVIEW_IMAGE_SLUGS } from "@/components/application/docs/preview-image
 import { ShowcaseCard } from "@/components/application/docs/showcase-card";
 import { cx } from "@/utils/cx";
 
-const SITE = "https://www.codely.com";
+const SITE = "https://www.boardui.com";
 
 export type CatalogTier = "all" | "free" | "pro";
 

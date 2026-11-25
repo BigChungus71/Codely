@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
+import {
+  AgentThinking,
+  type AgentThinkingTone,
+  type AgentThinkingVariant,
+} from "@/components/application/agent-thinking/agent-thinking";
 import { cx } from "@/utils/cx";
 
 /**
@@ -108,6 +112,8 @@ export interface RevealTickerOptions {
   startDelay?: number;
   /** Drive it yourself from real events; disables the internal timer. */
   revealed?: number;
+  /** Initial revealed count on mount (e.g. `total` for restored history). */
+  initialRevealed?: number;
   /**
    * Per-unit pacing: given the index about to be revealed, how long to wait
    * first. Overrides `startDelay` and `stepInterval` when supplied, so a log
@@ -131,11 +137,12 @@ export function useRevealTicker({
   stepInterval = 850,
   startDelay = 320,
   revealed: controlled,
+  initialRevealed = 0,
   delayFor,
   onComplete,
 }: RevealTickerOptions): number {
   const isControlled = controlled !== undefined;
-  const [ticked, setTicked] = useState(0);
+  const [ticked, setTicked] = useState(() => Math.max(0, Math.min(initialRevealed, total)));
   const revealed = isControlled ? Math.max(0, Math.min(controlled, total)) : ticked;
 
   useEffect(() => {
@@ -315,10 +322,24 @@ export function GuideBridge({
 export function WorkingRow({
   label,
   reduce,
+  variant = "stars",
+  tone,
+  active = true,
+  shimmer = true,
+  showTimer = true,
+  startedAt,
+  durationSeconds,
   className,
 }: {
   label: string;
   reduce: boolean;
+  variant?: AgentThinkingVariant;
+  tone?: AgentThinkingTone;
+  active?: boolean;
+  shimmer?: boolean;
+  showTimer?: boolean;
+  startedAt?: number;
+  durationSeconds?: number;
   className?: string;
 }) {
   const mask = useRevealMask(reduce);
@@ -331,7 +352,16 @@ export function WorkingRow({
       className={cx("overflow-hidden", className)}
     >
       <div className="py-1">
-        <AgentThinking variant="stars" label={label} />
+        <AgentThinking
+          variant={variant}
+          tone={tone}
+          label={label}
+          active={active}
+          shimmer={shimmer}
+          showTimer={showTimer}
+          startedAt={startedAt}
+          durationSeconds={durationSeconds}
+        />
       </div>
     </motion.div>
   );

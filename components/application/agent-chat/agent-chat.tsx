@@ -1,5 +1,6 @@
 "use client";
 
+import { useDirection } from "@/components/foundations/direction/direction";
 import { useTemplateCopy } from "@/components/foundations/template-copy/template-copy";
 
 import { useChat } from "@ai-sdk/react";
@@ -17,7 +18,6 @@ import {
 import { AgentMessage } from "@/components/application/agent-chat/agent-chat-message";
 import { AgentComposer } from "@/components/application/agent-chat/agent-composer";
 import { AgentThinking } from "@/components/application/agent-thinking/agent-thinking";
-import { matchResearchPlan } from "@/components/application/agent-chat/codely-research-log";
 import { starterNav, useStarterBase } from "@/components/application/app-shell/app-shell";
 import { DashboardSidebar } from "@/components/application/dashboard/dashboard-sidebar";
 import { IconButton } from "@/components/base/buttons/icon-button";
@@ -54,6 +54,7 @@ export function AgentChat({
   contained?: boolean;
 }) {
   const localize = useTemplateCopy();
+  const direction = useDirection();
   const [input, setInput] = useState("");
   const [navOpen, setNavOpen] = useState(false);
   const starterBase = useStarterBase();
@@ -62,15 +63,21 @@ export function AgentChat({
   const [activeId, setActiveId] = useState("");
   const [activeUpdatedAt, setActiveUpdatedAt] = useState(0);
   const [activeTitle, setActiveTitle] = useState<string | null>(null);
+  const [activeUnread, setActiveUnread] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
+  const taglineTimerRef = useRef<number | null>(null);
   const [messageAt, setMessageAt] = useState<Record<string, number>>({});
-  const [scrolledUnder, setScrolledUnder] = useState(false);
+  const [scrollTop, setScrollTop] = useState(0);
   const [canClash, setCanClash] = useState(false);
   const [restored, setRestored] = useState(false);
   /** True when no live provider key is present so queries stream via DemoTransport. */
   const [demoMode, setDemoMode] = useState(true);
+  const [providerInfo, setProviderInfo] = useState<{
+    model: string | null;
+    providerLabel: string | null;
+  }>({ model: null, providerLabel: null });
   /** Index into WELCOME_TAGLINES; increments every time New Chat is clicked. */
   const [taglineIndex, setTaglineIndex] = useState(0);
   /** Brief shimmer across the middle tagline when New Chat is clicked. */
@@ -86,9 +93,13 @@ export function AgentChat({
     let cancelled = false;
     fetch(ENDPOINT, { method: "GET" })
       .then((res) => (res.ok ? res.json() : null))
-      .then((data: { configured?: boolean } | null) => {
+      .then((data: { configured?: boolean; model?: string | null; providerLabel?: string | null } | null) => {
         if (!cancelled && data && data.configured === true) {
           setDemoMode(false);
+          setProviderInfo({
+            model: data.model ?? null,
+            providerLabel: data.providerLabel ?? null,
+          });
         }
       })
       .catch(() => {
@@ -99,21 +110,31 @@ export function AgentChat({
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (taglineTimerRef.current !== null) {
+        window.clearTimeout(taglineTimerRef.current);
+      }
+    };
+  }, []);
+
   const { messages, sendMessage, setMessages, status, stop, error } = useChat({
     transport,
   });
 
   const busy = status === "submitted" || status === "streaming";
 
-  const streamedText = useMemo(() => {
+  const hasAssistantOutput = useMemo(() => {
     const last = messages[messages.length - 1];
-    if (!last || last.role !== "assistant") return "";
-    return last.parts
-      .filter((part) => part.type === "text")
-      .map((part) => part.text)
-      .join("");
+    if (!last || last.role !== "assistant") return false;
+    return last.parts.some(
+      (part) =>
+        (part.type === "text" && part.text.trim().length > 0) ||
+        (part.type === "reasoning" && part.text.trim().length > 0) ||
+        part.type === "data-research",
+    );
   }, [messages]);
-  const showThinking = busy && streamedText.length === 0;
+  const showThinking = busy && !hasAssistantOutput;
 
   const transcript = useMemo(
     () =>
@@ -139,11 +160,12 @@ export function AgentChat({
             id: activeId,
             title: activeTitle ?? deriveTitle(messages),
             updatedAt: activeUpdatedAt,
+            unread: activeUnread,
             messages,
             messageAt,
           }
         : null,
-    [activeId, messages, activeUpdatedAt, messageAt, activeTitle],
+    [activeId, messages, activeUpdatedAt, activeUnread, messageAt, activeTitle],
   );
 
   const allThreads = useMemo(() => {
@@ -174,13 +196,13 @@ export function AgentChat({
       const title = titleRef.current?.getBoundingClientRect();
       const column = columnRef.current?.getBoundingClientRect();
       if (!title || !column) return;
-      setCanClash(title.right + 16 > column.left);
+      setCanClash(direction === "rtl" ? title.left - 16 < column.right : title.right + 16 > column.left);
     };
     measure();
     const observer = new ResizeObserver(measure);
     if (scrollRef.current) observer.observe(scrollRef.current);
     return () => observer.disconnect();
-  }, [messages.length, activeId]);
+  }, [messages.length, activeId, activeTitle, direction]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -190,8 +212,8 @@ export function AgentChat({
     const trimmed = text.trim();
     if (!trimmed || busy) return;
     setActiveUpdatedAt(Date.now());
-    const isPresetShowcase = matchResearchPlan(trimmed) !== null;
-    sendMessage({ text: trimmed }, { body: { demo: demoMode || isPresetShowcase } });
+    setActiveUnread(false);
+    sendMessage({ text: trimmed }, { body: { demo: demoMode } });
     setInput("");
   };
 
@@ -208,12 +230,18 @@ export function AgentChat({
     setActiveId(newThreadId());
     setActiveUpdatedAt(0);
     setActiveTitle(null);
+    setActiveUnread(false);
+    setScrollTop(0);
     setMessageAt({});
     setMessages([]);
     setInput("");
     setTaglineIndex((prev) => (prev + 1) % WELCOME_TAGLINES.length);
     setTaglineShimmer(true);
-    window.setTimeout(() => setTaglineShimmer(false), 1100);
+    if (taglineTimerRef.current !== null) window.clearTimeout(taglineTimerRef.current);
+    taglineTimerRef.current = window.setTimeout(() => {
+      taglineTimerRef.current = null;
+      setTaglineShimmer(false);
+    }, 1100);
   }, [busy, keepLiveThread, setMessages]);
 
   const renameThread = useCallback(
@@ -226,11 +254,17 @@ export function AgentChat({
     [activeId],
   );
 
-  const toggleUnread = useCallback((id: string) => {
-    setThreads((prev) =>
-      prev.map((thread) => (thread.id === id ? { ...thread, unread: !thread.unread } : thread)),
-    );
-  }, []);
+  const toggleUnread = useCallback(
+    (id: string) => {
+      if (id === activeId) {
+        setActiveUnread((prev) => !prev);
+      }
+      setThreads((prev) =>
+        prev.map((thread) => (thread.id === id ? { ...thread, unread: !thread.unread } : thread)),
+      );
+    },
+    [activeId],
+  );
 
   const deleteThread = useCallback(
     (id: string) => {
@@ -240,6 +274,8 @@ export function AgentChat({
         setActiveId(newThreadId());
         setActiveUpdatedAt(0);
         setActiveTitle(null);
+        setActiveUnread(false);
+        setScrollTop(0);
         setMessageAt({});
         setMessages([]);
         setInput("");
@@ -267,16 +303,25 @@ export function AgentChat({
       const thread = allThreads.find((candidate) => candidate.id === id);
       if (!thread) return;
       keepLiveThread();
-      if (thread.unread) toggleUnread(id);
+      if (thread.unread) {
+        setThreads((prev) =>
+          prev.map((candidate) => (candidate.id === id ? { ...candidate, unread: false } : candidate)),
+        );
+      }
       setActiveId(id);
       setActiveUpdatedAt(thread.updatedAt);
       setActiveTitle(thread.title);
+      setActiveUnread(false);
+      setScrollTop(0);
       setMessageAt(thread.messageAt ?? {});
       setMessages(thread.messages);
       setInput("");
     },
-    [busy, activeId, allThreads, keepLiveThread, toggleUnread, setMessages],
+    [busy, activeId, allThreads, keepLiveThread, setMessages],
   );
+
+  const scrolledUnder = scrollTop > 0;
+  const scrollFadeOpacity = Math.min(1, scrollTop / 24);
 
   const chatSidebarSlot = (
     <SidebarChatHistory
@@ -325,7 +370,7 @@ export function AgentChat({
             type="button"
             aria-label="Close navigation"
             onClick={() => setNavOpen(false)}
-            className="absolute inset-0 cursor-pointer bg-black/40"
+            className="absolute inset-0 cursor-pointer bg-background-full/70 backdrop-blur-xs"
           />
           <div className="relative flex h-full p-3">
             <DashboardSidebar
@@ -351,16 +396,17 @@ export function AgentChat({
           {/* Codely chatbot header */}
           <header
             className={cx(
-              "absolute inset-x-0 top-0 z-10 flex h-12 items-center gap-2 border-b px-4 pt-[7px] transition-colors",
+              "absolute inset-x-0 top-0 z-20 flex h-12 items-center gap-2 border-b px-4 pt-[7px] transition-colors",
               scrolledUnder && canClash
-                ? "border-separator-border bg-white/20 backdrop-blur-[20px] dark:bg-black/20"
+                ? "border-separator-border bg-background-secondary-default/80 backdrop-blur-[20px]"
                 : "border-transparent",
             )}
           >
             <IconButton
               icon={navOpen ? RiCloseLine : RiMenuLine}
               size="small"
-              aria-label="Open navigation"
+              aria-label={navOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={navOpen}
               onClick={() => setNavOpen((open) => !open)}
               className="lg:hidden"
             />
@@ -406,8 +452,8 @@ export function AgentChat({
                   onSubmit={() => submit(input)}
                   onStop={stop}
                   busy={busy}
-                  model={null}
-                  provider={null}
+                  model={providerInfo.model}
+                  provider={providerInfo.providerLabel}
                   messageCount={messages.length}
                 />
 
@@ -428,46 +474,76 @@ export function AgentChat({
             </div>
           ) : (
             <>
-              <div
-                ref={scrollRef}
-                onScroll={(event) => setScrolledUnder(event.currentTarget.scrollTop > 0)}
-                className="min-h-0 flex-1 overflow-y-auto scroll-smooth"
-              >
+              <div className="relative min-h-0 flex-1">
                 <div
-                  ref={columnRef}
-                  className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 pt-[72px] pb-6"
+                  ref={scrollRef}
+                  onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+                  className="h-full overflow-y-auto scroll-smooth"
                 >
-                  {messages.map((message, index) => {
-                    const prevUserPrompt =
-                      message.role === "assistant"
-                        ? [...messages.slice(0, index)]
-                            .reverse()
-                            .find((m) => m.role === "user")
-                        : undefined;
-                    return (
-                      <AgentMessage
-                        key={message.id}
-                        role={message.role}
-                        text={messageText(message)}
-                        userPrompt={prevUserPrompt ? messageText(prevUserPrompt) : undefined}
-                        streaming={busy && index === messages.length - 1}
-                        at={messageAt[message.id]}
-                      />
-                    );
-                  })}
+                  <div
+                    ref={columnRef}
+                    className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 pt-[72px] pb-6"
+                  >
+                    {messages.map((message, index) => {
+                      const prevUserPrompt =
+                        message.role === "assistant"
+                          ? [...messages.slice(0, index)]
+                              .reverse()
+                              .find((m) => m.role === "user")
+                          : undefined;
+                      const isLast = index === messages.length - 1;
+                      return (
+                        <AgentMessage
+                          key={message.id}
+                          role={message.role}
+                          text={messageText(message)}
+                          parts={message.parts}
+                          metadata={message.metadata}
+                          userPrompt={prevUserPrompt ? messageText(prevUserPrompt) : undefined}
+                          streaming={busy && isLast}
+                          hasError={Boolean(error) && isLast}
+                          at={messageAt[message.id]}
+                        />
+                      );
+                    })}
 
-                  {showThinking && (
-                    <div className="flex items-center gap-2.5 px-1">
-                      <Logo size={24} />
-                      <AgentThinking variant="wave" tone="accent" label="Codely is thinking…" />
-                    </div>
-                  )}
+                    {showThinking && (
+                      <div className="flex items-center gap-2.5 px-1">
+                        <Logo size={24} />
+                        <AgentThinking variant="wave" tone="accent" label="Codely is thinking…" active />
+                      </div>
+                    )}
 
-                  {error && (
-                    <p role="alert" className="px-1 text-body-regular text-text-tertiary">
-                      Something went wrong. Check the server logs, then try again.
-                    </p>
-                  )}
+                    {error && (
+                      <p role="alert" className="px-1 text-body-regular text-text-error-primary">
+                        Something went wrong. Check the server logs, then try again.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Soft progressive blur + fade along top scroll edge (BoardUI scroll rule) */}
+                <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-10 h-14">
+                  <div
+                    className="absolute inset-x-0 top-0 h-6 backdrop-blur-[1px]"
+                    style={{
+                      opacity: scrollFadeOpacity,
+                      maskImage: "linear-gradient(to bottom, #000, transparent)",
+                      WebkitMaskImage: "linear-gradient(to bottom, #000, transparent)",
+                    }}
+                  />
+                  <div
+                    className="absolute inset-x-0 top-0 h-4 backdrop-blur-[4px]"
+                    style={{
+                      opacity: scrollFadeOpacity,
+                      maskImage: "linear-gradient(to bottom, #000, transparent)",
+                      WebkitMaskImage: "linear-gradient(to bottom, #000, transparent)",
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0 bg-linear-to-b from-background-secondary-default to-transparent"
+                    style={{ opacity: scrollFadeOpacity }}
+                  />
                 </div>
               </div>
 
@@ -479,8 +555,8 @@ export function AgentChat({
                     onSubmit={() => submit(input)}
                     onStop={stop}
                     busy={busy}
-                    model={null}
-                    provider={null}
+                    model={providerInfo.model}
+                    provider={providerInfo.providerLabel}
                     messageCount={messages.length}
                   />
                 </div>

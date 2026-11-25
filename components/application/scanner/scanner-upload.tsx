@@ -64,7 +64,7 @@ export function ScannerUpload({ files, onChange }: ScannerUploadProps) {
         className={cx(
           "flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed px-6 py-10 transition-colors",
           dragging
-            ? "border-accent-500 bg-accent-50 dark:bg-accent-950"
+            ? "border-accent-500 bg-pill-tab-blue-selected-background"
             : "border-border-button-default bg-background-secondary-default hover:bg-background-secondary-hover",
         )}
       >

@@ -3,7 +3,7 @@
 import { useTemplateCopy, useTemplateLanguageSelector } from "@/components/foundations/template-copy/template-copy";
 
 import { useDirection } from "@/components/foundations/direction/direction";
-import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import { useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import { RiAddFill, RiCustomerServiceLine, RiEqualizer3Line, RiSettings4Line } from "@remixicon/react";
 import {
   Button as AriaButton,
@@ -153,6 +153,13 @@ export function AccountMenuContent({
   ));
 }
 
+const mobileSnapshot = () => window.matchMedia("(max-width: 639px)").matches;
+const subscribeMobile = (listener: () => void) => {
+  const query = window.matchMedia("(max-width: 639px)");
+  query.addEventListener("change", listener);
+  return () => query.removeEventListener("change", listener);
+};
+
 export function DashboardUserMenu({
   collapsed = false,
   suppressHover = false,
@@ -175,14 +182,7 @@ export function DashboardUserMenu({
   // desktop) — on mobile the sidebar can span the full viewport, so the
   // 265px panel would render off-screen. Below sm, drop into a plain
   // dropdown under the trigger instead.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)");
-    setIsMobile(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const isMobile = useSyncExternalStore(subscribeMobile, mobileSnapshot, () => false);
 
   return localize((
     <AriaDialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>

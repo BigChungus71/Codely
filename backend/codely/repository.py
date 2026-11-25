@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 BASE = Path(__file__).resolve().parents[1]
 SKIP = {'.git', 'node_modules', 'target', 'dist', 'build', '__pycache__', '.venv', 'venv', 'logs', 'coverage'}
-LANGUAGES = {'.java': 'java', '.ts': 'typescript', '.tsx': 'typescript', '.js': 'javascript', '.jsx': 'javascript', '.py': 'python', '.xml': 'xml', '.json': 'json', '.md': 'markdown', '.yml': 'yaml', '.yaml': 'yaml', '.properties': 'properties', '.css': 'css', '.html': 'html', '.sql': 'sql', '.sh': 'shell', '.txt': 'text'}
+LANGUAGES = {'.java': 'java', '.ts': 'typescript', '.tsx': 'typescript', '.js': 'javascript', '.jsx': 'javascript', '.mjs': 'javascript', '.cjs': 'javascript', '.py': 'python', '.xml': 'xml', '.json': 'json', '.md': 'markdown', '.yml': 'yaml', '.yaml': 'yaml', '.properties': 'properties', '.css': 'css', '.html': 'html', '.sql': 'sql', '.sh': 'shell', '.txt': 'text'}
 MAX_BYTES = 512_000
 
 def root_for(project_id: str) -> Path:

@@ -159,3 +159,42 @@ def test_frontend_cross_origin(demo):
     })
     assert response.status_code == 200
     assert response.headers['access-control-allow-origin'] == '*'
+
+
+def test_scan_coverage_survives_api_and_failed_scan_is_distinct(demo, monkeypatch):
+    client, _ = demo
+    url = '/api/projects/voice-ai-agent'
+    monkeypatch.setattr(adapters, 'scan_repository', lambda _: {
+        'findings': [], 'coverage': {'status': 'complete', 'analyzed_languages': ['java'], 'scanned_files': 2},
+    })
+    completed = client.post(url + '/scan')
+    assert completed.status_code == 200
+    assert completed.json()['coverage']['scanned_files'] == 2
+    assert client.get(url + '/findings').json()['coverage']['analyzed_languages'] == ['java']
+    api.cache.clear()
+    monkeypatch.setattr(adapters, 'scan_repository', lambda _: {
+        'findings': [], 'coverage': {'status': 'timeout', 'detected_languages': ['java']},
+    })
+    failed = client.post(url + '/scan')
+    assert failed.status_code == 504
+    assert failed.json()['detail']['coverage']['status'] == 'timeout'
+    assert client.get(url + '/findings').json()['status'] == 'not_scanned'
+
+
+def test_architecture_views_keep_evidence_and_reject_invalid_ranges(demo, monkeypatch):
+    client, _ = demo
+    url = '/api/projects/voice-ai-agent/architecture'
+    file = 'backend/Example.java'
+    nodes = [{'id': key, 'label': key, 'type': 'component', 'file': file} for key in ('a', 'b')]
+    edge = {'id': 'edge', 'source': 'a', 'target': 'b', 'relationship': 'imports', 'confidence': 'confirmed',
+            'evidence': [{'file': file, 'start_line': 1, 'end_line': 1}]}
+    monkeypatch.setattr(adapters, 'architecture', lambda _: {'nodes': [], 'edges': []})
+    monkeypatch.setattr(adapters, 'system_architecture', lambda _: {
+        'graph_type': 'system', 'status': 'partial', 'nodes': nodes, 'edges': [edge],
+    })
+    assert client.get(url).json()['graph_type'] == 'dependencies'
+    system = client.get(url, params={'view': 'system'})
+    assert system.status_code == 200
+    assert system.json()['edges'][0]['evidence'][0]['file'] == file
+    edge['evidence'][0]['end_line'] = 999
+    assert client.get(url, params={'view': 'system'}).status_code == 502

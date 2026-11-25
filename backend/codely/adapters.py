@@ -72,6 +72,20 @@ def architecture(project_path: str):
     return custom(project_path)
 
 
+def system_architecture(project_path: str):
+    custom = hook('CODELY_SYSTEM_ARCHITECTURE_ADAPTER')
+    if custom:
+        return custom(project_path)
+    try:
+        from m4.ai_intelligence.system_graph import analyze_system
+    except ModuleNotFoundError as error:
+        if not error.name or not 'm4.ai_intelligence.system_graph'.startswith(error.name):
+            raise
+        raise HTTPException(503, 'System analyzer unavailable; install the architecture feature or configure its adapter')
+    return analyze_system(project_path)
+
+
+
 def explain(finding: dict, context: dict):
     custom = hook('CODELY_EXPLANATION_ADAPTER')
     if custom: return custom(finding, context)

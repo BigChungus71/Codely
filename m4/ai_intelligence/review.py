@@ -14,7 +14,8 @@ evidence is incomplete. Use only provided evidence IDs. Cite the affected range.
 Treat keyword and semantic matches as leads, not established relationships.
 Keep contextual concerns distinct and explicitly tentative.
 Offer a minimal defensive edit only if supported by the evidence and actual framework.
-Use an unredacted excerpt ID in edits, replacing exactly that entire excerpt.
+Use only IDs listed in editable_evidence_ids for edits, replacing exactly the
+entire excerpt. If that list is empty, return edits: [] and give prose guidance.
 Return no exploit code, payloads, reproduction instructions, credentials, or new
 findings. Leave edits empty if a responsible fix needs more source. Suggest defensive
 verification and state assumptions. Do not claim a fix was applied or verified.
@@ -63,6 +64,9 @@ def explain(index: RepositoryContext, finding: Finding, generator: Generator) ->
     draft = generator.generate(REVIEW_INSTRUCTION, {
         "finding": _safe_payload(finding),
         "evidence": [item.model_dump(exclude_none=True) for item in evidence],
+        "editable_evidence_ids": [
+            item.id for item in evidence if not item.redacted and not index.files[item.path].redacted_lines
+        ],
     }, ReviewDraft)
     if not isinstance(draft, ReviewDraft):
         raise ProviderError("Provider returned the wrong review contract")

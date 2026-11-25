@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from fastapi import HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 ROOT = Path(__file__).resolve().parents[2]
 # Support both the original backend working directory and the integrated checkout.
@@ -79,6 +79,8 @@ def review_finding(project_id, root, finding):
 
 
 class DesignDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     answer: str = Field(min_length=1, max_length=9000)
     cited_evidence: list[str] = Field(max_length=8)
 

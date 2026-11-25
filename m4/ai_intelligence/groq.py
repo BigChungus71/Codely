@@ -30,7 +30,8 @@ class GroqGenerator:
             raise ProviderError("Install the Groq Python SDK to use Groq") from None
         self._sdk = groq
         self._client = groq.Groq(
-            api_key=key, base_url="https://api.groq.com/openai/v1",
+            # The Python SDK appends /openai/v1 to the host for chat.
+            api_key=key, base_url="https://api.groq.com",
             timeout=timeout, max_retries=0,
             http_client=httpx.Client(timeout=timeout, follow_redirects=False, trust_env=False),
         )

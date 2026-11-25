@@ -1,0 +1,316 @@
+{
+  "version": "1.0.0",
+  "guidelines": [
+    {
+      "id": "arch.single-responsibility",
+      "title": "Single responsibility",
+      "description": "Keep work that changes for the same reason together.",
+      "applicability": "Review an observed boundary between different kinds of work.",
+      "limitations": "A small cohesive module can appropriately perform several steps of one workflow.",
+      "source": {
+        "title": "Microsoft Learn · Architectural principles",
+        "url": "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/architectural-principles"
+      },
+      "benefits": [
+        "Clearer ownership of changes."
+      ],
+      "trade_offs": [
+        "Splitting too early increases navigation and coordination."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "mixed_concerns"
+      ],
+      "requirement_terms": [
+        "single responsibility"
+      ],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.separation-of-concerns",
+      "title": "Separation of concerns",
+      "description": "Separate transport, durable storage and domain decisions where they evolve independently.",
+      "applicability": "Review dependencies across identifiable responsibilities.",
+      "limitations": "A cross-boundary dependency is legitimate when ownership and direction are clear.",
+      "source": {
+        "title": "Microsoft Learn · Architectural principles",
+        "url": "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/architectural-principles"
+      },
+      "benefits": [
+        "More focused changes and tests."
+      ],
+      "trade_offs": [
+        "Extra layers introduce handoffs and mapping code."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "mixed_concerns"
+      ],
+      "requirement_terms": [
+        "separation of concerns"
+      ],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.dependency-inversion",
+      "title": "Dependency inversion",
+      "description": "Let business behavior depend on a narrow abstraction when infrastructure needs to vary.",
+      "applicability": "Review a domain-to-infrastructure dependency or an explicit need for substitutions.",
+      "limitations": "A stable concrete dependency can remain direct when there is no useful seam.",
+      "source": {
+        "title": "Microsoft Learn · Architectural principles",
+        "url": "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/architectural-principles"
+      },
+      "benefits": [
+        "Infrastructure can be substituted in tests."
+      ],
+      "trade_offs": [
+        "Interfaces and wiring add maintenance work."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "infrastructure_dependency"
+      ],
+      "requirement_terms": [
+        "dependency inversion",
+        "replaceable infrastructure"
+      ],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.coupling-and-cohesion",
+      "title": "Loose coupling and high cohesion",
+      "description": "Keep closely related behavior together and keep shared dependencies narrow.",
+      "applicability": "Review a highly shared dependency or a domain infrastructure seam.",
+      "limitations": "A stable, cohesive shared module may be appropriate.",
+      "source": {
+        "title": "Microsoft Learn · Architectural principles",
+        "url": "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/architectural-principles"
+      },
+      "benefits": [
+        "Limits the scope of coordinated changes."
+      ],
+      "trade_offs": [
+        "Moving behavior can add adapters or duplicate small routines."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "shared_dependency",
+        "infrastructure_dependency"
+      ],
+      "requirement_terms": [
+        "loose coupling",
+        "high cohesion"
+      ],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.avoid-circular-dependencies",
+      "title": "Avoid circular dependencies",
+      "description": "Review observed directed cycles and consider a clearer dependency direction.",
+      "applicability": "A directed cycle exists in the observed dependency edges.",
+      "limitations": "Static relationships may be conditional. The reference describes Spring Modulith rules, which are advisory here unless explicitly configured as policy.",
+      "source": {
+        "title": "Spring Modulith · Verifying application module structure",
+        "url": "https://docs.spring.io/spring-modulith/reference/verification.html"
+      },
+      "benefits": [
+        "Clarifies initialization and change ownership."
+      ],
+      "trade_offs": [
+        "Breaking a legitimate cycle can require moving responsibilities or introducing a boundary."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "dependency_cycle"
+      ],
+      "requirement_terms": [],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.authorization-boundaries",
+      "title": "Authorization boundaries",
+      "description": "Enforce access decisions at a trusted boundary for the relevant operation and resource.",
+      "applicability": "Source shows authorization or tenant handling, or requirements identify a protected boundary.",
+      "limitations": "Static excerpts cannot prove route coverage or policy effectiveness. Authentication and authorization have distinct responsibilities.",
+      "source": {
+        "title": "OWASP · Authorization Cheat Sheet",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+      },
+      "benefits": [
+        "Makes access enforcement consistent and reviewable."
+      ],
+      "trade_offs": [
+        "Shared checks require clear ownership and coverage tests."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "authorization_boundary"
+      ],
+      "requirement_terms": [
+        "authorization",
+        "access control",
+        "tenant isolation"
+      ],
+      "checklist_references": [
+        {
+          "id": "authentication-indicators",
+          "source": {
+            "title": "Codely M3 checklist v1",
+            "url": "https://github.com/BigChungus71/Codely/blob/ed8c16b49141dd30301b032d4aab0a80f11a5b8d/backend/app/checklists/catalog-v1.json#L189"
+          }
+        }
+      ]
+    },
+    {
+      "id": "arch.configuration-management",
+      "title": "Configuration management",
+      "description": "Keep deployment-specific configuration separate from application behavior.",
+      "applicability": "Source shows environment-driven configuration or requirements identify deployment variation.",
+      "limitations": "Application constants may stay in code. Use an appropriate secret store for sensitive values.",
+      "source": {
+        "title": "The Twelve-Factor App · Config",
+        "url": "https://12factor.net/config"
+      },
+      "benefits": [
+        "Supports deployment variation without code changes."
+      ],
+      "trade_offs": [
+        "Adds configuration validation and operational setup."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "deployment_configuration"
+      ],
+      "requirement_terms": [
+        "deployment configuration",
+        "configuration management",
+        "secret management"
+      ],
+      "checklist_references": [
+        {
+          "id": "environment-configuration",
+          "source": {
+            "title": "Codely M3 checklist v1",
+            "url": "https://github.com/BigChungus71/Codely/blob/ed8c16b49141dd30301b032d4aab0a80f11a5b8d/backend/app/checklists/catalog-v1.json#L25"
+          }
+        },
+        {
+          "id": "hardcoded-credentials",
+          "source": {
+            "title": "Codely M3 checklist v1",
+            "url": "https://github.com/BigChungus71/Codely/blob/ed8c16b49141dd30301b032d4aab0a80f11a5b8d/backend/app/checklists/catalog-v1.json#L6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "arch.keep-it-simple",
+      "title": "Keep architecture simple",
+      "description": "Use the smallest design that addresses the demonstrated needs.",
+      "applicability": "The selected graph is small or simplicity is an explicit requirement.",
+      "limitations": "A bounded graph does not establish repository size. Separate boundaries can still be justified by ownership, risk, or deployment needs.",
+      "source": {
+        "title": "Microsoft Learn · Common web application architectures",
+        "url": "https://learn.microsoft.com/en-us/dotnet/standard/modern-web-apps-azure-architecture/common-web-application-architectures"
+      },
+      "benefits": [
+        "Reduces indirection and deployment work."
+      ],
+      "trade_offs": [
+        "A simple structure may need adjustment when requirements change."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "small_scope"
+      ],
+      "requirement_terms": [
+        "simple",
+        "simplicity",
+        "avoid overengineering"
+      ],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.maintainability-and-testability",
+      "title": "Maintainability and testability",
+      "description": "Expose useful seams for testing behavior with costly or variable dependencies.",
+      "applicability": "A test seam is observable or testability is requested.",
+      "limitations": "Static source cannot establish the quality or coverage of existing tests.",
+      "source": {
+        "title": "Microsoft Learn · Architectural principles",
+        "url": "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/architectural-principles"
+      },
+      "benefits": [
+        "Supports focused tests for business behavior."
+      ],
+      "trade_offs": [
+        "Test seams require maintenance and do not replace integration tests."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "test_boundary"
+      ],
+      "requirement_terms": [
+        "testable",
+        "testability",
+        "maintainability"
+      ],
+      "checklist_references": [
+        {
+          "id": "test-presence",
+          "source": {
+            "title": "Codely M3 checklist v1",
+            "url": "https://github.com/BigChungus71/Codely/blob/ed8c16b49141dd30301b032d4aab0a80f11a5b8d/backend/app/checklists/catalog-v1.json#L234"
+          }
+        }
+      ]
+    },
+    {
+      "id": "arch.fastapi-boundaries",
+      "title": "FastAPI router boundaries",
+      "description": "Use routers and dependencies when groups of endpoints need distinct organization or shared setup.",
+      "applicability": "FastAPI imports are visible in the selected source evidence.",
+      "limitations": "Small FastAPI applications may remain in one module. Routers alone do not establish authorization coverage.",
+      "source": {
+        "title": "FastAPI · Bigger Applications",
+        "url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+      },
+      "benefits": [
+        "Makes related routes and shared dependencies easier to review."
+      ],
+      "trade_offs": [
+        "Additional modules can add wiring and navigation."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "fastapi"
+      ],
+      "requirement_terms": [],
+      "checklist_references": []
+    },
+    {
+      "id": "arch.spring-boot-boundaries",
+      "title": "Spring Boot package boundaries",
+      "description": "Organize application packages so component discovery and domain ownership remain clear.",
+      "applicability": "Spring Boot imports or its application annotation appear in selected source.",
+      "limitations": "Spring Boot does not prescribe a fixed number of layers or a single package layout.",
+      "source": {
+        "title": "Spring Boot · Structuring Your Code",
+        "url": "https://docs.spring.io/spring-boot/reference/using/structuring-your-code.html"
+      },
+      "benefits": [
+        "Makes component discovery and package ownership easier to inspect."
+      ],
+      "trade_offs": [
+        "Package reorganization can require import and configuration changes."
+      ],
+      "registry_version": "1.0.0",
+      "signals": [
+        "spring_boot"
+      ],
+      "requirement_terms": [],
+      "checklist_references": []
+    }
+  ]
+}
